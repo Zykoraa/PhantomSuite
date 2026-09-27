@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=PhantomSuite
+GenericName=Linux Process & Reverse-Engineering Workbench
+Comment=Process inspector, memory scanner, and shared object injector
+Exec=phantom-suite %F
+Icon=phantom-suite
+Terminal=false
+Type=Application
+Categories=Development;Debugger;System;
+Keywords=cheat;engine;process;hacker;memory;scanner;injector;ptrace;hyprland;
+StartupWMClass=PhantomSuite

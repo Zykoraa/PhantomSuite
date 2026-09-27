@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c0e14"/>
+      <stop offset="100%" stop-color="#182030"/>
+    </linearGradient>
+    <linearGradient id="cyan-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#0080ff"/>
+    </linearGradient>
+    <linearGradient id="pink-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff007f"/>
+      <stop offset="100%" stop-color="#9900ff"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Shield -->
+  <rect x="8" y="8" width="112" height="112" rx="24" fill="url(#bg)" stroke="#00f0ff" stroke-width="2"/>
+  
+  <!-- Cyber Hex Grid Lines -->
+  <path d="M 64 24 L 98 44 L 98 84 L 64 104 L 30 84 L 30 44 Z" fill="none" stroke="#243048" stroke-width="2"/>
+  
+  <!-- Circuit Nodes -->
+  <circle cx="64" cy="24" r="3" fill="#ff007f"/>
+  <circle cx="98" cy="44" r="3" fill="#00f0ff"/>
+  <circle cx="98" cy="84" r="3" fill="#00ff9d"/>
+  <circle cx="64" cy="104" r="3" fill="#ffb700"/>
+  <circle cx="30" cy="84" r="3" fill="#00f0ff"/>
+  <circle cx="30" cy="44" r="3" fill="#ff007f"/>
+
+  <!-- Phantom Skull / Mask stylized -->
+  <path d="M 44 48 C 44 36 84 36 84 48 C 84 66 78 72 74 78 L 74 88 L 54 88 L 54 78 C 50 72 44 66 44 48 Z" fill="url(#cyan-glow)" opacity="0.9"/>
+  
+  <!-- Eye Visors (Glowing Pink) -->
+  <polygon points="48,54 58,54 54,60 48,58" fill="#0c0e14"/>
+  <polygon points="80,54 70,54 74,60 80,58" fill="#0c0e14"/>
+  <polygon points="50,55 57,55 54,58 50,57" fill="#ff007f"/>
+  <polygon points="78,55 71,55 74,58 78,57" fill="#ff007f"/>
+
+  <!-- Crosshair / Injection needle mark -->
+  <line x1="64" y1="36" x2="64" y2="44" stroke="#ff007f" stroke-width="2"/>
+  <line x1="64" y1="72" x2="64" y2="82" stroke="#ff007f" stroke-width="2"/>
+</svg>
