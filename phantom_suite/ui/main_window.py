@@ -58,7 +58,7 @@ class MainWindow(QMainWindow):
         header = QHBoxLayout()
         header.setSpacing(12)
 
-        title_lbl = QLabel("PHANTOM<font color='#00f0ff'>SUITE</font> <font color='#ff007f'>v4.0</font>")
+        title_lbl = QLabel("PHANTOM<font color='#00f0ff'>SUITE</font>")
         title_lbl.setStyleSheet("font-size: 17px; font-weight: bold; letter-spacing: 1px;")
 
         self.target_badge = QLabel("[ NO TARGET ATTACHED ]")
