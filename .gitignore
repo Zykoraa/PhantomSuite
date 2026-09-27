@@ -3,3 +3,4 @@ __pycache__/
 *.pyo
 *.so
 tests/test_target
+examples/dummy_target
