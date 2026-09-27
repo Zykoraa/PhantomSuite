@@ -16,6 +16,7 @@ from phantom_suite.core.hex_viewer import HexViewer, HexLine
 from phantom_suite.core.disassembler import Disassembler, Instruction
 from phantom_suite.core.pattern_scanner import PatternScanner
 from phantom_suite.core.table_serializer import TableSerializer
+from phantom_suite.ui.watchpoint_dialog import WatchpointDialog
 
 
 class SigMakerDialog(QDialog):
@@ -96,6 +97,7 @@ class HexTab(QWidget):
         self.nop_btn.setEnabled(True)
         self.restore_btn.setEnabled(True)
         self.sigmaker_btn.setEnabled(True)
+        self.watchpoint_btn.setEnabled(True)
 
     def clear_target(self):
         self.target_pid = None
@@ -109,6 +111,7 @@ class HexTab(QWidget):
         self.nop_btn.setEnabled(False)
         self.restore_btn.setEnabled(False)
         self.sigmaker_btn.setEnabled(False)
+        self.watchpoint_btn.setEnabled(False)
         self.hex_table.setRowCount(0)
         self.disasm_table.setRowCount(0)
         self._timer.stop()
@@ -162,6 +165,11 @@ class HexTab(QWidget):
         self.patch_btn.setEnabled(False)
         self.patch_btn.clicked.connect(self._on_patch_bytes)
 
+        self.watchpoint_btn = QPushButton("🎯 Find Accesses")
+        self.watchpoint_btn.setToolTip("Hardware Watchpoint: Find which instructions write to or access this address")
+        self.watchpoint_btn.setEnabled(False)
+        self.watchpoint_btn.clicked.connect(self._on_watchpoint_clicked)
+
         nav_layout.addWidget(addr_lbl)
         nav_layout.addWidget(self.addr_input, 2)
         nav_layout.addWidget(self.goto_btn)
@@ -169,6 +177,7 @@ class HexTab(QWidget):
         nav_layout.addWidget(self.next_btn)
         nav_layout.addWidget(self.auto_refresh_chk)
         nav_layout.addWidget(self.patch_btn)
+        nav_layout.addWidget(self.watchpoint_btn)
         layout.addWidget(nav_group)
 
         # Splitter between Hex Dump and Disassembler
@@ -416,4 +425,14 @@ class HexTab(QWidget):
 
         dlg = SigMakerDialog(inst.address, sig, length, module_name or "", offset, self)
         dlg.exec()
+
+    def _on_watchpoint_clicked(self):
+        if not self.target_pid or self.current_address <= 0:
+            QMessageBox.information(self, "No Address", "Navigate to an address or enter one in the address box first.")
+            return
+
+        dlg = WatchpointDialog(self.target_pid, self.current_address, self)
+        dlg.jump_to_disasm.connect(self.navigate_to_address)
+        dlg.exec()
+
 

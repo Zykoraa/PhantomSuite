@@ -17,6 +17,7 @@ from phantom_suite.core.memory_engine import (
 from phantom_suite.core.table_serializer import TableSerializer
 from phantom_suite.core.pattern_scanner import PatternScanner
 from phantom_suite.ui.pointer_dialog import PointerDialog
+from phantom_suite.ui.watchpoint_dialog import WatchpointDialog
 
 
 class ScanWorker(QThread):
@@ -257,6 +258,10 @@ class ScannerTab(QWidget):
         pointer_btn = QPushButton("🔍 Pointer Scan")
         pointer_btn.clicked.connect(self._open_pointer_scanner)
 
+        watchpoint_btn = QPushButton("🎯 Find Accesses")
+        watchpoint_btn.setToolTip("Hardware watchpoint: Find which instructions write to or access this address")
+        watchpoint_btn.clicked.connect(self._open_watchpoint_dialog)
+
         save_table_btn = QPushButton("💾 Save Table")
         save_table_btn.clicked.connect(self._save_table)
         load_table_btn = QPushButton("📂 Load Table")
@@ -266,6 +271,7 @@ class ScannerTab(QWidget):
         cheat_btn_layout.addWidget(change_val_btn)
         cheat_btn_layout.addWidget(remove_btn)
         cheat_btn_layout.addWidget(pointer_btn)
+        cheat_btn_layout.addWidget(watchpoint_btn)
         cheat_btn_layout.addSpacing(15)
         cheat_btn_layout.addWidget(save_table_btn)
         cheat_btn_layout.addWidget(load_table_btn)
@@ -657,3 +663,33 @@ class ScannerTab(QWidget):
             lambda desc, path: self._insert_cheat_entry(target_addr, TypeFormat.INT32, f"{desc} [{path}]", "?")
         )
         dialog.exec()
+
+    def _open_watchpoint_dialog(self):
+        row = self.cheat_table.currentRow()
+        if row < 0 or not self.target_pid:
+            QMessageBox.information(self, "No Selection", "Please select an entry from the address table first.")
+            return
+
+        addr_item = self.cheat_table.item(row, 2)
+        if not addr_item:
+            return
+
+        addr = addr_item.data(Qt.UserRole)
+        dialog = WatchpointDialog(self.target_pid, addr, self)
+        dialog.exec()
+
+    def get_saved_entries(self) -> List[Dict[str, Any]]:
+        """Returns current cheat table entries for HUD overlay."""
+        entries = []
+        for row in range(self.cheat_table.rowCount()):
+            desc_item = self.cheat_table.item(row, 1)
+            addr_item = self.cheat_table.item(row, 2)
+            type_item = self.cheat_table.item(row, 3)
+            if addr_item and type_item:
+                entries.append({
+                    "address": addr_item.data(Qt.UserRole),
+                    "type": type_item.text(),
+                    "desc": desc_item.text() if desc_item else "Var"
+                })
+        return entries
+

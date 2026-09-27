@@ -23,6 +23,12 @@ from phantom_suite.ui.threads_tab import ThreadsTab
 from phantom_suite.ui.handles_tab import HandlesTab
 from phantom_suite.ui.struct_tab import StructTab
 from phantom_suite.ui.symbols_tab import SymbolsTab
+from phantom_suite.ui.snapshot_tab import SnapshotTab
+from phantom_suite.ui.treemap_tab import TreemapTab
+from phantom_suite.ui.syscalls_tab import SyscallsTab
+from phantom_suite.ui.deserializer_tab import DeserializerTab
+from phantom_suite.ui.console_tab import ConsoleTab
+from phantom_suite.ui.osd_overlay import OsdOverlay
 
 
 class MainWindow(QMainWindow):
@@ -31,11 +37,12 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PhantomSuite // Linux Reverse-Engineering & Process Workbench")
-        self.resize(1150, 780)
+        self.resize(1200, 800)
         self.setStyleSheet(CYBERPUNK_QSS)
 
         self.current_target_pid: Optional[int] = None
         self.current_target_name: str = ""
+        self.osd_overlay = OsdOverlay()
 
         self._init_ui()
         self._check_environment()
@@ -51,7 +58,7 @@ class MainWindow(QMainWindow):
         header = QHBoxLayout()
         header.setSpacing(12)
 
-        title_lbl = QLabel("PHANTOM<font color='#00f0ff'>SUITE</font> <font color='#ff007f'>v3.0</font>")
+        title_lbl = QLabel("PHANTOM<font color='#00f0ff'>SUITE</font> <font color='#ff007f'>v4.0</font>")
         title_lbl.setStyleSheet("font-size: 17px; font-weight: bold; letter-spacing: 1px;")
 
         self.target_badge = QLabel("[ NO TARGET ATTACHED ]")
@@ -80,6 +87,10 @@ class MainWindow(QMainWindow):
         speed_box.addWidget(self.speed_slider)
         speed_box.addWidget(self.speed_lbl)
 
+        self.osd_btn = QPushButton("🪟 HUD Overlay: OFF")
+        self.osd_btn.setToolTip("Toggle transparent in-game floating HUD overlay")
+        self.osd_btn.clicked.connect(self._toggle_osd_overlay)
+
         self.quick_attach_btn = QPushButton("🎯 Attach Active Window")
         self.quick_attach_btn.setToolTip("Quickly attach to the currently focused Hyprland window")
         self.quick_attach_btn.clicked.connect(self._attach_active_hyprland_window)
@@ -95,6 +106,7 @@ class MainWindow(QMainWindow):
         header.addSpacing(15)
         header.addLayout(speed_box)
         header.addStretch()
+        header.addWidget(self.osd_btn)
         header.addWidget(self.quick_attach_btn)
         header.addWidget(self.detach_btn)
         main_layout.addLayout(header)
@@ -108,6 +120,11 @@ class MainWindow(QMainWindow):
         self.hex_tab = HexTab()
         self.struct_tab = StructTab()
         self.symbols_tab = SymbolsTab()
+        self.snapshot_tab = SnapshotTab()
+        self.treemap_tab = TreemapTab()
+        self.syscalls_tab = SyscallsTab()
+        self.deserializer_tab = DeserializerTab()
+        self.console_tab = ConsoleTab()
         self.threads_tab = ThreadsTab()
         self.handles_tab = HandlesTab()
 
@@ -117,6 +134,11 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.hex_tab, "🧬 Hex & Disasm")
         self.tabs.addTab(self.struct_tab, "🔬 Struct Dissector")
         self.tabs.addTab(self.symbols_tab, "📦 ELF Symbols")
+        self.tabs.addTab(self.snapshot_tab, "📸 Snapshot Diff")
+        self.tabs.addTab(self.treemap_tab, "🗺️ Memory Treemap")
+        self.tabs.addTab(self.syscalls_tab, "📡 Syscall Monitor")
+        self.tabs.addTab(self.deserializer_tab, "🧩 Data Deserializer")
+        self.tabs.addTab(self.console_tab, "🐍 Python Console")
         self.tabs.addTab(self.threads_tab, "🧵 Threads")
         self.tabs.addTab(self.handles_tab, "🌐 Sockets & Handles")
 
@@ -128,6 +150,12 @@ class MainWindow(QMainWindow):
         self.struct_tab.jump_to_hex.connect(self._jump_to_hex_address)
         self.symbols_tab.add_to_cheat_table.connect(self.scanner_tab.add_cheat_entry)
         self.symbols_tab.jump_to_disasm.connect(self._jump_to_disasm_address)
+        self.snapshot_tab.add_to_cheat_table.connect(self.scanner_tab.add_cheat_entry)
+        self.snapshot_tab.jump_to_hex.connect(self._jump_to_hex_address)
+        self.treemap_tab.jump_to_hex.connect(self._jump_to_hex_address)
+        self.treemap_tab.jump_to_struct.connect(self._jump_to_struct_address)
+        self.deserializer_tab.add_to_cheat_table.connect(self.scanner_tab.add_cheat_entry)
+        self.deserializer_tab.jump_to_hex.connect(self._jump_to_hex_address)
 
         # Status Bar
         self.status_bar = QStatusBar()
@@ -172,8 +200,17 @@ class MainWindow(QMainWindow):
         self.hex_tab.set_target(pid, name)
         self.struct_tab.set_target(pid, name)
         self.symbols_tab.set_target(pid, name)
+        self.snapshot_tab.set_target(pid, name)
+        self.treemap_tab.set_target(pid, name)
+        self.syscalls_tab.set_target(pid, name)
+        self.deserializer_tab.set_target(pid, name)
+        self.console_tab.set_target(pid, name)
         self.threads_tab.set_target(pid, name)
         self.handles_tab.set_target(pid, name)
+
+        if self.osd_overlay.isVisible():
+            self.osd_overlay.set_target(pid, name)
+            self.osd_overlay.set_pinned_entries(self.scanner_tab.get_saved_entries())
 
         self.status_lbl.setText(f"Attached to process {name} (PID: {pid}).")
         
@@ -216,8 +253,14 @@ class MainWindow(QMainWindow):
         self.hex_tab.clear_target()
         self.struct_tab.clear_target()
         self.symbols_tab.clear_target()
+        self.snapshot_tab.clear_target()
+        self.treemap_tab.clear_target()
+        self.syscalls_tab.clear_target()
+        self.deserializer_tab.clear_target()
+        self.console_tab.clear_target()
         self.threads_tab.clear_target()
         self.handles_tab.clear_target()
+        self.osd_overlay.clear_target()
 
         self.status_lbl.setText("Detached from target process.")
 
@@ -228,6 +271,23 @@ class MainWindow(QMainWindow):
     def _jump_to_disasm_address(self, address: int):
         self.hex_tab.navigate_to_address(address)
         self.tabs.setCurrentWidget(self.hex_tab)
+
+    def _jump_to_struct_address(self, address: int):
+        self.struct_tab.set_base_address(address)
+        self.tabs.setCurrentWidget(self.struct_tab)
+
+    def _toggle_osd_overlay(self):
+        if self.osd_overlay.isVisible():
+            self.osd_overlay.hide()
+            self.osd_btn.setText("🪟 HUD Overlay: OFF")
+            self.osd_btn.setStyleSheet("")
+        else:
+            if self.current_target_pid:
+                self.osd_overlay.set_target(self.current_target_pid, self.current_target_name)
+                self.osd_overlay.set_pinned_entries(self.scanner_tab.get_saved_entries())
+            self.osd_overlay.show()
+            self.osd_btn.setText("🪟 HUD Overlay: ON")
+            self.osd_btn.setStyleSheet("color: #00f0ff; border-color: #00f0ff;")
 
     def _toggle_speedhack(self):
         if not self.current_target_pid:

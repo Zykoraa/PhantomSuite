@@ -1,10 +1,10 @@
-# PhantomSuite v3.0: Complete Visual Field Guide
+# PhantomSuite v4.0: Complete Visual Field Guide
 
-Welcome to **PhantomSuite v3.0** — your native Linux reverse-engineering workbench, memory scanner, struct dissector, and process instrumentation cockpit. This guide breaks down each of the 8 core tabs, how they communicate with the Linux kernel, and how to execute key workflows.
+Welcome to **PhantomSuite v4.0 Ultimate Edition** — your native Linux reverse-engineering workbench, memory scanner, struct dissector, and process instrumentation cockpit. This guide breaks down each of the 13 core tabs, the floating HUD overlay, hardware watchpoints, how they communicate with the Linux kernel, and how to execute key workflows.
 
 ---
 
-## Architecture Overview & HUD Bar
+## Architecture Overview & Cockpit HUD
 
 ```mermaid
 flowchart TD
@@ -14,19 +14,25 @@ flowchart TD
         TargetBadge["[ ATTACHED: PID 12345 — dummy_target ]"]
         SpeedControl["[⚡ Speedhack: ON] [====|===] 2.5x"]
         QuickAttach["🎯 Attach Active Window (Hyprland IPC)"]
+        OsdBtn["🪟 HUD Overlay"]
         Detach["✕ Detach"]
     end
 
     Header --> Tab1["⚡ Processes & Windows"]
-    Header --> Tab2["🔍 Memory Scanner & .phantom Tables"]
-    Header --> Tab3["💉 .so Injector"]
-    Header --> Tab4["🧬 Hex, Disasm & SigMaker"]
-    Header --> Tab5["🔬 Struct Dissector & Heatmaps"]
-    Header --> Tab6["📦 ELF Symbols & Modules"]
-    Header --> Tab7["🧵 Threads & Affinity"]
-    Header --> Tab8["🌐 Sockets & Handles"]
+    Header --> Tab2["🔍 Memory Scanner & Tables"]
+    Header --> Tab3["📸 Snapshot Diff"]
+    Header --> Tab4["💉 .so Injector"]
+    Header --> Tab5["🧬 Hex, Disasm & SigMaker"]
+    Header --> Tab6["🔬 Struct Dissector"]
+    Header --> Tab7["📦 ELF Symbols"]
+    Header --> Tab8["🗺️ Memory Map Visualizer"]
+    Header --> Tab9["📡 Syscall Telemetry"]
+    Header --> Tab10["🧩 Data Deserializer"]
+    Header --> Tab11["🐍 Scripting Console"]
+    Header --> Tab12["🧵 Threads & Affinity"]
+    Header --> Tab13["🌐 Sockets & Handles"]
 
-    Tab1 & Tab2 & Tab3 & Tab4 & Tab5 & Tab6 & Tab7 & Tab8 <--> TargetApp
+    Tab1 & Tab2 & Tab3 & Tab4 & Tab5 & Tab6 & Tab7 & Tab8 & Tab9 & Tab10 & Tab11 & Tab12 & Tab13 <--> TargetApp
 ```
 
 ### The Global Header
@@ -34,6 +40,7 @@ No matter which tab you're on, the top bar provides persistent situational aware
 * **Target Badge**: Displays the currently attached PID, process binary name, and window title.
 * **⚡ Speedhack Engine**: In-header speed slider (`0.2x` bullet time to `5.0x` fast-forward) controlling process time dilation via `/dev/shm` shared memory hooks.
 * **🎯 Attach Active Window**: Instantly queries Hyprland's IPC socket (`hyprctl activewindow -j`). Switch to your game or app, switch back, hit this button, and you are attached in 1 click without searching.
+* **🪟 HUD Overlay**: Toggles the floating, semi-transparent On-Screen Display HUD above all windows.
 * **Yama ptrace Indicator**: Located in the bottom-right status bar. Displays green (`ptrace_scope: 0`) for unrestricted memory access, or amber if elevated `pkexec` escalation is needed.
 
 ---
@@ -88,7 +95,7 @@ The **Cheat Engine** core of PhantomSuite. Scan, filter, lock values, and export
 │ [✓]    │ Score         │ 0x55AFC0A4A084  │ int32   │ 1337                              │
 │ [ ]    │ Ptr: Player   │ 0x55AFC0A4A090  │ int32   │ 100                               │
 └────────┴───────────────┴─────────────────┴─────────┴───────────────────────────────────┘
-  [ + Add Custom ] [ ✏ Change Value ] [ 🗑 Remove ] [ 🔍 Pointer Scan ]   [ 💾 Save Table ] [ 📂 Load Table ]
+  [ + Add Custom ] [ ✏ Change Value ] [ 🎯 Find What Writes ] [ 🔍 Pointer Scan ] [ 💾 Save ] [ 📂 Load ]
 ```
 
 ### 💾 Save & 📂 Load Tables (`.phantom`)
@@ -96,19 +103,41 @@ The **Cheat Engine** core of PhantomSuite. Scan, filter, lock values, and export
 * **Zero Configuration**: Exports all active freeze states, descriptions, and custom notes in standard JSON format.
 
 ### 🔍 Multi-Level Pointer Scanner
-* Dynamically allocated heap variables change address every restart.
 * Highlight any address and click **🔍 Pointer Scan**. PhantomSuite crawls memory to find static pointer chains:
   `[module_name + base_offset] -> offset_1 -> offset_2 -> Target Address`
 * Click **Add to Address Table** to save the pointer path!
 
-### ✨ AOB Pattern Scanning
-* Select **AOB / Pattern (with ??)** in the Type combobox.
-* Enter a byte signature with wildcards (e.g. `48 89 5C ?? ?? 48 83 EC *`).
-* Scans all mapped memory regions instantly and lists matching base addresses.
+### 🎯 Find What Writes
+* Highlight any found address or saved cheat entry and click **🎯 Find What Writes**.
+* Spawns the hardware watchpoint tracer to trap CPU instructions writing to that address.
 
 ---
 
-## Tab 3: 💉 .so Injector & Loaded Modules
+## Tab 3: 📸 Snapshot Diff (Full-Process Differential Memory)
+
+Capture full-memory dumps of all writable memory (`rw-p`) and compute differential deltas across state changes.
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ [ 📸 Take Snapshot A ]  [ 📸 Take Snapshot B ]  Filter: [ Increased ▼ ] [ Noise Filter: ON ]│
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ Address         Module / Region       Old (int32)    New (int32)    Delta     Hex Diff │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ 0x55AFC0A4A080  dummy_target + 0x4080 100            250            +150      64 -> FA │
+│ 0x7F2B3C104200  [heap] + 0x2200       12             18             +6        0C -> 12 │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+  [ ⬇ Send to Cheat Table ]   [ 🧬 View in Hex ]   [ 💾 Export CSV ]
+```
+
+### Key Workflows:
+1. **Zero-Knowledge Unknown Value Finding**: When you don't know the exact value (e.g., hidden XP, cooldowns, combo meters), take **Snapshot A**.
+2. Perform an action in-game (attack, earn points, take damage).
+3. Take **Snapshot B** and filter by `Increased`, `Decreased`, or `Changed`.
+4. Double-click or click **⬇ Send to Cheat Table** to immediately track or freeze the variable.
+
+---
+
+## Tab 4: 💉 .so Injector & Loaded Modules
 
 Load and unload compiled shared libraries (`.so`) into any running process using GDB's runtime dynamic linker.
 
@@ -131,7 +160,7 @@ Load and unload compiled shared libraries (`.so`) into any running process using
 
 ---
 
-## Tab 4: 🧬 Hex, Disasm & Automatic SigMaker
+## Tab 5: 🧬 Hex, Disasm & Automatic SigMaker
 
 Dual-pane low-level inspection: raw memory bytes on top, live x86_64 assembly instructions on bottom.
 
@@ -149,22 +178,20 @@ Dual-pane low-level inspection: raw memory bytes on top, live x86_64 assembly in
 │ 0x55AFC0A49004  90 90 90 90      nop                                   NOPed           │
 │ 0x55AFC0A49008  48 8b 05 c1...   mov rax, QWORD PTR [rip+0x2fc1]       Active          │
 └────────────────────────────────────────────────────────────────────────────────────────┘
-  [ ✨ SigMaker (AOB Sig) ]   [ 🚫 Replace with NOPs (0x90) ]   [ ↺ Restore Original ]
+  [ 🎯 Watchpoint (Find Writers) ] [ ✨ SigMaker (AOB Sig) ] [ 🚫 Replace with NOPs ] [ ↺ Restore ]
 ```
 
 ### 1-Click Code NOPing
 * Highlight any subtraction instruction (e.g. `sub dword ptr [rax], 1` or `dec [rbp-4]`).
-* Click **🚫 Replace with NOPs (0x90)**: PhantomSuite overwrites the opcode with NOP bytes so the code never decrements your value.
-* Click **↺ Restore Original**: Restores the original cached machine code instantly.
+* Click **🚫 Replace with NOPs (0x90)**: Overwrites the opcode with NOP bytes so code never decrements your value.
+* Click **↺ Restore Original**: Restores original cached machine code instantly.
 
 ### ✨ Automated SigMaker
-* Select any instruction in the table and click **✨ SigMaker (AOB Sig)**.
-* PhantomSuite computes the shortest unique byte sequence in the module that identifies that instruction.
-* Opens a dialog displaying the AOB pattern, length, and a 1-click **📋 Copy Signature** button.
+* Select any instruction in the table and click **✨ SigMaker (AOB Sig)** to compute the shortest unique byte sequence.
 
 ---
 
-## Tab 5: 🔬 Struct Dissector & Live Heatmap Data Analyzer
+## Tab 6: 🔬 Struct Dissector & Live Heatmap Data Analyzer
 
 Inspect heap-allocated structs, entity components, and C++ objects in real time.
 
@@ -182,15 +209,9 @@ Inspect heap-allocated structs, entity components, and C++ objects in real time.
 └─────────┴──────────────────────┴────────────┴──────────────────┴──────────────┴────────┘
 ```
 
-### Key Workflows:
-1. **🔥 Live Heatmaps**: Turn on Live Heatmap. In game, move your player or take damage. Fluctuating coordinates or changing health will glow with **● DIFF** in neon magenta!
-2. **Rename Fields**: Double-click any field name to rename it (e.g. change `field_0x04` to `player_gold`).
-3. **📄 Export C Struct**: Generates a drop-in C/C++ struct header definition for game modding or tool development.
-4. **⬇ Add to Address Table**: Select fields and send them straight into the Cheat Table.
-
 ---
 
-## Tab 6: 📦 ELF Symbol & Module Explorer
+## Tab 7: 📦 ELF Symbol & Module Explorer
 
 Explore symbols, functions, global variables, and sections directly from loaded executables and `.so` libraries.
 
@@ -203,19 +224,105 @@ Explore symbols, functions, global variables, and sections directly from loaded 
 ├─────────────────────────────┼────────┼─────────────┼─────────────────┼──────┼──────────┤
 │ target_health               │ OBJECT │ 0x4080      │ 0x55AFC0A4A080  │ 4    │ Exported │
 │ target_score                │ OBJECT │ 0x4084      │ 0x55AFC0A4A084  │ 4    │ Exported │
-│ target_speed                │ OBJECT │ 0x4088      │ 0x55AFC0A4A088  │ 4    │ Exported │
 │ main                        │ FUNC   │ 0x11E9      │ 0x55AFC0A491E9  │ 193  │ Exported │
 └─────────────────────────────┴────────┴─────────────┴─────────────────┴──────┴──────────┘
 ```
 
-### Key Workflows:
-1. **Instant Function & Variable Finding**: Type `health`, `gold`, `score`, or `render` in the filter box.
-2. **🔬 1-Click Disassembly**: Select a function symbol and click **🔬 Disassemble** (or double-click) to jump directly into the live disassembler at that instruction!
-3. **⬇ Add to Address Table**: Directly creates a named cheat table entry with runtime address and type.
+---
+
+## Tab 8: 🗺️ Memory Map Visualizer & Segment Treemap
+
+A visual proportional memory distribution bar and segment browser for `/proc/<pid>/maps`.
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ [████ Heap: 14.2 MB ████][██ Stack: 132 KB █][██ Libs: 34.5 MB ██][ Anonymous: 8.0 MB ]│
+├───────────────────┬───────────────────┬───────────────────┬────────────────────────────┤
+│ TOTAL VIRT: 58 MB │ RSS: 12.4 MB      │ WRITABLE: 18.2 MB │ SEGMENTS: 42               │
+├───────────────────┴───────────────────┴───────────────────┴────────────────────────────┤
+│ Segment Address Range     Perms   Size      Offset    Device   Path / Mapping          │
+├───────────────────────────┼───────┼─────────┼─────────┼────────┼───────────────────────┤
+│ 0x55AFC0A49000-0x55AFC... │ r-xp  │ 16 KB   │ 0x0000  │ 00:1d  │ /usr/bin/dummy_target │
+│ 0x55AFC0A4D000-0x55AFC... │ rw-p  │ 8 KB    │ 0x3000  │ 00:1d  │ /usr/bin/dummy_target │
+│ 0x7F2B3C000000-0x7F2B3... │ rw-p  │ 14.2 MB │ 0x0000  │ 00:00  │ [heap]                │
+└───────────────────────────┴───────┴─────────┴─────────┴────────┴───────────────────────┘
+  [ 🧬 View in Hex ]   [ 🔬 Dissect Struct ]   [ ⟳ Refresh Map ]
+```
 
 ---
 
-## Tab 7: 🧵 Threads & CPU Core Affinity
+## Tab 9: 📡 Real-Time Syscall Telemetry Monitor ("GUI strace")
+
+Streaming kernel system call telemetry monitor with classification and export.
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ [ ▶ Start Tracing ] [ ⏹ Stop ] [ 🗑 Clear ] [ 💾 Export CSV ]  Filter: [ recvfrom    ]   │
+├──────────────┬───────┬────────────┬─────────────────────────────┬────────┬─────────────┤
+│ Timestamp    │ PID   │ Syscall    │ Arguments                   │ Return │ Duration    │
+├──────────────┼───────┼────────────┼─────────────────────────────┼────────┼─────────────┤
+│ 15:42:01.120 │ 73729 │ read       │ fd=3, buf=0x7ffd..., len=64 │ 64     │ 14 µs       │
+│ 15:42:01.121 │ 73729 │ write      │ fd=1, buf="[TARGET]...", 24 │ 24     │ 8 µs        │
+│ 15:42:01.220 │ 73729 │ nanosleep  │ {tv_sec=0, tv_nsec=100000}  │ 0      │ 100042 µs   │
+└──────────────┴───────┴────────────┴─────────────────────────────┴────────┴─────────────┘
+```
+
+* **Color Categories**:
+  - `FILE` (Green): `open`, `read`, `write`, `close`
+  - `NET` (Cyan): `socket`, `connect`, `send`, `recv`, `bind`
+  - `MEM` (Magenta): `mmap`, `mprotect`, `brk`
+  - `PROC` (Amber): `clone`, `fork`, `execve`, `kill`
+  - `IPC` (Purple): `futex`, `pipe`, `epoll_wait`
+
+---
+
+## Tab 10: 🧩 Dynamic Data Deserializer & Type Inferer
+
+Reconstruct high-level C++ standard library structures and structured payloads directly from raw process memory.
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ Address: [ 0x55AFC0A4A080 ] [ 🧩 Decode std::string ] [ 🧩 Decode std::vector ]         │
+│ Search Size: [ 4096 ]       [ 🔍 Scan Embedded JSON ] [ 📜 Decode String Table ]       │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ Type: std::string (SSO) | Length: 8 | Capacity: 15 | Buffer: 0x55AFC0A4A090            │
+│ Content: "PlayerOne"                                                                   │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+* **`std::string`**: Automatically differentiates between Small String Optimization (SSO, length < 16) and dynamically allocated heap pointers.
+* **`std::vector<T>`**: Computes `count` and `capacity` from `_M_start`, `_M_finish`, and `_M_end_of_storage`, and unpacks elements.
+* **Embedded JSON**: Scans memory ranges for JSON objects/arrays, validates syntax, and displays formatted trees.
+* **String Tables**: Extracts all null-terminated ASCII/UTF-8 strings within a selected buffer.
+
+---
+
+## Tab 11: 🐍 Embedded Python Scripting Console & Plugin Engine
+
+Interactive multi-line Python runtime with full access to PhantomSuite memory APIs and background automation.
+
+```python
+# Quick scan & freeze example in Python console
+hits = scan("48 8B 05 ?? ?? ?? ?? 48 85 C0")
+print(f"Found {len(hits)} signature matches!")
+
+# Read & write variables
+current_hp = read_i32(0x55AFC0A4A080)
+print(f"Current Health: {current_hp}")
+write_i32(0x55AFC0A4A080, 9999)
+```
+
+* **Built-in Helpers**: `read()`, `write()`, `read_i32()`, `write_i32()`, `read_float()`, `write_float()`, `scan()`, `disasm()`, `dissect()`, `symbols()`.
+* **Templates**: 1-click loading of common patterns:
+  - *Dump Memory Range to File*
+  - *AOB Pattern Search & Replace*
+  - *Resolve Multi-Level Pointer Chain*
+  - *Enumerate Loaded Symbols*
+* **Plugins**: Drop any `.py` script into `plugins/` to automatically extend PhantomSuite upon launch.
+
+---
+
+## Tab 12: 🧵 Threads & CPU Core Affinity
 
 Inspect and manage individual thread tasks under `/proc/<pid>/task/`.
 
@@ -232,13 +339,9 @@ Inspect and manage individual thread tasks under `/proc/<pid>/task/`.
   [ ⏸ Pause Thread (SIGSTOP) ]   [ ▶ Resume Thread (SIGCONT) ]   [ ⚙ Set CPU Affinity ]
 ```
 
-### Targeted Thread Freezing & Core Pinning
-* **Pause specific threads (`libc.tgkill`)**: Freeze an annoying background timer or network sync thread without pausing rendering.
-* **CPU Core Pinning (`sched_setaffinity`)**: Pin audio or game threads to high-performance cores (e.g. Core 0 or 2) to eliminate micro-stutters.
-
 ---
 
-## Tab 8: 🌐 Sockets & Handles
+## Tab 13: 🌐 Sockets & Handles
 
 Inspect every open file descriptor, network socket, IPC pipe, and device file.
 
@@ -257,16 +360,38 @@ Inspect every open file descriptor, network socket, IPC pipe, and device file.
 
 ---
 
-## Quick Reference Summary
+## Additional Instruments
+
+### 🎯 Hardware Watchpoints ("Find What Writes / Accesses This Address")
+Accessible from the **Memory Scanner** and **Hex Editor**:
+1. Highlight any address or byte.
+2. Click **🎯 Find What Writes** (or choose watch type: *Write*, *Read*, *Access*).
+3. The dialog sets up x86_64 hardware debug registers (`DR0-DR3`).
+4. As soon as the game hits the variable, the instruction address (RIP), old value, new value, and disassembled opcode are recorded.
+5. Click **🚫 Replace with NOPs** to disable the instruction on the spot!
+
+### 🪟 Wayland / Hyprland On-Screen Display (OSD) Floating HUD
+Click **🪟 HUD Overlay** in the main header:
+* Spawns an always-on-top, draggable, frameless translucent HUD.
+* Monitors pinned cheat table values in real time without obscuring gameplay.
+* Displays speedhack status and includes an opacity slider.
+
+---
+
+## Quick Reference Summary (13 Tabs)
 
 | Tab | Best For | Superpower |
 | :--- | :--- | :--- |
 | **⚡ Processes & Windows** | Finding & controlling targets | 1-click active Hyprland window attach & SIGSTOP freeze |
 | **🔍 Memory Scanner** | Finding variables & cheats | Gigabyte/s scan speed, 50ms active freeze, AOB patterns, .phantom tables |
+| **📸 Snapshot Diff** | Unknown value & state discovery | Multi-format delta engine with noise filtering |
 | **💉 .so Injector** | Code injection | GDB dlopen with /proc maps verification & dlclose unloader |
 | **🧬 Hex & Disasm** | Byte & opcode inspection | Live 500ms auto-refresh, 1-click NOP patcher & **✨ SigMaker** |
 | **🔬 Struct Dissector** | Entity & class inspection | **🔥 Live heatmaps**, heuristic pointer/float detection, C struct exporter |
 | **📦 ELF Symbols** | Static & dynamic symbol lookup | Demangled C++ symbols, runtime address resolution, 1-click disasm jump |
+| **🗺️ Memory Map** | Visual memory layout | Proportional distribution bar & KPI metric cards |
+| **📡 Syscall Telemetry** | Kernel monitoring | Live streaming GUI strace with category colors & CSV export |
+| **🧩 Data Deserializer** | C++ STL & JSON parsing | Auto-decodes `std::string`, `std::vector`, embedded JSON |
+| **🐍 Scripting Console** | Batch memory automation | Python REPL, pre-injected memory APIs, and `plugins/` loader |
 | **🧵 Threads** | Thread-level analysis | Per-thread pause/resume (tgkill) and CPU core pinning |
 | **🌐 Sockets & Handles** | File & network auditing | Kernel socket inode to IP:port resolution |
-| **⚡ Speedhack (HUD)** | Time dilation | In-header slider from 0.2x bullet-time to 5.0x fast-forward |

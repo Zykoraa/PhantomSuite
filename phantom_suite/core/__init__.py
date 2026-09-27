@@ -18,6 +18,12 @@ from phantom_suite.core.handle_tracer import HandleTracer, SocketInfo, HandleInf
 from phantom_suite.core.pattern_scanner import PatternScanner, PatternMatch
 from phantom_suite.core.struct_dissector import StructDissector, DissectedField
 from phantom_suite.core.elf_explorer import ElfExplorer, ElfSymbol, ElfSection, LoadedModule
+from phantom_suite.core.snapshot_engine import SnapshotEngine, MemorySnapshot, SnapshotDiffItem, SnapshotRegion
+from phantom_suite.core.memory_map import MemoryMapAnalyzer, VisualMemoryBlock, MapCategoryStats
+from phantom_suite.core.syscall_tracer import SyscallTracer, SyscallEvent
+from phantom_suite.core.data_deserializer import DataDeserializer, DecodedString, DecodedVector, DecodedJson
+from phantom_suite.core.watchpoint_tracer import WatchpointTracer, WatchpointHit
+from phantom_suite.core.script_engine import ScriptEngine
 
 __all__ = [
     "MemoryEngine",
@@ -50,4 +56,20 @@ __all__ = [
     "ElfSymbol",
     "ElfSection",
     "LoadedModule",
+    "SnapshotEngine",
+    "MemorySnapshot",
+    "SnapshotDiffItem",
+    "SnapshotRegion",
+    "MemoryMapAnalyzer",
+    "VisualMemoryBlock",
+    "MapCategoryStats",
+    "SyscallTracer",
+    "SyscallEvent",
+    "DataDeserializer",
+    "DecodedString",
+    "DecodedVector",
+    "DecodedJson",
+    "WatchpointTracer",
+    "WatchpointHit",
+    "ScriptEngine",
 ]
