@@ -49,6 +49,17 @@ Built specifically for Linux (Wayland / Hyprland and X11), utilizing zero-latenc
 
 ## 🚀 Installation & Launch
 
+### Install on Any Linux Machine (One Command)
+
+```bash
+git clone https://github.com/Zykoraa/PhantomSuite.git
+cd PhantomSuite && ./install.sh
+```
+
+**Requirements**:
+* `python3` & `python-pyside6` (`sudo pacman -S python-pyside6` on Arch/CachyOS, or `pip install PySide6`)
+* `gdb` (for library injection)
+
 ### Quick Launch
 From anywhere in your terminal:
 
