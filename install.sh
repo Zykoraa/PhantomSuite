@@ -19,11 +19,17 @@ echo "[*] Installing PhantomSuite..."
 
 mkdir -p "${BIN_DIR}" "${DESKTOP_DIR}" "${ICON_DIR}"
 
-# 1. Symlink launcher
+# 1. Compile native payloads if gcc is available
+if command -v gcc &>/dev/null && [ -f "${SCRIPT_DIR}/phantom_suite/payloads/speedhack.c" ]; then
+    echo "[*] Building speedhack payload..."
+    gcc -shared -fPIC -O2 "${SCRIPT_DIR}/phantom_suite/payloads/speedhack.c" -o "${SCRIPT_DIR}/phantom_suite/payloads/speedhack.so" -lrt 2>/dev/null || true
+fi
+
+# 2. Symlink launcher
 ln -sf "${SCRIPT_DIR}/phantom-suite" "${BIN_DIR}/phantom-suite"
 chmod +x "${SCRIPT_DIR}/phantom-suite" "${SCRIPT_DIR}/phantom_suite/app.py"
 
-# 2. Copy icon
+# 3. Copy icon
 cp -f "${SCRIPT_DIR}/resources/phantom-suite.svg" "${ICON_DIR}/phantom-suite.svg"
 
 # 3. Install desktop file

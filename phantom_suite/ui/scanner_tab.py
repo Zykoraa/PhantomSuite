@@ -8,12 +8,14 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QTableWidget, QTableWidgetItem, QHeaderView,
     QComboBox, QCheckBox, QProgressBar, QMessageBox, QAbstractItemView,
-    QGroupBox, QInputDialog
+    QGroupBox, QInputDialog, QFileDialog
 )
 from PySide6.QtCore import Qt, QThread, Signal
 from phantom_suite.core.memory_engine import (
     MemoryEngine, TypeFormat, ScanType, ScanResult, FreezeManager
 )
+from phantom_suite.core.table_serializer import TableSerializer
+from phantom_suite.ui.pointer_dialog import PointerDialog
 
 
 class ScanWorker(QThread):
@@ -235,9 +237,21 @@ class ScannerTab(QWidget):
         remove_btn = QPushButton("🗑 Remove Selected")
         remove_btn.clicked.connect(self._remove_selected_cheat)
 
+        pointer_btn = QPushButton("🔍 Pointer Scan")
+        pointer_btn.clicked.connect(self._open_pointer_scanner)
+
+        save_table_btn = QPushButton("💾 Save Table")
+        save_table_btn.clicked.connect(self._save_table)
+        load_table_btn = QPushButton("📂 Load Table")
+        load_table_btn.clicked.connect(self._load_table)
+
         cheat_btn_layout.addWidget(manual_add_btn)
         cheat_btn_layout.addWidget(change_val_btn)
         cheat_btn_layout.addWidget(remove_btn)
+        cheat_btn_layout.addWidget(pointer_btn)
+        cheat_btn_layout.addSpacing(15)
+        cheat_btn_layout.addWidget(save_table_btn)
+        cheat_btn_layout.addWidget(load_table_btn)
         cheat_btn_layout.addStretch()
         cheat_layout.addLayout(cheat_btn_layout)
 
@@ -507,3 +521,114 @@ class ScannerTab(QWidget):
             addr = addr_item.data(Qt.UserRole)
             self.freezer.remove(self.target_pid, addr)
         self.cheat_table.removeRow(row)
+
+    def _save_table(self):
+        count = self.cheat_table.rowCount()
+        if count == 0:
+            QMessageBox.information(self, "Empty Table", "No saved addresses to export.")
+            return
+
+        entries = []
+        for row in range(count):
+            desc_item = self.cheat_table.item(row, 1)
+            addr_item = self.cheat_table.item(row, 2)
+            type_item = self.cheat_table.item(row, 3)
+            val_item = self.cheat_table.item(row, 4)
+            chk_widget = self.cheat_table.cellWidget(row, 0)
+            is_frozen = False
+            if chk_widget:
+                chk = chk_widget.findChild(QCheckBox)
+                if chk:
+                    is_frozen = chk.isChecked()
+
+            entries.append({
+                "description": desc_item.text() if desc_item else "",
+                "address": addr_item.data(Qt.UserRole) if addr_item else 0,
+                "type": type_item.text() if type_item else TypeFormat.INT32,
+                "value": val_item.text() if val_item else "",
+                "frozen": is_frozen
+            })
+
+        default_name = f"{self.target_name.replace(' ', '_')}.phantom" if self.target_name else "table.phantom"
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Save Cheat Table", default_name, "Phantom Tables (*.phantom);;All Files (*)"
+        )
+        if path:
+            ok, msg = TableSerializer.save_table(path, self.target_pid, entries, self.target_name)
+            if ok:
+                QMessageBox.information(self, "Table Saved", msg)
+            else:
+                QMessageBox.critical(self, "Save Error", msg)
+
+    def _load_table(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Load Cheat Table", "", "Phantom Tables (*.phantom);;All Files (*)"
+        )
+        if not path:
+            return
+
+        entries, msg = TableSerializer.load_table(path, self.target_pid)
+        if entries is None:
+            QMessageBox.critical(self, "Load Error", msg)
+            return
+
+        for e in entries:
+            addr = e["address"]
+            v_type = e["type"]
+            desc = e["description"]
+            val = e["value"]
+            is_frozen = e.get("frozen", False)
+
+            # If attached, read live value
+            if self.target_pid:
+                live_val = MemoryEngine.read_typed(self.target_pid, addr, v_type)
+                if live_val is not None:
+                    val = str(live_val)
+
+            self._insert_cheat_entry(addr, v_type, desc, val)
+            if is_frozen and self.target_pid:
+                # Toggle freeze on loaded entry
+                row = self.cheat_table.rowCount() - 1
+                chk_widget = self.cheat_table.cellWidget(row, 0)
+                if chk_widget:
+                    chk = chk_widget.findChild(QCheckBox)
+                    if chk:
+                        chk.setChecked(True)
+
+        QMessageBox.information(self, "Table Loaded", msg)
+
+    def _open_pointer_scanner(self):
+        if not self.target_pid:
+            QMessageBox.warning(self, "No Target", "Attach to a process first before scanning for pointers.")
+            return
+
+        row = self.cheat_table.currentRow()
+        target_addr = None
+
+        if row >= 0:
+            addr_item = self.cheat_table.item(row, 2)
+            if addr_item:
+                target_addr = addr_item.data(Qt.UserRole)
+        elif self.results_table.currentRow() >= 0:
+            res_row = self.results_table.currentRow()
+            addr_item = self.results_table.item(res_row, 0)
+            if addr_item:
+                target_addr = addr_item.data(Qt.UserRole)
+
+        if not target_addr:
+            addr_str, ok = QInputDialog.getText(
+                self, "Pointer Scanner Target", "Enter hex address to find pointers for:"
+            )
+            if not ok or not addr_str:
+                return
+            try:
+                target_addr = int(addr_str, 16) if addr_str.startswith("0x") else int(addr_str)
+            except ValueError:
+                QMessageBox.warning(self, "Invalid Address", "Address must be a valid hex or integer.")
+                return
+
+        dialog = PointerDialog(self.target_pid, target_addr, self)
+        dialog.pointer_selected.connect(
+            lambda desc, path: self._insert_cheat_entry(target_addr, TypeFormat.INT32, f"{desc} [{path}]", "?")
+        )
+        dialog.exec()

@@ -1,4 +1,4 @@
-# PhantomSuite // Linux Reverse-Engineering & Process Workbench
+# PhantomSuite v2.0 // Linux Reverse-Engineering & Process Workbench
 
 A cyberpunk-themed, high-performance Linux desktop workbench combining the capabilities of **Cheat Engine**, **Process Hacker**, and **Glory Injector** into a unified, native PySide6 (Qt6) interface.
 
@@ -6,7 +6,7 @@ Built specifically for Linux (Wayland / Hyprland and X11), utilizing zero-latenc
 
 ---
 
-## ⚡ Core Features
+## ⚡ Core Features (v2.0)
 
 ### 1. 🪟 Process Explorer & Hyprland Integration
 * **Hyprland IPC Binding**: Auto-discovers active Wayland windows (`hyprctl clients -j`) with window titles, classes, and workspace IDs.
@@ -14,33 +14,49 @@ Built specifically for Linux (Wayland / Hyprland and X11), utilizing zero-latenc
 * **Process Controls**: Pause (`SIGSTOP`), Resume (`SIGCONT`), Terminate (`SIGTERM`), or Kill (`SIGKILL`) target processes directly from the table.
 * **Filter Modes**: Filter by Hyprland windows, current user processes, or all system processes.
 
-### 2. 🔍 Memory Scanner & Value Freezer (Cheat Engine Style)
+### 2. 🔍 Memory Scanner, Value Freezer & .phantom Tables
 * **Direct Syscall Engine**: Uses `process_vm_readv` and `process_vm_writev` to scan memory at gigabytes per second with zero overhead.
 * **Data Types**: `int8`, `int16`, `int32`, `int64`, `uint32`, `float`, `double`, `string / text`, and `hex byte array`.
-* **Scan Types**:
-  * *Exact Value*
-  * *Increased Value* (compares against previous scan)
-  * *Decreased Value* (compares against previous scan)
-  * *Changed Value* / *Unchanged Value*
-  * *Bigger Than* / *Smaller Than*
+* **Differential Scanning**: *Exact*, *Increased*, *Decreased*, *Changed*, *Unchanged*, *Bigger*, and *Smaller*.
 * **Saved Address Table (Cheat Table)**:
   * Double-click found addresses to add them to your saved table.
-  * Assign custom descriptions (e.g. "Health", "Ammo", "Score").
   * **Value Freezer**: Check the **Active** box to lock/freeze values via a high-frequency background worker thread.
   * **In-Place Value Editing**: Double-click any saved value to rewrite it instantly in process memory.
+* **💾 Save & 📂 Load Tables (`.phantom`)**:
+  * Saves cheat tables into structured JSON `.phantom` files.
+  * **ASLR Surviving**: Resolves addresses relative to base module load offsets so your tables survive game restarts and reboots.
+* **🔍 Multi-Level Pointer Scanner**:
+  * Crawls memory to discover multi-level pointer paths (`[module.so + offset] -> offset -> target`) for dynamically allocated heap structures.
+  * Export pointer paths straight into your cheat table with 1 click.
 
-### 3. 💉 Shared Object (`.so`) Injector & Module Explorer
+### 3. ⚡ Live x86_64 Disassembler & 1-Click NOP Patcher
+* **Real-Time Code Disassembly**: Disassembles instructions around any memory address into clean Intel-syntax x86_64 assembly.
+* **🚫 Replace with NOPs (`0x90`)**: 1-click instruction NOPing to disable stat decrease or ammo consumption routines at the code level.
+* **↺ Restore Original**: Automatically tracks original instruction bytes with instant 1-click restoration.
+
+### 4. ⚡ Injected Linux Speedhack Engine
+* **Precision Time Dilation**: Injected shared library intercepting `clock_gettime(CLOCK_MONOTONIC, ...)` and `gettimeofday(...)`.
+* **Zero-Latency Shared Memory**: Controls game speed via `/dev/shm` IPC without syscall overhead.
+* **Real-Time Speed Slider**: Fast forward grind screens (up to `5.0x`) or slow down bullet-hell sequences (down to `0.2x`) straight from the top header bar.
+
+### 5. 🧵 Thread Explorer & CPU Affinity Manager
+* **Thread Task Enumeration**: Inspects all thread IDs (TIDs) in `/proc/<pid>/task/`.
+* **Thread Telemetry**: Displays thread name, CPU core ID, state, user/kernel execution time, and CPU core masks.
+* **Per-Thread Control**: Pause (`SIGSTOP`) or resume (`SIGCONT`) individual threads using `libc.tgkill`.
+* **Core Affinity**: Pin specific worker threads to dedicated CPU cores (`sched_setaffinity`).
+
+### 6. 💉 Shared Object (`.so`) Injector & Module Explorer
 * **GDB dlopen Engine**: Injects `.so` libraries cleanly into running 64-bit processes with automatic verification against `/proc/<pid>/maps`.
 * **Elevated Injection Fallback**: Automatically invokes `pkexec` if target process requires elevation.
 * **Module Inspector**: Visual breakdown of all mapped shared libraries, virtual address ranges, memory permissions (`r-xp`, `rw-p`), and file paths.
 * **Module Unloader**: Call `dlclose()` on loaded modules directly from the interface.
 
-### 4. 🧬 Live Memory Hex Editor & Patcher
+### 7. 🧬 Live Memory Hex Editor & Patcher
 * **Real-Time Memory Inspection**: Formatted hex dump + ASCII preview of any virtual memory address.
 * **Live Auto-Refresh**: 500ms real-time refresh mode to monitor memory fluctuations live.
-* **Byte Patcher**: Select any row or enter an address to write raw hex bytes (e.g. `90 90 90` NOPs or shellcode) directly into memory.
+* **Byte Patcher**: Select any row or enter an address to write raw hex bytes directly into memory.
 
-### 5. 🌐 Handles, Sockets & File Descriptors
+### 8. 🌐 Handles, Sockets & File Descriptors
 * **Descriptor Tracer**: Enumerates all open file descriptors from `/proc/<pid>/fd/`.
 * **Network Socket Resolution**: Cross-references socket inodes with `/proc/net/tcp` and `/proc/net/udp` to display real-time connection state (`ESTABLISHED`, `LISTEN`), local address/port, and remote endpoints.
 * **IPC Pipes & Device Files**: Distinguishes between regular files, FIFOs, and hardware devices.

@@ -1,20 +1,23 @@
 """
-PhantomSuite Memory Hex Viewer & In-Place Patcher Tab
-Live interactive memory inspection with hex, ASCII, and byte-patching.
+PhantomSuite Memory Hex Viewer & Live Disassembler Tab
+Interactive memory inspection with hex, ASCII, in-place byte patching,
+and x86_64 disassembly with 1-click NOP patching & restoration.
 """
 
-from typing import Optional, List
+from typing import Optional, List, Dict
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QTableWidget, QTableWidgetItem, QHeaderView,
-    QCheckBox, QMessageBox, QGroupBox, QInputDialog, QAbstractItemView
+    QCheckBox, QMessageBox, QGroupBox, QInputDialog, QAbstractItemView,
+    QSplitter, QTabWidget
 )
 from PySide6.QtCore import Qt, QTimer
 from phantom_suite.core.hex_viewer import HexViewer, HexLine
+from phantom_suite.core.disassembler import Disassembler, Instruction
 
 
 class HexTab(QWidget):
-    """Live Memory Hex Viewer and In-Place Patcher."""
+    """Live Memory Hex Viewer, In-Place Patcher, and x86_64 Disassembler."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -22,6 +25,8 @@ class HexTab(QWidget):
         self.target_name: str = ""
         self.current_address: int = 0
         self.bytes_per_page: int = 256
+        self.original_bytes_cache: Dict[int, bytes] = {} # address -> original_bytes
+        self.current_instructions: List[Instruction] = []
 
         self._timer = QTimer(self)
         self._timer.setInterval(500)
@@ -38,6 +43,8 @@ class HexTab(QWidget):
         self.prev_btn.setEnabled(True)
         self.next_btn.setEnabled(True)
         self.patch_btn.setEnabled(True)
+        self.nop_btn.setEnabled(True)
+        self.restore_btn.setEnabled(True)
 
     def clear_target(self):
         self.target_pid = None
@@ -48,14 +55,17 @@ class HexTab(QWidget):
         self.prev_btn.setEnabled(False)
         self.next_btn.setEnabled(False)
         self.patch_btn.setEnabled(False)
+        self.nop_btn.setEnabled(False)
+        self.restore_btn.setEnabled(False)
         self.hex_table.setRowCount(0)
+        self.disasm_table.setRowCount(0)
         self._timer.stop()
         self.auto_refresh_chk.setChecked(False)
 
     def navigate_to_address(self, address: int):
         self.current_address = address
         self.addr_input.setText(f"0x{address:X}")
-        self.refresh_hex()
+        self.refresh_all()
 
     def _init_ui(self):
         layout = QVBoxLayout(self)
@@ -71,7 +81,7 @@ class HexTab(QWidget):
         layout.addLayout(banner_layout)
 
         # Navigation Bar
-        nav_group = QGroupBox("Memory Navigation")
+        nav_group = QGroupBox("Memory & Code Navigation")
         nav_layout = QHBoxLayout(nav_group)
 
         addr_lbl = QLabel("Address:")
@@ -109,7 +119,12 @@ class HexTab(QWidget):
         nav_layout.addWidget(self.patch_btn)
         layout.addWidget(nav_group)
 
-        # Hex Display Grid
+        # Splitter between Hex Dump and Disassembler
+        splitter = QSplitter(Qt.Vertical)
+
+        # 1. Hex Display Group
+        hex_group = QGroupBox("Raw Memory Hex View")
+        hex_layout = QVBoxLayout(hex_group)
         self.hex_table = QTableWidget()
         self.hex_table.setColumnCount(4)
         self.hex_table.setHorizontalHeaderLabels([
@@ -122,8 +137,49 @@ class HexTab(QWidget):
         self.hex_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.hex_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.hex_table.setStyleSheet("font-family: monospace; font-size: 13px;")
+        hex_layout.addWidget(self.hex_table)
+        splitter.addWidget(hex_group)
 
-        layout.addWidget(self.hex_table, 1)
+        # 2. Disassembler Group
+        disasm_group = QGroupBox("Live x86_64 Disassembly & Code Patcher")
+        disasm_layout = QVBoxLayout(disasm_group)
+
+        disasm_top = QHBoxLayout()
+        disasm_info = QLabel("Inspect instructions and patch logic (e.g. NOP out stat decreases):")
+        disasm_info.setStyleSheet("color: #7d90b3; font-size: 12px;")
+
+        self.nop_btn = QPushButton("🚫 Replace with NOPs (0x90)")
+        self.nop_btn.setObjectName("accent_btn")
+        self.nop_btn.setEnabled(False)
+        self.nop_btn.clicked.connect(self._on_nop_selected)
+
+        self.restore_btn = QPushButton("↺ Restore Original")
+        self.restore_btn.setEnabled(False)
+        self.restore_btn.clicked.connect(self._on_restore_selected)
+
+        disasm_top.addWidget(disasm_info)
+        disasm_top.addStretch()
+        disasm_top.addWidget(self.nop_btn)
+        disasm_top.addWidget(self.restore_btn)
+        disasm_layout.addLayout(disasm_top)
+
+        self.disasm_table = QTableWidget()
+        self.disasm_table.setColumnCount(4)
+        self.disasm_table.setHorizontalHeaderLabels([
+            "Address", "Hex Bytes", "Instruction", "Status"
+        ])
+        self.disasm_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.disasm_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        self.disasm_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        self.disasm_table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        self.disasm_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.disasm_table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.disasm_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.disasm_table.setStyleSheet("font-family: monospace; font-size: 13px;")
+        disasm_layout.addWidget(self.disasm_table)
+
+        splitter.addWidget(disasm_group)
+        layout.addWidget(splitter, 1)
 
     def _on_goto_clicked(self):
         raw = self.addr_input.text().strip()
@@ -131,19 +187,19 @@ class HexTab(QWidget):
             return
         try:
             self.current_address = int(raw, 16) if raw.startswith(("0x", "0X")) else int(raw)
-            self.refresh_hex()
+            self.refresh_all()
         except ValueError:
             QMessageBox.warning(self, "Invalid Address", "Address must be a valid hex or integer.")
 
     def _on_prev_page(self):
         self.current_address = max(0, self.current_address - self.bytes_per_page)
         self.addr_input.setText(f"0x{self.current_address:X}")
-        self.refresh_hex()
+        self.refresh_all()
 
     def _on_next_page(self):
         self.current_address += self.bytes_per_page
         self.addr_input.setText(f"0x{self.current_address:X}")
-        self.refresh_hex()
+        self.refresh_all()
 
     def _on_auto_refresh_toggled(self, checked: bool):
         if checked:
@@ -154,6 +210,10 @@ class HexTab(QWidget):
     def _on_timer_refresh(self):
         if self.target_pid and self.current_address > 0:
             self.refresh_hex()
+
+    def refresh_all(self):
+        self.refresh_hex()
+        self.refresh_disassembly()
 
     def refresh_hex(self):
         if not self.target_pid or self.current_address <= 0:
@@ -183,6 +243,43 @@ class HexTab(QWidget):
             self.hex_table.setItem(row, 2, right_item)
             self.hex_table.setItem(row, 3, ascii_item)
 
+    def refresh_disassembly(self):
+        if not self.target_pid or self.current_address <= 0:
+            self.disasm_table.setRowCount(0)
+            return
+
+        self.current_instructions = Disassembler.disassemble(
+            self.target_pid, self.current_address, length=64
+        )
+        self.disasm_table.setRowCount(len(self.current_instructions))
+
+        for row, inst in enumerate(self.current_instructions):
+            addr_item = QTableWidgetItem(f"0x{inst.address:X}")
+            addr_item.setData(Qt.UserRole, inst.address)
+            addr_item.setForeground(Qt.yellow)
+
+            bytes_item = QTableWidgetItem(inst.hex_bytes)
+            bytes_item.setForeground(Qt.cyan)
+
+            text_item = QTableWidgetItem(inst.full_text)
+            status_item = QTableWidgetItem("Active")
+
+            if inst.is_nop:
+                text_item.setForeground(Qt.magenta)
+                status_item.setText("NOPed")
+                status_item.setForeground(Qt.magenta)
+            elif inst.address in self.original_bytes_cache:
+                status_item.setText("Patched")
+                status_item.setForeground(Qt.yellow)
+            else:
+                text_item.setForeground(Qt.green)
+                status_item.setForeground(Qt.gray)
+
+            self.disasm_table.setItem(row, 0, addr_item)
+            self.disasm_table.setItem(row, 1, bytes_item)
+            self.disasm_table.setItem(row, 2, text_item)
+            self.disasm_table.setItem(row, 3, status_item)
+
     def _on_patch_bytes(self):
         if not self.target_pid:
             return
@@ -201,7 +298,46 @@ class HexTab(QWidget):
             addr = int(addr_str, 16)
             success, msg = HexViewer.patch_bytes(self.target_pid, addr, hex_str)
             if success:
-                self.refresh_hex()
+                self.refresh_all()
                 QMessageBox.information(self, "Success", msg)
             else:
                 QMessageBox.critical(self, "Patch Failed", msg)
+
+    def _on_nop_selected(self):
+        row = self.disasm_table.currentRow()
+        if row < 0 or not self.target_pid or row >= len(self.current_instructions):
+            QMessageBox.warning(self, "No Selection", "Please select an instruction from the disassembly table first.")
+            return
+
+        inst = self.current_instructions[row]
+        if inst.is_nop:
+            QMessageBox.information(self, "Already NOP", "Instruction is already NOPed.")
+            return
+
+        ok, msg, orig_bytes = Disassembler.nop_instruction(self.target_pid, inst.address, inst.size)
+        if ok and orig_bytes:
+            if inst.address not in self.original_bytes_cache:
+                self.original_bytes_cache[inst.address] = orig_bytes
+            self.refresh_all()
+        else:
+            QMessageBox.critical(self, "NOP Failed", msg)
+
+    def _on_restore_selected(self):
+        row = self.disasm_table.currentRow()
+        if row < 0 or not self.target_pid or row >= len(self.current_instructions):
+            QMessageBox.warning(self, "No Selection", "Please select an instruction to restore.")
+            return
+
+        inst = self.current_instructions[row]
+        orig_bytes = self.original_bytes_cache.get(inst.address)
+        if not orig_bytes:
+            QMessageBox.information(self, "No Cached Original", "No original bytes recorded for this instruction.")
+            return
+
+        ok, msg = Disassembler.restore_instruction(self.target_pid, inst.address, orig_bytes)
+        if ok:
+            del self.original_bytes_cache[inst.address]
+            self.refresh_all()
+            QMessageBox.information(self, "Restored", msg)
+        else:
+            QMessageBox.critical(self, "Restore Failed", msg)

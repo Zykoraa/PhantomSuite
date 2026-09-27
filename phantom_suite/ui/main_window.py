@@ -9,15 +9,17 @@ import json
 from typing import Optional
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-    QPushButton, QTabWidget, QStatusBar, QMessageBox
+    QPushButton, QTabWidget, QStatusBar, QMessageBox, QSlider
 )
 from PySide6.QtCore import Qt
 
 from phantom_suite.theme import CYBERPUNK_QSS
+from phantom_suite.core.speedhack_controller import SpeedhackController
 from phantom_suite.ui.process_tab import ProcessTab
 from phantom_suite.ui.scanner_tab import ScannerTab
 from phantom_suite.ui.injector_tab import InjectorTab
 from phantom_suite.ui.hex_tab import HexTab
+from phantom_suite.ui.threads_tab import ThreadsTab
 from phantom_suite.ui.handles_tab import HandlesTab
 
 
@@ -47,7 +49,7 @@ class MainWindow(QMainWindow):
         header = QHBoxLayout()
         header.setSpacing(12)
 
-        title_lbl = QLabel("PHANTOM<font color='#00f0ff'>SUITE</font> <font color='#ff007f'>v1.0</font>")
+        title_lbl = QLabel("PHANTOM<font color='#00f0ff'>SUITE</font> <font color='#ff007f'>v2.0</font>")
         title_lbl.setStyleSheet("font-size: 17px; font-weight: bold; letter-spacing: 1px;")
 
         self.target_badge = QLabel("[ NO TARGET ATTACHED ]")
@@ -55,6 +57,26 @@ class MainWindow(QMainWindow):
             "background-color: #121824; color: #6d7f9e; border: 1px solid #1c2638; "
             "border-radius: 4px; padding: 4px 10px; font-weight: bold;"
         )
+
+        # Speedhack Controls
+        speed_box = QHBoxLayout()
+        self.speed_btn = QPushButton("⚡ Speedhack: OFF")
+        self.speed_btn.setEnabled(False)
+        self.speed_btn.clicked.connect(self._toggle_speedhack)
+
+        self.speed_slider = QSlider(Qt.Horizontal)
+        self.speed_slider.setRange(2, 50) # 0.2x to 5.0x
+        self.speed_slider.setValue(10)     # 1.0x
+        self.speed_slider.setFixedWidth(110)
+        self.speed_slider.setEnabled(False)
+        self.speed_slider.valueChanged.connect(self._on_speed_changed)
+
+        self.speed_lbl = QLabel("1.0x")
+        self.speed_lbl.setStyleSheet("color: #00f0ff; font-weight: bold; min-width: 32px;")
+
+        speed_box.addWidget(self.speed_btn)
+        speed_box.addWidget(self.speed_slider)
+        speed_box.addWidget(self.speed_lbl)
 
         self.quick_attach_btn = QPushButton("🎯 Attach Active Window")
         self.quick_attach_btn.setToolTip("Quickly attach to the currently focused Hyprland window")
@@ -66,8 +88,10 @@ class MainWindow(QMainWindow):
         self.detach_btn.clicked.connect(self.detach_target)
 
         header.addWidget(title_lbl)
-        header.addSpacing(15)
+        header.addSpacing(12)
         header.addWidget(self.target_badge)
+        header.addSpacing(15)
+        header.addLayout(speed_box)
         header.addStretch()
         header.addWidget(self.quick_attach_btn)
         header.addWidget(self.detach_btn)
@@ -80,12 +104,14 @@ class MainWindow(QMainWindow):
         self.scanner_tab = ScannerTab()
         self.injector_tab = InjectorTab()
         self.hex_tab = HexTab()
+        self.threads_tab = ThreadsTab()
         self.handles_tab = HandlesTab()
 
         self.tabs.addTab(self.process_tab, "⚡ Processes & Windows")
         self.tabs.addTab(self.scanner_tab, "🔍 Memory Scanner")
         self.tabs.addTab(self.injector_tab, "💉 .so Injector")
-        self.tabs.addTab(self.hex_tab, "🧬 Hex Editor")
+        self.tabs.addTab(self.hex_tab, "🧬 Hex & Disasm")
+        self.tabs.addTab(self.threads_tab, "🧵 Threads")
         self.tabs.addTab(self.handles_tab, "🌐 Sockets & Handles")
 
         main_layout.addWidget(self.tabs, 1)
@@ -134,9 +160,27 @@ class MainWindow(QMainWindow):
         self.scanner_tab.set_target(pid, name)
         self.injector_tab.set_target(pid, name)
         self.hex_tab.set_target(pid, name)
+        self.threads_tab.set_target(pid, name)
         self.handles_tab.set_target(pid, name)
 
         self.status_lbl.setText(f"Attached to process {name} (PID: {pid}).")
+        
+        # Check speedhack state
+        self.speed_btn.setEnabled(True)
+        is_inj = SpeedhackController.is_injected(pid)
+        if is_inj:
+            speed, enabled = SpeedhackController.get_speed(pid)
+            self.speed_slider.setEnabled(True)
+            self.speed_slider.setValue(int(speed * 10))
+            self.speed_lbl.setText(f"{speed:.1f}x")
+            self.speed_btn.setText(f"⚡ Speedhack: {'ON' if enabled else 'OFF'}")
+            if enabled:
+                self.speed_btn.setStyleSheet("color: #ff007f; border-color: #ff007f;")
+        else:
+            self.speed_btn.setText("⚡ Inject Speedhack")
+            self.speed_btn.setStyleSheet("")
+            self.speed_slider.setEnabled(False)
+
         # Automatically advance to Scanner tab
         self.tabs.setCurrentIndex(1)
 
@@ -150,13 +194,54 @@ class MainWindow(QMainWindow):
             "border-radius: 4px; padding: 4px 10px; font-weight: bold;"
         )
         self.detach_btn.setEnabled(False)
+        self.speed_btn.setEnabled(False)
+        self.speed_btn.setText("⚡ Speedhack: OFF")
+        self.speed_btn.setStyleSheet("")
+        self.speed_slider.setEnabled(False)
 
         self.scanner_tab.clear_target()
         self.injector_tab.clear_target()
         self.hex_tab.clear_target()
+        self.threads_tab.clear_target()
         self.handles_tab.clear_target()
 
         self.status_lbl.setText("Detached from target process.")
+
+    def _toggle_speedhack(self):
+        if not self.current_target_pid:
+            return
+
+        pid = self.current_target_pid
+        if not SpeedhackController.is_injected(pid):
+            self.status_lbl.setText(f"Injecting speedhack.so into PID {pid}...")
+            ok, msg = SpeedhackController.inject(pid)
+            if ok:
+                self.status_lbl.setText(f"Speedhack active in PID {pid}!")
+                self.speed_slider.setEnabled(True)
+                self.speed_btn.setText("⚡ Speedhack: ON")
+                self.speed_btn.setStyleSheet("color: #ff007f; border-color: #ff007f;")
+                val = self.speed_slider.value() / 10.0
+                SpeedhackController.set_speed(pid, val, enabled=True)
+                # Refresh modules tab if open
+                self.injector_tab.refresh_modules()
+            else:
+                QMessageBox.critical(self, "Speedhack Injection Failed", msg)
+        else:
+            # Toggle enabled state
+            curr_speed, curr_enabled = SpeedhackController.get_speed(pid)
+            new_state = not curr_enabled
+            SpeedhackController.set_speed(pid, curr_speed, enabled=new_state)
+            self.speed_btn.setText(f"⚡ Speedhack: {'ON' if new_state else 'OFF'}")
+            if new_state:
+                self.speed_btn.setStyleSheet("color: #ff007f; border-color: #ff007f;")
+            else:
+                self.speed_btn.setStyleSheet("")
+
+    def _on_speed_changed(self, int_val: int):
+        speed = int_val / 10.0
+        self.speed_lbl.setText(f"{speed:.1f}x")
+        if self.current_target_pid and SpeedhackController.is_injected(self.current_target_pid):
+            SpeedhackController.set_speed(self.current_target_pid, speed, enabled=True)
 
     def _attach_active_hyprland_window(self):
         """Attempts to discover and attach to the currently focused Hyprland window."""

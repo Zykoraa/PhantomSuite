@@ -1,6 +1,6 @@
-# PhantomSuite: Complete Visual Field Guide
+# PhantomSuite v2.0: Complete Visual Field Guide
 
-Welcome to **PhantomSuite** — your native Linux reverse-engineering workbench, memory scanner, and process instrumentation cockpit. This guide breaks down each of the 5 core tabs, how they communicate with the Linux kernel, and how to execute key workflows.
+Welcome to **PhantomSuite v2.0** — your native Linux reverse-engineering workbench, memory scanner, and process instrumentation cockpit. This guide breaks down each of the 6 core tabs, how they communicate with the Linux kernel, and how to execute key workflows.
 
 ---
 
@@ -12,22 +12,25 @@ flowchart TD
 
     subgraph Header ["Global Cockpit Header"]
         TargetBadge["[ ATTACHED: PID 12345 — dummy_target ]"]
+        SpeedControl["[⚡ Speedhack: ON] [====|===] 2.5x"]
         QuickAttach["🎯 Attach Active Window (Hyprland IPC)"]
         Detach["✕ Detach"]
     end
 
     Header --> Tab1["⚡ Processes & Windows"]
-    Header --> Tab2["🔍 Memory Scanner"]
+    Header --> Tab2["🔍 Memory Scanner & .phantom Tables"]
     Header --> Tab3["💉 .so Injector"]
-    Header --> Tab4["🧬 Hex Editor"]
-    Header --> Tab5["🌐 Sockets & Handles"]
+    Header --> Tab4["🧬 Hex & Disasm"]
+    Header --> Tab5["🧵 Threads & Affinity"]
+    Header --> Tab6["🌐 Sockets & Handles"]
 
-    Tab1 & Tab2 & Tab3 & Tab4 & Tab5 <--> TargetApp
+    Tab1 & Tab2 & Tab3 & Tab4 & Tab5 & Tab6 <--> TargetApp
 ```
 
 ### The Global Header
 No matter which tab you're on, the top bar provides persistent situational awareness:
 * **Target Badge**: Displays the currently attached PID, process binary name, and window title.
+* **⚡ Speedhack Engine**: In-header speed slider (`0.2x` bullet time to `5.0x` fast-forward) controlling process time dilation via `/dev/shm` shared memory hooks.
 * **🎯 Attach Active Window**: Instantly queries Hyprland's IPC socket (`hyprctl activewindow -j`). Switch to your game or app, switch back, hit this button, and you are attached in 1 click without searching.
 * **Yama ptrace Indicator**: Located in the bottom-right status bar. Displays green (`ptrace_scope: 0`) for unrestricted memory access, or amber if elevated `pkexec` escalation is needed.
 
@@ -63,60 +66,38 @@ The **mission control** for discovering and managing system targets.
    - **▶ Resume (SIGCONT)**: Wakes up a frozen process so it resumes running normally.
    - **✖ Terminate (SIGTERM)** / **⚡ Kill (SIGKILL)**: Graceful exit vs force-kill.
 
-### How to Use It
-1. Type a name or PID into the search box.
-2. Double-click any row (or select it and click **🎯 Attach Selected**).
-3. PhantomSuite will bind the target across all other tabs and automatically switch you to the **Memory Scanner**.
-
 ---
 
-## Tab 2: 🔍 Memory Scanner & Cheat Table
+## Tab 2: 🔍 Memory Scanner, Value Freezer & .phantom Tables
 
-The **Cheat Engine** core of PhantomSuite. Scan, filter, and lock values in target memory at gigabytes per second.
+The **Cheat Engine** core of PhantomSuite. Scan, filter, lock values, and export cheat tables that survive game restarts.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User
-    participant Scanner as Memory Scanner
-    participant Kernel as Linux Kernel (process_vm_readv)
-    participant Freezer as FreezeManager Thread
-
-    User->>Scanner: First Scan (Value = 100, Type = int32)
-    Scanner->>Kernel: Scan writable regions (/proc/pid/maps rw-p)
-    Kernel-->>Scanner: 1,420 candidate addresses found
-    User->>User: Play game / take damage (Health drops to 85)
-    User->>Scanner: Next Scan (Value = 85 or Decreased)
-    Scanner->>Kernel: Differential check on only 1,420 addresses
-    Kernel-->>Scanner: 1 exact address found (0x55AFC0...)
-    User->>Scanner: Add to Address Table
-    User->>Freezer: Enable [✓] Active Freeze
-    loop Every 50ms
-        Freezer->>Kernel: process_vm_writev(0x55AFC0, 85)
-    end
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ Scan Configuration: Value: [ 1337   ] Type: [ 4 Bytes (int32) ▼ ] Scan: [ Exact ▼ ]   │
+│ [✓] Writable Memory Only (rw-p)       [ ⚡ First Scan ] [ 🔍 Next Scan ] [ ⟳ New Scan ]│
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan Results:                                                                          │
+│ Address             Value              Previous                                        │
+│ 0x55AFC0A4A084      1337               -                                               │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ Saved Address Table & Value Freezer                                                    │
+│ Active │ Description   │ Address         │ Type    │ Value                             │
+│ [✓]    │ Score         │ 0x55AFC0A4A084  │ int32   │ 1337                              │
+│ [ ]    │ Ptr: Player   │ 0x55AFC0A4A090  │ int32   │ 100                               │
+└────────┴───────────────┴─────────────────┴─────────┴───────────────────────────────────┘
+  [ + Add Custom ] [ ✏ Change Value ] [ 🗑 Remove ] [ 🔍 Pointer Scan ]   [ 💾 Save Table ] [ 📂 Load Table ]
 ```
 
-### Scan Types & When to Use Them
+### 💾 Save & 📂 Load Tables (`.phantom`)
+* **ASLR-Resilient**: Saves addresses relative to their loaded base module (e.g. `dummy_target + 0x4084`). When loading into a newly launched game instance where ASLR shifted memory, PhantomSuite dynamically calculates `current_module_base + offset`.
+* **Zero Configuration**: Exports all active freeze states, descriptions, and custom notes in standard JSON format.
 
-| Scan Type | When to Use It |
-| :--- | :--- |
-| **Exact Value** | You know the exact number on screen (e.g. Ammo = 30, Gold = 500, Score = 1337). |
-| **Increased Value** | You gained health or money, but don't know the exact number. |
-| **Decreased Value** | You took damage, spent ammo, or lost resources. |
-| **Changed Value** | The value definitely altered, but you don't know if it went up or down. |
-| **Unchanged Value** | Eliminates background counters and timer addresses that are constantly ticking. |
-| **Bigger / Smaller Than** | Narrow down values within a range (e.g. Health is between 50 and 100). |
-
-### Data Types Supported
-* **Integers**: `int32` (most common for game variables), `int64` (pointers, large scores), `int16`, `int8`.
-* **Decimals**: `Float` (coordinates, velocity, timers) and `Double`.
-* **Text / Strings**: UTF-8 and ASCII string search (e.g. player usernames, item names).
-* **Hex Byte Arrays**: Search for instruction opcodes (e.g. `90 90 90` or `89 45 FC`).
-
-### The Address Table & Value Freezer
-* **Double-click any scan result** to transfer it down into your saved **Address Table**.
-* **Active Checkbox (Freezer)**: Checking this launches a high-frequency background worker thread that continuously rewrites the value every 50ms. If the game tries to decrement your ammo or health, the freezer instantly locks it back.
-* **In-Place Value Editing**: Double-click the **Value** column of any saved address to type a new number (e.g., change `100` to `999999`) and press Enter.
+### 🔍 Multi-Level Pointer Scanner
+* Dynamically allocated heap variables change address every restart.
+* Highlight any address and click **🔍 Pointer Scan**. PhantomSuite crawls memory to find static pointer chains:
+  `[module_name + base_offset] -> offset_1 -> offset_2 -> Target Address`
+* Click **Add to Address Table** to save the pointer path!
 
 ---
 
@@ -136,53 +117,67 @@ Load and unload compiled shared libraries (`.so`) into any running process using
 │ Module Name             │ Base Address         │ Perms    │ Full Path                  │
 ├─────────────────────────┼──────────────────────┼──────────┼────────────────────────────┤
 │ hello_payload.so        │ 0x7F2B3C000000       │ r-xp     │ .../examples/hello_payload.so
+│ speedhack.so            │ 0x7F2B3BE00000       │ r-xp     │ .../payloads/speedhack.so  │
 │ libc.so.6               │ 0x7F2B3C200000       │ r-xp     │ /usr/lib/libc.so.6         │
-│ ld-linux-x86-64.so.2    │ 0x7F2B3C400000       │ r-xp     │ /usr/lib/ld-linux-x86-64.so│
 └─────────────────────────┴──────────────────────┴──────────┴────────────────────────────┘
 ```
 
-### How Injection Works Under the Hood
-1. **Verification**: PhantomSuite confirms the target is a valid dynamically linked 64-bit ELF binary.
-2. **GDB Attachment**: GDB attaches to the target thread and executes:
-   ```c
-   call (void*)dlopen("/path/to/payload.so", RTLD_NOW);
-   ```
-3. **Map Verification**: The engine reads `/proc/<pid>/maps` to verify that the library was successfully mapped into the target's virtual address space.
-4. **Lifecycle Execution**:
-   - `__attribute__((constructor))` functions in your C/C++ code execute **immediately** upon injection.
-   - `__attribute__((destructor))` functions execute when you hit **⏏ Unload Selected** (`dlclose()`).
-
 ---
 
-## Tab 4: 🧬 Hex Editor & Live Patcher
+## Tab 4: 🧬 Hex & Disasm
 
-A live, byte-level window into any memory address in the target process.
+Dual-pane low-level inspection: raw memory bytes on top, live x86_64 assembly instructions on bottom.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ Memory Navigation                                                                      │
-│ Address: [ 0x55AFC0A4A080 ] [ Go ] [ ◀ Prev ] [ Next ▶ ] [✓] Live Auto-Refresh [Patch] │
-├──────────────────────┬─────────────────────────┬─────────────────────────┬─────────────┤
-│ Address              │ Bytes (0-7)             │ Bytes (8-F)             │ ASCII       │
-├──────────────────────┼─────────────────────────┼─────────────────────────┼─────────────┤
-│ 0x000055AFC0A4A080   │ 50 68 61 6E 74 6F 6D 54 │ 61 72 67 65 74 5F 41 63 │ PhantomTarget_Ac
-│ 0x000055AFC0A4A090   │ 74 69 76 65 00 00 00 00 │ 39 05 00 00 00 00 00 00 │ tive....9.......
-└──────────────────────┴─────────────────────────┴─────────────────────────┴─────────────┘
+│ Address: [ 0x55AFC0A49000 ] [ Go ] [ ◀ Prev ] [ Next ▶ ] [✓] Live Auto-Refresh [Patch] │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ Raw Memory Hex View:                                                                   │
+│ Address              Bytes (0-7)              Bytes (8-F)              ASCII           │
+│ 0x000055AFC0A49000   F3 0F 1E FA 48 83 EC 08  48 8B 05 C1 2F 00 00     ....H...H.../...│
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ Live x86_64 Disassembly & Code Patcher:                                                │
+│ Address         Hex Bytes        Instruction                           Status          │
+│ 0x55AFC0A49000  f3 0f 1e fa      endbr64                               Active          │
+│ 0x55AFC0A49004  90 90 90 90      nop                                   NOPed           │
+│ 0x55AFC0A49008  48 8b 05 c1...   mov rax, QWORD PTR [rip+0x2fc1]       Active          │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+                  [ 🚫 Replace with NOPs (0x90) ]    [ ↺ Restore Original ]
 ```
 
-### Key Capabilities
-* **Address Jump**: Paste any address found from the Memory Scanner or Loaded Modules tab and hit **Go**.
-* **[✓] Live Auto-Refresh**: Updates the hex view every 500ms so you can watch live variables, coordinates, or network buffers fluctuate in real time.
-* **✏ Patch Bytes**:
-  - Click any row and hit **Patch Bytes**.
-  - Type new hex bytes separated by spaces (e.g. `90 90 90` to NOP out code, or `48 41 43 4B` for ASCII text).
-  - The engine writes the bytes directly to memory via `process_vm_writev`.
+### 1-Click Code NOPing
+* Highlight any subtraction instruction (e.g. `sub dword ptr [rax], 1` or `dec [rbp-4]`).
+* Click **🚫 Replace with NOPs (0x90)**: PhantomSuite overwrites the opcode with NOP bytes so the code never decrements your value.
+* Click **↺ Restore Original**: Restores the original cached machine code instantly.
 
 ---
 
-## Tab 5: 🌐 Sockets & Handles
+## Tab 5: 🧵 Threads & CPU Core Affinity
 
-Inspect every file descriptor, network connection, IPC pipe, and hardware device opened by the process.
+Inspect and manage individual thread tasks under `/proc/<pid>/task/`.
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ [ Filter threads by TID or name...                         ] [ ⟳ Refresh Threads ]     │
+├───────┬──────────────────────┬───────┬──────┬─────────────────┬────────────────────────┤
+│ TID   │ Thread Name          │ State │ Core │ CPU Time (u/s)  │ Affinity Cores         │
+├───────┼──────────────────────┼───────┼──────┼─────────────────┼────────────────────────┤
+│ 79059 │ dummy_target         │ S     │ 2    │ 0.12s / 0.04s   │ 16 cores               │
+│ 79061 │ audio_thread         │ R     │ 4    │ 1.45s / 0.22s   │ 16 cores               │
+│ 79062 │ network_worker       │ S     │ 0    │ 0.35s / 0.10s   │ [0, 1]                 │
+└───────┴──────────────────────┴───────┴──────┴─────────────────┴────────────────────────┘
+  [ ⏸ Pause Thread (SIGSTOP) ]   [ ▶ Resume Thread (SIGCONT) ]   [ ⚙ Set CPU Affinity ]
+```
+
+### Targeted Thread Freezing & Core Pinning
+* **Pause specific threads (`libc.tgkill`)**: Freeze an annoying background timer or network sync thread without pausing rendering.
+* **CPU Core Pinning (`sched_setaffinity`)**: Pin audio or game threads to high-performance cores (e.g. Core 0 or 2) to eliminate micro-stutters.
+
+---
+
+## Tab 6: 🌐 Sockets & Handles
+
+Inspect every open file descriptor, network socket, IPC pipe, and device file.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -192,29 +187,21 @@ Inspect every file descriptor, network connection, IPC pipe, and hardware device
 ├──────┼──────────┼───────────────────────────────┼──────────────────────────────────────┤
 │ 3    │ SOCKET   │ socket:[1999106]              │ TCP 0.0.0.0:19876 -> 0.0.0.0:0 [LISTEN]
 │ 4    │ SOCKET   │ socket:[2001452]              │ TCP 192.168.1.15:44321 -> 140.82.114.3:443 [ESTABLISHED]
-│ 0    │ DEVICE   │ /dev/pts/3                    │ Hardware / Virtual Device            │
 │ 1    │ PIPE     │ pipe:[1996587]                │ IPC FIFO                             │
 │ 6    │ FILE     │ /home/eve/.config/app/save.dat│ Size: 48,120 bytes                   │
 └──────┴──────────┴───────────────────────────────┴──────────────────────────────────────┤
 ```
 
-### Why This is Powerful
-* **Spot Hidden Network Connections**: Resolves raw kernel socket inodes to human-readable IP addresses, port numbers, and states (`LISTEN`, `ESTABLISHED`, `CLOSE_WAIT`).
-* **Track File Access**: See exactly which configuration files, asset archives, or save games a process has currently locked open.
-* **Monitor IPC Pipes**: Inspect inter-process FIFOs and communication channels between multi-process applications (like Electron, Discord, or Steam).
-
 ---
 
-## Pro-Tips & Shortcuts
+## Quick Reference Summary
 
-> [!TIP]
-> **Hyprland Quick-Attach**:
-> While playing a game or using an app in Hyprland, switch to PhantomSuite and immediately click **🎯 Attach Active Window**. It grabs the active Wayland client from `hyprctl activewindow -j` without you ever needing to check `ps` or `/proc`.
-
-> [!TIP]
-> **Freezing Values with Cheat Engine Precision**:
-> After isolating an address in the Scanner tab, double click it to add it to the bottom table. Once in the bottom table, checking the **Active** box turns on the background 50ms pulse writer. You can double-click the value anytime to modify the locked amount on the fly.
-
-> [!NOTE]
-> **Unloading Payloads**:
-> If you make code changes to your `.so` payload, you don't need to restart your target app! Simply go to the **.so Injector** tab, find your library in the **Loaded Modules** table, click **⏏ Unload Selected** (`dlclose`), recompile your `.so`, and click **Inject Payload** again.
+| Tab | Best For | Superpower |
+| :--- | :--- | :--- |
+| **⚡ Processes & Windows** | Finding & controlling targets | 1-click active Hyprland window attach & SIGSTOP freeze |
+| **🔍 Memory Scanner** | Finding variables & cheats | Gigabyte/s scan speed, 50ms active freeze, .phantom tables |
+| **💉 .so Injector** | Code injection | GDB dlopen with /proc maps verification & dlclose unloader |
+| **🧬 Hex & Disasm** | Byte & opcode inspection | Live 500ms auto-refresh & 1-click NOP instruction patcher |
+| **🧵 Threads** | Thread-level analysis | Per-thread pause/resume (tgkill) and CPU core pinning |
+| **🌐 Sockets & Handles** | File & network auditing | Kernel socket inode to IP:port resolution |
+| **⚡ Speedhack (HUD)** | Time dilation | In-header slider from 0.2x bullet-time to 5.0x fast-forward |
