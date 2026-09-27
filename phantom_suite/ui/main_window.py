@@ -1,6 +1,6 @@
 """
 PhantomSuite Main Window
-Orchestrates the tabs, active target lifecycle, and Hyprland active window binding.
+Orchestrates the modern collapsible sidebar, tabs, command palette, and target lifecycle.
 """
 
 import os
@@ -12,9 +12,17 @@ from PySide6.QtWidgets import (
     QPushButton, QTabWidget, QStatusBar, QMessageBox, QSlider
 )
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QKeySequence, QShortcut
 
 from phantom_suite.theme import CYBERPUNK_QSS
 from phantom_suite.core.speedhack_controller import SpeedhackController
+from phantom_suite.core.process_manager import ProcessManager
+from phantom_suite.core.recent_targets import RecentTargetsManager
+
+from phantom_suite.ui.sidebar import SidebarWidget
+from phantom_suite.ui.command_palette import CommandPaletteDialog, CommandAction
+from phantom_suite.ui.shortcuts_dialog import ShortcutsDialog
+from phantom_suite.ui.welcome_tab import WelcomeTab
 from phantom_suite.ui.process_tab import ProcessTab
 from phantom_suite.ui.scanner_tab import ScannerTab
 from phantom_suite.ui.injector_tab import InjectorTab
@@ -37,14 +45,20 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PhantomSuite // Linux Reverse-Engineering & Process Workbench")
-        self.resize(1200, 800)
+        self.resize(1280, 840)
         self.setStyleSheet(CYBERPUNK_QSS)
 
         self.current_target_pid: Optional[int] = None
         self.current_target_name: str = ""
+        self._target_paused: bool = False
         self.osd_overlay = OsdOverlay()
 
+        self.command_palette = CommandPaletteDialog(self)
+        self.shortcuts_dialog = ShortcutsDialog(self)
+
         self._init_ui()
+        self._setup_command_palette()
+        self._setup_shortcuts()
         self._check_environment()
 
     def _init_ui(self):
@@ -87,6 +101,25 @@ class MainWindow(QMainWindow):
         speed_box.addWidget(self.speed_slider)
         speed_box.addWidget(self.speed_lbl)
 
+        # Command Palette Button
+        self.palette_header_btn = QPushButton("⌘ Palette [Ctrl+K]")
+        self.palette_header_btn.setToolTip("Open Command Palette (Ctrl+K or Ctrl+P)")
+        self.palette_header_btn.setStyleSheet(
+            "QPushButton {"
+            "  background-color: #121824;"
+            "  color: #00f0ff;"
+            "  border: 1px solid #1c2638;"
+            "  border-radius: 4px;"
+            "  padding: 4px 10px;"
+            "  font-weight: bold;"
+            "}"
+            "QPushButton:hover {"
+            "  background-color: #00f0ff;"
+            "  color: #0c0e14;"
+            "}"
+        )
+        self.palette_header_btn.clicked.connect(self._open_command_palette)
+
         self.osd_btn = QPushButton("🪟 HUD Overlay: OFF")
         self.osd_btn.setToolTip("Toggle transparent in-game floating HUD overlay")
         self.osd_btn.clicked.connect(self._toggle_osd_overlay)
@@ -106,13 +139,23 @@ class MainWindow(QMainWindow):
         header.addSpacing(15)
         header.addLayout(speed_box)
         header.addStretch()
+        header.addWidget(self.palette_header_btn)
         header.addWidget(self.osd_btn)
         header.addWidget(self.quick_attach_btn)
         header.addWidget(self.detach_btn)
         main_layout.addLayout(header)
 
-        # Tab Widget
+        # Central Layout: Sidebar on Left, Hidden-Bar Tab Stack on Right
+        body_layout = QHBoxLayout()
+        body_layout.setContentsMargins(0, 0, 0, 0)
+        body_layout.setSpacing(6)
+
+        self.sidebar = SidebarWidget()
+        body_layout.addWidget(self.sidebar)
+
+        # Tab Widget (with hidden native tab bar for seamless navigation)
         self.tabs = QTabWidget()
+        self.tabs.tabBar().hide()
 
         self.process_tab = ProcessTab()
         self.scanner_tab = ScannerTab()
@@ -127,24 +170,40 @@ class MainWindow(QMainWindow):
         self.console_tab = ConsoleTab()
         self.threads_tab = ThreadsTab()
         self.handles_tab = HandlesTab()
+        self.welcome_tab = WelcomeTab()
 
-        self.tabs.addTab(self.process_tab, "⚡ Processes & Windows")
-        self.tabs.addTab(self.scanner_tab, "🔍 Memory Scanner")
-        self.tabs.addTab(self.injector_tab, "💉 .so Injector")
-        self.tabs.addTab(self.hex_tab, "🧬 Hex & Disasm")
-        self.tabs.addTab(self.struct_tab, "🔬 Struct Dissector")
-        self.tabs.addTab(self.symbols_tab, "📦 ELF Symbols")
-        self.tabs.addTab(self.snapshot_tab, "📸 Snapshot Diff")
-        self.tabs.addTab(self.treemap_tab, "🗺️ Memory Treemap")
-        self.tabs.addTab(self.syscalls_tab, "📡 Syscall Monitor")
-        self.tabs.addTab(self.deserializer_tab, "🧩 Data Deserializer")
-        self.tabs.addTab(self.console_tab, "🐍 Python Console")
-        self.tabs.addTab(self.threads_tab, "🧵 Threads")
-        self.tabs.addTab(self.handles_tab, "🌐 Sockets & Handles")
+        self.tabs.addTab(self.process_tab, "⚡ Processes & Windows")       # Index 0
+        self.tabs.addTab(self.scanner_tab, "🔍 Memory Scanner")            # Index 1
+        self.tabs.addTab(self.injector_tab, "💉 .so Injector")             # Index 2
+        self.tabs.addTab(self.hex_tab, "🧬 Hex & Disasm")                  # Index 3
+        self.tabs.addTab(self.struct_tab, "🔬 Struct Dissector")           # Index 4
+        self.tabs.addTab(self.symbols_tab, "📦 ELF Symbols")               # Index 5
+        self.tabs.addTab(self.snapshot_tab, "📸 Snapshot Diff")            # Index 6
+        self.tabs.addTab(self.treemap_tab, "🗺️ Memory Treemap")            # Index 7
+        self.tabs.addTab(self.syscalls_tab, "📡 Syscall Monitor")          # Index 8
+        self.tabs.addTab(self.deserializer_tab, "🧩 Data Deserializer")    # Index 9
+        self.tabs.addTab(self.console_tab, "🐍 Python Console")            # Index 10
+        self.tabs.addTab(self.threads_tab, "🧵 Threads")                   # Index 11
+        self.tabs.addTab(self.handles_tab, "🌐 Sockets & Handles")         # Index 12
+        self.tabs.addTab(self.welcome_tab, "🚀 Mission Control")           # Index 13
 
-        main_layout.addWidget(self.tabs, 1)
+        body_layout.addWidget(self.tabs, 1)
+        main_layout.addLayout(body_layout, 1)
 
-        # Connect signals
+        # Connect Sidebar & Tab Navigation
+        self.sidebar.tab_requested.connect(self.switch_to_tab)
+        self.sidebar.palette_requested.connect(self._open_command_palette)
+        self.sidebar.shortcuts_requested.connect(self._open_shortcuts_dialog)
+        self.tabs.currentChanged.connect(self._on_tab_changed)
+
+        # Connect Welcome Tab Signals
+        self.welcome_tab.attach_active_requested.connect(self._attach_active_hyprland_window)
+        self.welcome_tab.browse_processes_requested.connect(lambda: self.switch_to_tab(0))
+        self.welcome_tab.load_table_requested.connect(self._load_table_shortcut)
+        self.welcome_tab.open_console_requested.connect(lambda: self.switch_to_tab(10))
+        self.welcome_tab.target_selected.connect(self.attach_target)
+
+        # Connect Tab-to-Tab Signal Crossings
         self.process_tab.target_attached.connect(self.attach_target)
         self.struct_tab.add_to_cheat_table.connect(self.scanner_tab.add_cheat_entry)
         self.struct_tab.jump_to_hex.connect(self._jump_to_hex_address)
@@ -168,6 +227,153 @@ class MainWindow(QMainWindow):
         self.yama_lbl.setStyleSheet("color: #7d90b3; padding-right: 12px;")
         self.status_bar.addPermanentWidget(self.yama_lbl)
 
+        # Default starting view: Mission Control Dashboard
+        self.switch_to_tab(13)
+
+    def _setup_command_palette(self):
+        actions = [
+            # Navigation Actions
+            CommandAction("nav_welcome", "🚀 Mission Control", "NAVIGATION", "Dashboard and recent targets", "Ctrl+0", lambda: self.switch_to_tab(13)),
+            CommandAction("nav_processes", "⚡ Processes & Windows", "NAVIGATION", "Inspect running processes and desktop windows", "Ctrl+1", lambda: self.switch_to_tab(0)),
+            CommandAction("nav_scanner", "🔍 Memory Scanner", "NAVIGATION", "Memory scanner, value freezer & cheat tables", "Ctrl+2", lambda: self.switch_to_tab(1)),
+            CommandAction("nav_snapshot", "📸 Snapshot Diff", "NAVIGATION", "Full-process memory snapshot comparison", "Ctrl+3", lambda: self.switch_to_tab(6)),
+            CommandAction("nav_hex", "🧬 Hex & Disasm", "NAVIGATION", "Raw hex dump, live x86_64 disassembly & NOP patcher", "Ctrl+4", lambda: self.switch_to_tab(3)),
+            CommandAction("nav_struct", "🔬 Struct Dissector", "NAVIGATION", "Heuristic struct dissection & live heatmaps", "Ctrl+5", lambda: self.switch_to_tab(4)),
+            CommandAction("nav_symbols", "📦 ELF Symbols", "NAVIGATION", "Symbol table introspection & module explorer", "Ctrl+6", lambda: self.switch_to_tab(5)),
+            CommandAction("nav_treemap", "🗺️ Memory Treemap", "NAVIGATION", "Virtual address space proportional map & KPIs", "Ctrl+7", lambda: self.switch_to_tab(7)),
+            CommandAction("nav_syscalls", "📡 Syscall Monitor", "NAVIGATION", "Real-time strace syscall telemetry streaming", "Ctrl+8", lambda: self.switch_to_tab(8)),
+            CommandAction("nav_console", "🐍 Python Console", "NAVIGATION", "Embedded Python scripting REPL & automation", "Ctrl+9", lambda: self.switch_to_tab(10)),
+            CommandAction("nav_deserializer", "🧩 Data Deserializer", "NAVIGATION", "Decode std::string, std::vector & embedded JSON", "", lambda: self.switch_to_tab(9)),
+            CommandAction("nav_injector", "💉 .so Injector", "NAVIGATION", "Dynamic library injection & module explorer", "", lambda: self.switch_to_tab(2)),
+            CommandAction("nav_threads", "🧵 Threads & Affinity", "NAVIGATION", "Thread tasks, CPU time & core affinity", "", lambda: self.switch_to_tab(11)),
+            CommandAction("nav_handles", "🌐 Sockets & Handles", "NAVIGATION", "File descriptors, TCP/UDP sockets & IPC pipes", "", lambda: self.switch_to_tab(12)),
+
+            # Target & Tool Actions
+            CommandAction("act_attach_active", "🎯 Attach Active Window", "ACTION", "Query Hyprland and attach to focused window", "", self._attach_active_hyprland_window),
+            CommandAction("act_toggle_speed", "⚡ Speedhack: Toggle", "ACTION", "Toggle speedhack time dilation ON/OFF", "", self._toggle_speedhack),
+            CommandAction("act_speed_half", "⚡ Set Speed: 0.5x (Slow-Mo)", "ACTION", "Slow down process execution to 0.5x", "", lambda: self._set_speed_preset(0.5)),
+            CommandAction("act_speed_normal", "⚡ Set Speed: 1.0x (Normal)", "ACTION", "Reset process speed to standard 1.0x", "", lambda: self._set_speed_preset(1.0)),
+            CommandAction("act_speed_2x", "⚡ Set Speed: 2.0x (Fast)", "ACTION", "Fast-forward process execution to 2.0x", "", lambda: self._set_speed_preset(2.0)),
+            CommandAction("act_speed_5x", "⚡ Set Speed: 5.0x (Max)", "ACTION", "Maximum fast-forward to 5.0x", "", lambda: self._set_speed_preset(5.0)),
+            CommandAction("act_toggle_hud", "🪟 Toggle HUD Overlay", "ACTION", "Toggle floating in-game OSD cheat HUD", "", self._toggle_osd_overlay),
+            CommandAction("act_pause_target", "⏸ Pause / Resume Target", "ACTION", "Send SIGSTOP or SIGCONT to freeze/resume target", "F3", self._toggle_pause_target),
+            CommandAction("act_detach", "✕ Detach Target", "ACTION", "Detach from current target process", "", self.detach_target),
+            CommandAction("act_save_table", "💾 Save Cheat Table", "ACTION", "Export current address table to .phantom file", "Ctrl+S", self._save_table_shortcut),
+            CommandAction("act_load_table", "📂 Load Cheat Table", "ACTION", "Import saved .phantom cheat table", "Ctrl+O", self._load_table_shortcut),
+            CommandAction("act_snap_a", "📸 Take Snapshot A", "ACTION", "Capture baseline memory snapshot", "", lambda: (self.switch_to_tab(6), self.snapshot_tab._take_snapshot_a())),
+            CommandAction("act_snap_b", "📸 Take Snapshot B", "ACTION", "Capture comparison memory snapshot", "", lambda: (self.switch_to_tab(6), self.snapshot_tab._take_snapshot_b())),
+            CommandAction("act_shortcuts", "⌨ Keyboard Shortcuts", "ACTION", "View all global hotkeys and cheat sheet", "F1", self._open_shortcuts_dialog),
+            CommandAction("act_toggle_sidebar", "◀ Toggle Sidebar", "ACTION", "Collapse or expand navigation sidebar", "Ctrl+B", self.sidebar.toggle_collapsed),
+        ]
+        self.command_palette.register_actions(actions)
+        self.command_palette.set_address_jump_callback(self._on_address_jump)
+
+    def _setup_shortcuts(self):
+        """Registers global application hotkeys."""
+        # Command Palette
+        QShortcut(QKeySequence("Ctrl+K"), self, self._open_command_palette)
+        QShortcut(QKeySequence("Ctrl+P"), self, self._open_command_palette)
+
+        # Toggle Sidebar
+        QShortcut(QKeySequence("Ctrl+B"), self, self.sidebar.toggle_collapsed)
+
+        # Shortcuts Help
+        QShortcut(QKeySequence("F1"), self, self._open_shortcuts_dialog)
+        QShortcut(QKeySequence("?"), self, self._open_shortcuts_dialog)
+
+        # Process Control
+        QShortcut(QKeySequence("F3"), self, self._toggle_pause_target)
+        QShortcut(QKeySequence("F5"), self, self._refresh_current_view)
+
+        # Tables
+        QShortcut(QKeySequence("Ctrl+S"), self, self._save_table_shortcut)
+        QShortcut(QKeySequence("Ctrl+O"), self, self._load_table_shortcut)
+
+        # Direct Tab Navigation
+        tab_bindings = [
+            ("Ctrl+0", 13), # Mission Control
+            ("Ctrl+1", 0),  # Processes
+            ("Ctrl+2", 1),  # Scanner
+            ("Ctrl+3", 6),  # Snapshot
+            ("Ctrl+4", 3),  # Hex
+            ("Ctrl+5", 4),  # Struct
+            ("Ctrl+6", 5),  # Symbols
+            ("Ctrl+7", 7),  # Treemap
+            ("Ctrl+8", 8),  # Syscalls
+            ("Ctrl+9", 10), # Console
+        ]
+        for key, idx in tab_bindings:
+            QShortcut(QKeySequence(key), self, lambda i=idx: self.switch_to_tab(i))
+
+    def switch_to_tab(self, index: int):
+        """Switches active view and synchronizes sidebar highlighting."""
+        if 0 <= index < self.tabs.count():
+            self.tabs.setCurrentIndex(index)
+            self.sidebar.set_active_tab(index)
+
+    def _on_tab_changed(self, index: int):
+        self.sidebar.set_active_tab(index)
+
+    def _open_command_palette(self):
+        self.command_palette.show_palette()
+
+    def _open_shortcuts_dialog(self):
+        self.shortcuts_dialog.exec_()
+
+    def _on_address_jump(self, target: str, addr: int):
+        if target == "hex":
+            self._jump_to_hex_address(addr)
+        elif target == "struct":
+            self._jump_to_struct_address(addr)
+
+    def _set_speed_preset(self, speed: float):
+        if not self.current_target_pid:
+            return
+        self.speed_slider.setValue(int(speed * 10))
+        self._on_speed_changed(int(speed * 10))
+
+    def _toggle_pause_target(self):
+        if not self.current_target_pid:
+            self.status_lbl.setText("Cannot pause: No target attached.")
+            return
+
+        if self._target_paused:
+            ProcessManager.resume_process(self.current_target_pid)
+            self._target_paused = False
+            self.status_lbl.setText(f"Resumed target process (PID: {self.current_target_pid}).")
+        else:
+            ProcessManager.pause_process(self.current_target_pid)
+            self._target_paused = True
+            self.status_lbl.setText(f"Paused target process (SIGSTOP) (PID: {self.current_target_pid}).")
+
+    def _refresh_current_view(self):
+        curr = self.tabs.currentWidget()
+        if hasattr(curr, "refresh"):
+            curr.refresh()
+        elif hasattr(curr, "_refresh"):
+            curr._refresh()
+        elif hasattr(curr, "refresh_processes"):
+            curr.refresh_processes()
+        elif hasattr(curr, "refresh_modules"):
+            curr.refresh_modules()
+        elif hasattr(curr, "refresh_threads"):
+            curr.refresh_threads()
+        elif hasattr(curr, "refresh_handles"):
+            curr.refresh_handles()
+        elif hasattr(curr, "refresh_map"):
+            curr.refresh_map()
+        elif hasattr(curr, "refresh_recents"):
+            curr.refresh_recents()
+        self.status_lbl.setText("View refreshed.")
+
+    def _save_table_shortcut(self):
+        self.switch_to_tab(1)
+        self.scanner_tab._save_table()
+
+    def _load_table_shortcut(self):
+        self.switch_to_tab(1)
+        self.scanner_tab._load_table()
+
     def _check_environment(self):
         # Read yama ptrace scope
         try:
@@ -185,6 +391,12 @@ class MainWindow(QMainWindow):
     def attach_target(self, pid: int, name: str, window_title: str = ""):
         self.current_target_pid = pid
         self.current_target_name = name
+        self._target_paused = False
+
+        # Add to recent target history
+        RecentTargetsManager.add_target(pid, name)
+        if hasattr(self, "welcome_tab"):
+            self.welcome_tab.refresh_recents()
 
         title_display = f" - \"{window_title}\"" if window_title else ""
         self.target_badge.setText(f"[ ATTACHED: PID {pid} — {name}{title_display} ]")
@@ -231,11 +443,12 @@ class MainWindow(QMainWindow):
             self.speed_slider.setEnabled(False)
 
         # Automatically advance to Scanner tab
-        self.tabs.setCurrentIndex(1)
+        self.switch_to_tab(1)
 
     def detach_target(self):
         self.current_target_pid = None
         self.current_target_name = ""
+        self._target_paused = False
 
         self.target_badge.setText("[ NO TARGET ATTACHED ]")
         self.target_badge.setStyleSheet(
@@ -263,18 +476,19 @@ class MainWindow(QMainWindow):
         self.osd_overlay.clear_target()
 
         self.status_lbl.setText("Detached from target process.")
+        self.switch_to_tab(13) # Return to Mission Control
 
     def _jump_to_hex_address(self, address: int):
         self.hex_tab.navigate_to_address(address)
-        self.tabs.setCurrentWidget(self.hex_tab)
+        self.switch_to_tab(3)
 
     def _jump_to_disasm_address(self, address: int):
         self.hex_tab.navigate_to_address(address)
-        self.tabs.setCurrentWidget(self.hex_tab)
+        self.switch_to_tab(3)
 
     def _jump_to_struct_address(self, address: int):
         self.struct_tab.set_base_address(address)
-        self.tabs.setCurrentWidget(self.struct_tab)
+        self.switch_to_tab(4)
 
     def _toggle_osd_overlay(self):
         if self.osd_overlay.isVisible():

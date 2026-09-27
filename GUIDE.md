@@ -1,6 +1,6 @@
-# PhantomSuite v4.0: Complete Visual Field Guide
+# PhantomSuite: Complete Visual Field Guide
 
-Welcome to **PhantomSuite v4.0 Ultimate Edition** — your native Linux reverse-engineering workbench, memory scanner, struct dissector, and process instrumentation cockpit. This guide breaks down each of the 13 core tabs, the floating HUD overlay, hardware watchpoints, how they communicate with the Linux kernel, and how to execute key workflows.
+Welcome to **PhantomSuite** — your native Linux reverse-engineering workbench, memory scanner, struct dissector, and process instrumentation cockpit. This guide breaks down the overhauled ergonomic layout, the modern collapsible navigation sidebar, the fuzzy command palette, each of the 13 core tools, and the Mission Control dashboard.
 
 ---
 
@@ -13,35 +13,72 @@ flowchart TD
     subgraph Header ["Global Cockpit Header"]
         TargetBadge["[ ATTACHED: PID 12345 — dummy_target ]"]
         SpeedControl["[⚡ Speedhack: ON] [====|===] 2.5x"]
+        PaletteBtn["⌘ Palette (Ctrl+K)"]
         QuickAttach["🎯 Attach Active Window (Hyprland IPC)"]
         OsdBtn["🪟 HUD Overlay"]
         Detach["✕ Detach"]
     end
 
-    Header --> Tab1["⚡ Processes & Windows"]
-    Header --> Tab2["🔍 Memory Scanner & Tables"]
-    Header --> Tab3["📸 Snapshot Diff"]
-    Header --> Tab4["💉 .so Injector"]
-    Header --> Tab5["🧬 Hex, Disasm & SigMaker"]
-    Header --> Tab6["🔬 Struct Dissector"]
-    Header --> Tab7["📦 ELF Symbols"]
-    Header --> Tab8["🗺️ Memory Map Visualizer"]
-    Header --> Tab9["📡 Syscall Telemetry"]
-    Header --> Tab10["🧩 Data Deserializer"]
-    Header --> Tab11["🐍 Scripting Console"]
-    Header --> Tab12["🧵 Threads & Affinity"]
-    Header --> Tab13["🌐 Sockets & Handles"]
+    subgraph Sidebar ["Collapsible Navigation Sidebar (Ctrl+B)"]
+        G0["🚀 Mission Control (Ctrl+0)"]
+        G1["🎯 TARGET: Processes (Ctrl+1) | Threads | Handles"]
+        G2["🔍 MEMORY: Scanner (Ctrl+2) | Snapshot (Ctrl+3) | Treemap (Ctrl+7)"]
+        G3["🔬 REVERSING: Hex (Ctrl+4) | Structs (Ctrl+5) | Symbols (Ctrl+6) | Deserializer"]
+        G4["⚡ TOOLBOX: Injector | Syscalls (Ctrl+8) | Console (Ctrl+9)"]
+    end
 
-    Tab1 & Tab2 & Tab3 & Tab4 & Tab5 & Tab6 & Tab7 & Tab8 & Tab9 & Tab10 & Tab11 & Tab12 & Tab13 <--> TargetApp
+    Header --> Sidebar
+    Sidebar <--> TargetApp
 ```
 
 ### The Global Header
-No matter which tab you're on, the top bar provides persistent situational awareness:
+No matter which tool you're using, the top bar provides persistent situational awareness:
 * **Target Badge**: Displays the currently attached PID, process binary name, and window title.
 * **⚡ Speedhack Engine**: In-header speed slider (`0.2x` bullet time to `5.0x` fast-forward) controlling process time dilation via `/dev/shm` shared memory hooks.
+* **⌘ Command Palette (`Ctrl+K` / `Ctrl+P`)**: Global fuzzy launcher for all tabs, tools, quick actions, and direct memory address jumping.
 * **🎯 Attach Active Window**: Instantly queries Hyprland's IPC socket (`hyprctl activewindow -j`). Switch to your game or app, switch back, hit this button, and you are attached in 1 click without searching.
 * **🪟 HUD Overlay**: Toggles the floating, semi-transparent On-Screen Display HUD above all windows.
 * **Yama ptrace Indicator**: Located in the bottom-right status bar. Displays green (`ptrace_scope: 0`) for unrestricted memory access, or amber if elevated `pkexec` escalation is needed.
+
+---
+
+## 🚀 Mission Control Dashboard (`Ctrl+0`)
+
+The default landing page for quick launching workflows and re-attaching to past sessions.
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ PHANTOMSUITE // MISSION CONTROL                                                        │
+│ High-Performance Native Linux Reverse Engineering, Memory Scanner & Process Workbench │
+├──────────────────────────────────────────┬─────────────────────────────────────────────┤
+│ 🎯 Attach Active Window                  │ ⚡ Process Explorer                         │
+│ Auto-detect and attach to focused window │ Search through system processes & windows   │
+├──────────────────────────────────────────┼─────────────────────────────────────────────┤
+│ 📂 Load Saved Cheat Table                │ 🐍 Python Scripting Console                 │
+│ Open an ASLR-resilient .phantom table    │ Interactive memory reading & batch scripts  │
+├──────────────────────────────────────────┴─────────────────────────────────────────────┤
+│ RECENT TARGETS                                                        [ Clear History ]│
+│ ⚡ [73729] dummy_target  — /home/eve/Projects/PhantomSuite/tests/target (2026-09-27)   │
+│ ⚡ [9451]  discord       — /usr/bin/discord                            (2026-09-27)   │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## ⌘ The Command Palette (`Ctrl+K` / `Ctrl+P`)
+
+Press **Ctrl+K** or **Ctrl+P** anywhere in the application to open the floating command palette:
+
+* **Instant Tool Switching**: Type `scan`, `hex`, `snap`, `struct`, `sym`, `sys`, `proc` to jump straight to any tool.
+* **Quick Actions**:
+  * Type `attach` → Attaches to currently focused Hyprland window.
+  * Type `speed` → Adjusts speedhack multiplier or toggles it ON/OFF.
+  * Type `pause` or `freeze` → Sends `SIGSTOP` to halt the process.
+  * Type `snap` → Triggers Snapshot A or Snapshot B capture.
+  * Type `hud` → Toggles floating translucent in-game OSD.
+* **Direct Address Jumping**:
+  * Type any hex address (e.g. `0x55AFC0A4A080`) or integer:
+  * Select `🧬 Jump to Hex Editor at 0x...` or `🔬 Dissect Struct at 0x...` to jump straight there!
 
 ---
 
@@ -378,20 +415,24 @@ Click **🪟 HUD Overlay** in the main header:
 
 ---
 
-## Quick Reference Summary (13 Tabs)
+## Quick Reference Summary (Tools & Shortcuts)
 
-| Tab | Best For | Superpower |
-| :--- | :--- | :--- |
-| **⚡ Processes & Windows** | Finding & controlling targets | 1-click active Hyprland window attach & SIGSTOP freeze |
-| **🔍 Memory Scanner** | Finding variables & cheats | Gigabyte/s scan speed, 50ms active freeze, AOB patterns, .phantom tables |
-| **📸 Snapshot Diff** | Unknown value & state discovery | Multi-format delta engine with noise filtering |
-| **💉 .so Injector** | Code injection | GDB dlopen with /proc maps verification & dlclose unloader |
-| **🧬 Hex & Disasm** | Byte & opcode inspection | Live 500ms auto-refresh, 1-click NOP patcher & **✨ SigMaker** |
-| **🔬 Struct Dissector** | Entity & class inspection | **🔥 Live heatmaps**, heuristic pointer/float detection, C struct exporter |
-| **📦 ELF Symbols** | Static & dynamic symbol lookup | Demangled C++ symbols, runtime address resolution, 1-click disasm jump |
-| **🗺️ Memory Map** | Visual memory layout | Proportional distribution bar & KPI metric cards |
-| **📡 Syscall Telemetry** | Kernel monitoring | Live streaming GUI strace with category colors & CSV export |
-| **🧩 Data Deserializer** | C++ STL & JSON parsing | Auto-decodes `std::string`, `std::vector`, embedded JSON |
-| **🐍 Scripting Console** | Batch memory automation | Python REPL, pre-injected memory APIs, and `plugins/` loader |
-| **🧵 Threads** | Thread-level analysis | Per-thread pause/resume (tgkill) and CPU core pinning |
-| **🌐 Sockets & Handles** | File & network auditing | Kernel socket inode to IP:port resolution |
+| Tool / Action | Shortcut | Best For | Superpower |
+| :--- | :--- | :--- | :--- |
+| **🚀 Mission Control** | `Ctrl + 0` | Dashboard & launchpad | Recent target history, 1-click window attach, quick table loading |
+| **⌘ Command Palette** | `Ctrl + K` / `Ctrl + P` | Fuzzy navigation & jump | Instant tool switching, actions & hex address jump (`0x...`) |
+| **⚡ Processes & Windows** | `Ctrl + 1` | Finding & controlling targets | 1-click active Hyprland window attach & SIGSTOP freeze |
+| **🔍 Memory Scanner** | `Ctrl + 2` | Finding variables & cheats | Gigabyte/s scan speed, 50ms active freeze, AOB patterns, .phantom tables |
+| **📸 Snapshot Diff** | `Ctrl + 3` | Unknown value & state discovery | Multi-format delta engine with noise filtering |
+| **🧬 Hex & Disasm** | `Ctrl + 4` | Byte & opcode inspection | Live 500ms auto-refresh, 1-click NOP patcher & **✨ SigMaker** |
+| **🔬 Struct Dissector** | `Ctrl + 5` | Entity & class inspection | **🔥 Live heatmaps**, heuristic pointer/float detection, C struct exporter |
+| **📦 ELF Symbols** | `Ctrl + 6` | Static & dynamic symbol lookup | Demangled C++ symbols, runtime address resolution, 1-click disasm jump |
+| **🗺️ Memory Map** | `Ctrl + 7` | Visual memory layout | Proportional distribution bar & KPI metric cards |
+| **📡 Syscall Telemetry** | `Ctrl + 8` | Kernel monitoring | Live streaming GUI strace with category colors & CSV export |
+| **🐍 Scripting Console** | `Ctrl + 9` | Batch memory automation | Python REPL, pre-injected memory APIs, and `plugins/` loader |
+| **🧩 Data Deserializer** | — | C++ STL & JSON parsing | Auto-decodes `std::string`, `std::vector`, embedded JSON |
+| **💉 .so Injector** | — | Code injection | GDB dlopen with /proc maps verification & dlclose unloader |
+| **🧵 Threads** | — | Thread-level analysis | Per-thread pause/resume (tgkill) and CPU core pinning |
+| **🌐 Sockets & Handles** | — | File & network auditing | Kernel socket inode to IP:port resolution |
+| **◀ Toggle Sidebar** | `Ctrl + B` | Screen real estate | Toggle between 210px expanded view and 54px icon rail |
+| **⌨ Shortcuts Cheat Sheet**| `F1` or `?` | Quick help | Opens interactive modal cheat sheet of all hotkeys |
