@@ -1,6 +1,6 @@
-# PhantomSuite v2.0: Complete Visual Field Guide
+# PhantomSuite v3.0: Complete Visual Field Guide
 
-Welcome to **PhantomSuite v2.0** — your native Linux reverse-engineering workbench, memory scanner, and process instrumentation cockpit. This guide breaks down each of the 6 core tabs, how they communicate with the Linux kernel, and how to execute key workflows.
+Welcome to **PhantomSuite v3.0** — your native Linux reverse-engineering workbench, memory scanner, struct dissector, and process instrumentation cockpit. This guide breaks down each of the 8 core tabs, how they communicate with the Linux kernel, and how to execute key workflows.
 
 ---
 
@@ -20,11 +20,13 @@ flowchart TD
     Header --> Tab1["⚡ Processes & Windows"]
     Header --> Tab2["🔍 Memory Scanner & .phantom Tables"]
     Header --> Tab3["💉 .so Injector"]
-    Header --> Tab4["🧬 Hex & Disasm"]
-    Header --> Tab5["🧵 Threads & Affinity"]
-    Header --> Tab6["🌐 Sockets & Handles"]
+    Header --> Tab4["🧬 Hex, Disasm & SigMaker"]
+    Header --> Tab5["🔬 Struct Dissector & Heatmaps"]
+    Header --> Tab6["📦 ELF Symbols & Modules"]
+    Header --> Tab7["🧵 Threads & Affinity"]
+    Header --> Tab8["🌐 Sockets & Handles"]
 
-    Tab1 & Tab2 & Tab3 & Tab4 & Tab5 & Tab6 <--> TargetApp
+    Tab1 & Tab2 & Tab3 & Tab4 & Tab5 & Tab6 & Tab7 & Tab8 <--> TargetApp
 ```
 
 ### The Global Header
@@ -99,6 +101,11 @@ The **Cheat Engine** core of PhantomSuite. Scan, filter, lock values, and export
   `[module_name + base_offset] -> offset_1 -> offset_2 -> Target Address`
 * Click **Add to Address Table** to save the pointer path!
 
+### ✨ AOB Pattern Scanning
+* Select **AOB / Pattern (with ??)** in the Type combobox.
+* Enter a byte signature with wildcards (e.g. `48 89 5C ?? ?? 48 83 EC *`).
+* Scans all mapped memory regions instantly and lists matching base addresses.
+
 ---
 
 ## Tab 3: 💉 .so Injector & Loaded Modules
@@ -124,7 +131,7 @@ Load and unload compiled shared libraries (`.so`) into any running process using
 
 ---
 
-## Tab 4: 🧬 Hex & Disasm
+## Tab 4: 🧬 Hex, Disasm & Automatic SigMaker
 
 Dual-pane low-level inspection: raw memory bytes on top, live x86_64 assembly instructions on bottom.
 
@@ -142,7 +149,7 @@ Dual-pane low-level inspection: raw memory bytes on top, live x86_64 assembly in
 │ 0x55AFC0A49004  90 90 90 90      nop                                   NOPed           │
 │ 0x55AFC0A49008  48 8b 05 c1...   mov rax, QWORD PTR [rip+0x2fc1]       Active          │
 └────────────────────────────────────────────────────────────────────────────────────────┘
-                  [ 🚫 Replace with NOPs (0x90) ]    [ ↺ Restore Original ]
+  [ ✨ SigMaker (AOB Sig) ]   [ 🚫 Replace with NOPs (0x90) ]   [ ↺ Restore Original ]
 ```
 
 ### 1-Click Code NOPing
@@ -150,9 +157,65 @@ Dual-pane low-level inspection: raw memory bytes on top, live x86_64 assembly in
 * Click **🚫 Replace with NOPs (0x90)**: PhantomSuite overwrites the opcode with NOP bytes so the code never decrements your value.
 * Click **↺ Restore Original**: Restores the original cached machine code instantly.
 
+### ✨ Automated SigMaker
+* Select any instruction in the table and click **✨ SigMaker (AOB Sig)**.
+* PhantomSuite computes the shortest unique byte sequence in the module that identifies that instruction.
+* Opens a dialog displaying the AOB pattern, length, and a 1-click **📋 Copy Signature** button.
+
 ---
 
-## Tab 5: 🧵 Threads & CPU Core Affinity
+## Tab 5: 🔬 Struct Dissector & Live Heatmap Data Analyzer
+
+Inspect heap-allocated structs, entity components, and C++ objects in real time.
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ Base Address: [ 0x55AFC0A4A080 ] Size: [ 256 Bytes ▼ ] Stride: [ 4 Bytes ▼ ] [🔬 Dissect]
+│ [✓] 🔥 Live Heatmap (300ms)               [ 📄 Export C Struct ] [ ⬇ Add to Table ]    │
+├─────────┬──────────────────────┬────────────┬──────────────────┬──────────────┬────────┤
+│ Offset  │ Address              │ Field Name │ Suggested Type   │ Value        │ Heatmap│
+├─────────┼──────────────────────┼────────────┼──────────────────┼──────────────┼────────┤
+│ +0x000  │ 0x55AFC0A4A080       │ health     │ 4 Bytes (int32)  │ 100          │ -      │
+│ +0x004  │ 0x55AFC0A4A084       │ score      │ 4 Bytes (int32)  │ 1337         │ ● DIFF │
+│ +0x008  │ 0x55AFC0A4A088       │ speed      │ Float            │ 4.500000     │ -      │
+│ +0x010  │ 0x55AFC0A4A090       │ ptr_next   │ Pointer (ptr64)  │ 0x7F2B3C...  │ -      │
+└─────────┴──────────────────────┴────────────┴──────────────────┴──────────────┴────────┘
+```
+
+### Key Workflows:
+1. **🔥 Live Heatmaps**: Turn on Live Heatmap. In game, move your player or take damage. Fluctuating coordinates or changing health will glow with **● DIFF** in neon magenta!
+2. **Rename Fields**: Double-click any field name to rename it (e.g. change `field_0x04` to `player_gold`).
+3. **📄 Export C Struct**: Generates a drop-in C/C++ struct header definition for game modding or tool development.
+4. **⬇ Add to Address Table**: Select fields and send them straight into the Cheat Table.
+
+---
+
+## Tab 6: 📦 ELF Symbol & Module Explorer
+
+Explore symbols, functions, global variables, and sections directly from loaded executables and `.so` libraries.
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ Module: [ dummy_target (0x55AFC0A49000) ▼ ] [ ⟳ ] Filter: [ health  ] Type: [ All ▼ ]  │
+│ [ 🔬 Disassemble ]   [ ⬇ Add to Table ]   [ 📋 Copy Addr ]                             │
+├─────────────────────────────┬────────┬─────────────┬─────────────────┬──────┬──────────┤
+│ Symbol Name                 │ Type   │ File Offset │ Runtime Address │ Size │ Status   │
+├─────────────────────────────┼────────┼─────────────┼─────────────────┼──────┼──────────┤
+│ target_health               │ OBJECT │ 0x4080      │ 0x55AFC0A4A080  │ 4    │ Exported │
+│ target_score                │ OBJECT │ 0x4084      │ 0x55AFC0A4A084  │ 4    │ Exported │
+│ target_speed                │ OBJECT │ 0x4088      │ 0x55AFC0A4A088  │ 4    │ Exported │
+│ main                        │ FUNC   │ 0x11E9      │ 0x55AFC0A491E9  │ 193  │ Exported │
+└─────────────────────────────┴────────┴─────────────┴─────────────────┴──────┴──────────┘
+```
+
+### Key Workflows:
+1. **Instant Function & Variable Finding**: Type `health`, `gold`, `score`, or `render` in the filter box.
+2. **🔬 1-Click Disassembly**: Select a function symbol and click **🔬 Disassemble** (or double-click) to jump directly into the live disassembler at that instruction!
+3. **⬇ Add to Address Table**: Directly creates a named cheat table entry with runtime address and type.
+
+---
+
+## Tab 7: 🧵 Threads & CPU Core Affinity
 
 Inspect and manage individual thread tasks under `/proc/<pid>/task/`.
 
@@ -175,7 +238,7 @@ Inspect and manage individual thread tasks under `/proc/<pid>/task/`.
 
 ---
 
-## Tab 6: 🌐 Sockets & Handles
+## Tab 8: 🌐 Sockets & Handles
 
 Inspect every open file descriptor, network socket, IPC pipe, and device file.
 
@@ -199,9 +262,11 @@ Inspect every open file descriptor, network socket, IPC pipe, and device file.
 | Tab | Best For | Superpower |
 | :--- | :--- | :--- |
 | **⚡ Processes & Windows** | Finding & controlling targets | 1-click active Hyprland window attach & SIGSTOP freeze |
-| **🔍 Memory Scanner** | Finding variables & cheats | Gigabyte/s scan speed, 50ms active freeze, .phantom tables |
+| **🔍 Memory Scanner** | Finding variables & cheats | Gigabyte/s scan speed, 50ms active freeze, AOB patterns, .phantom tables |
 | **💉 .so Injector** | Code injection | GDB dlopen with /proc maps verification & dlclose unloader |
-| **🧬 Hex & Disasm** | Byte & opcode inspection | Live 500ms auto-refresh & 1-click NOP instruction patcher |
+| **🧬 Hex & Disasm** | Byte & opcode inspection | Live 500ms auto-refresh, 1-click NOP patcher & **✨ SigMaker** |
+| **🔬 Struct Dissector** | Entity & class inspection | **🔥 Live heatmaps**, heuristic pointer/float detection, C struct exporter |
+| **📦 ELF Symbols** | Static & dynamic symbol lookup | Demangled C++ symbols, runtime address resolution, 1-click disasm jump |
 | **🧵 Threads** | Thread-level analysis | Per-thread pause/resume (tgkill) and CPU core pinning |
 | **🌐 Sockets & Handles** | File & network auditing | Kernel socket inode to IP:port resolution |
 | **⚡ Speedhack (HUD)** | Time dilation | In-header slider from 0.2x bullet-time to 5.0x fast-forward |

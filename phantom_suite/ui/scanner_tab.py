@@ -15,6 +15,7 @@ from phantom_suite.core.memory_engine import (
     MemoryEngine, TypeFormat, ScanType, ScanResult, FreezeManager
 )
 from phantom_suite.core.table_serializer import TableSerializer
+from phantom_suite.core.pattern_scanner import PatternScanner
 from phantom_suite.ui.pointer_dialog import PointerDialog
 
 
@@ -38,6 +39,21 @@ class ScanWorker(QThread):
 
     def run(self):
         try:
+            if self.val_type == TypeFormat.AOB:
+                self.progress.emit(0.2, "Scanning memory regions for AOB pattern...")
+                matches = PatternScanner.scan_pattern(
+                    pid=self.pid,
+                    pattern_str=str(self.target_val),
+                    max_matches=500
+                )
+                res = []
+                for m in matches:
+                    val_str = f"{m.module_name} + 0x{m.offset:X}" if m.module_name else f"0x{m.address:X}"
+                    res.append(ScanResult(address=m.address, value=val_str))
+                self.progress.emit(1.0, f"Found {len(res)} matches.")
+                self.finished.emit(res)
+                return
+
             if self.is_first:
                 res = MemoryEngine.first_scan(
                     pid=self.pid,
@@ -132,7 +148,8 @@ class ScannerTab(QWidget):
             "Float",
             "Double",
             "String / Text",
-            "Hex Byte Array"
+            "Hex Byte Array",
+            "AOB / Pattern (with ??)"
         ])
 
         scan_type_lbl = QLabel("Scan Type:")
@@ -267,7 +284,8 @@ class ScannerTab(QWidget):
             TypeFormat.FLOAT,
             TypeFormat.DOUBLE,
             TypeFormat.STRING,
-            TypeFormat.BYTES
+            TypeFormat.BYTES,
+            TypeFormat.AOB
         ]
         return mapping[idx]
 
@@ -284,7 +302,7 @@ class ScannerTab(QWidget):
                 return int(raw, 0)
             elif val_type == TypeFormat.STRING:
                 return raw
-            elif val_type == TypeFormat.BYTES:
+            elif val_type in (TypeFormat.BYTES, TypeFormat.AOB):
                 return raw
         except ValueError:
             return None
@@ -306,7 +324,7 @@ class ScannerTab(QWidget):
             return
 
         val_type = self._get_val_type_key()
-        align = 1 if val_type in (TypeFormat.STRING, TypeFormat.BYTES) else 4
+        align = 1 if val_type in (TypeFormat.STRING, TypeFormat.BYTES, TypeFormat.AOB) else 4
 
         self.first_scan_btn.setEnabled(False)
         self.next_scan_btn.setEnabled(False)
@@ -442,6 +460,13 @@ class ScannerTab(QWidget):
         self.cheat_table.setItem(row, 2, addr_item)
         self.cheat_table.setItem(row, 3, type_item)
         self.cheat_table.setItem(row, 4, val_item)
+
+    def add_cheat_entry(self, address: int, val_type: str, desc: str):
+        """Public method to programmatically add an entry to the saved Cheat Table."""
+        curr_val = "?"
+        if self.target_pid:
+            curr_val = str(MemoryEngine.read_typed(self.target_pid, address, val_type) or "?")
+        self._insert_cheat_entry(address, val_type, desc, curr_val)
 
     def _toggle_freeze(self, checked: bool, address: int, val_type: str, row: int):
         if not self.target_pid:

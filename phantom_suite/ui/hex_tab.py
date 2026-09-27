@@ -9,11 +9,61 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QTableWidget, QTableWidgetItem, QHeaderView,
     QCheckBox, QMessageBox, QGroupBox, QInputDialog, QAbstractItemView,
-    QSplitter, QTabWidget
+    QSplitter, QTabWidget, QDialog, QApplication
 )
 from PySide6.QtCore import Qt, QTimer
 from phantom_suite.core.hex_viewer import HexViewer, HexLine
 from phantom_suite.core.disassembler import Disassembler, Instruction
+from phantom_suite.core.pattern_scanner import PatternScanner
+from phantom_suite.core.table_serializer import TableSerializer
+
+
+class SigMakerDialog(QDialog):
+    """Dialog displaying generated unique AOB signature."""
+
+    def __init__(self, address: int, signature: str, length: int, module_name: str, offset: int, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("SigMaker // Unique AOB Signature Generator")
+        self.resize(560, 240)
+
+        layout = QVBoxLayout(self)
+        layout.setSpacing(12)
+
+        lbl = QLabel("Generated shortest unique AOB signature for this instruction:")
+        lbl.setStyleSheet("color: #7d90b3;")
+        layout.addWidget(lbl)
+
+        info_box = QGroupBox("Signature Details")
+        info_layout = QVBoxLayout(info_box)
+
+        addr_txt = f"Address: 0x{address:X}"
+        if module_name:
+            addr_txt += f"  ({module_name} + 0x{offset:X})"
+        info_layout.addWidget(QLabel(addr_txt))
+        info_layout.addWidget(QLabel(f"Length: {length} bytes"))
+
+        self.sig_edit = QLineEdit(signature)
+        self.sig_edit.setReadOnly(True)
+        self.sig_edit.setStyleSheet("font-family: monospace; font-size: 13px; color: #00f0ff; font-weight: bold;")
+        info_layout.addWidget(self.sig_edit)
+        layout.addWidget(info_box)
+
+        btn_box = QHBoxLayout()
+        copy_btn = QPushButton("📋 Copy Signature")
+        copy_btn.setObjectName("accent_btn")
+        copy_btn.clicked.connect(self._copy_sig)
+
+        close_btn = QPushButton("Close")
+        close_btn.clicked.connect(self.accept)
+
+        btn_box.addStretch()
+        btn_box.addWidget(copy_btn)
+        btn_box.addWidget(close_btn)
+        layout.addLayout(btn_box)
+
+    def _copy_sig(self):
+        QApplication.clipboard().setText(self.sig_edit.text())
+        QMessageBox.information(self, "Copied", "AOB Signature copied to clipboard.")
 
 
 class HexTab(QWidget):
@@ -45,6 +95,7 @@ class HexTab(QWidget):
         self.patch_btn.setEnabled(True)
         self.nop_btn.setEnabled(True)
         self.restore_btn.setEnabled(True)
+        self.sigmaker_btn.setEnabled(True)
 
     def clear_target(self):
         self.target_pid = None
@@ -57,6 +108,7 @@ class HexTab(QWidget):
         self.patch_btn.setEnabled(False)
         self.nop_btn.setEnabled(False)
         self.restore_btn.setEnabled(False)
+        self.sigmaker_btn.setEnabled(False)
         self.hex_table.setRowCount(0)
         self.disasm_table.setRowCount(0)
         self._timer.stop()
@@ -157,8 +209,13 @@ class HexTab(QWidget):
         self.restore_btn.setEnabled(False)
         self.restore_btn.clicked.connect(self._on_restore_selected)
 
+        self.sigmaker_btn = QPushButton("✨ SigMaker (AOB Sig)")
+        self.sigmaker_btn.setEnabled(False)
+        self.sigmaker_btn.clicked.connect(self._on_sigmaker_clicked)
+
         disasm_top.addWidget(disasm_info)
         disasm_top.addStretch()
+        disasm_top.addWidget(self.sigmaker_btn)
         disasm_top.addWidget(self.nop_btn)
         disasm_top.addWidget(self.restore_btn)
         disasm_layout.addLayout(disasm_top)
@@ -341,3 +398,22 @@ class HexTab(QWidget):
             QMessageBox.information(self, "Restored", msg)
         else:
             QMessageBox.critical(self, "Restore Failed", msg)
+
+    def _on_sigmaker_clicked(self):
+        row = self.disasm_table.currentRow()
+        if row < 0 or not self.target_pid or row >= len(self.current_instructions):
+            QMessageBox.warning(self, "No Selection", "Please select an instruction from the disassembly table first.")
+            return
+
+        inst = self.current_instructions[row]
+        module_name, offset = TableSerializer.resolve_runtime_address(self.target_pid, inst.address)
+        sig, length = PatternScanner.generate_unique_signature(
+            self.target_pid, inst.address, module_name=module_name
+        )
+        if not sig:
+            QMessageBox.warning(self, "SigMaker", "Could not generate signature for this instruction.")
+            return
+
+        dlg = SigMakerDialog(inst.address, sig, length, module_name or "", offset, self)
+        dlg.exec()
+

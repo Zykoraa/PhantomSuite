@@ -96,6 +96,7 @@ class TypeFormat:
     DOUBLE = "double"
     STRING = "string"
     BYTES = "bytes"
+    AOB = "aob"
 
     STRUCT_MAP = {
         INT8: ("<b", 1),
@@ -116,11 +117,11 @@ class TypeFormat:
             return cls.STRUCT_MAP[val_type][1]
         elif val_type == cls.STRING:
             return len(str(custom_val).encode('utf-8')) if custom_val else 1
-        elif val_type == cls.BYTES:
+        elif val_type in (cls.BYTES, cls.AOB):
             if isinstance(custom_val, (bytes, bytearray)):
                 return len(custom_val)
             elif isinstance(custom_val, str):
-                return len(bytes.fromhex(custom_val.replace(" ", "")))
+                return len(custom_val.strip().split())
             return 1
         return 4
 

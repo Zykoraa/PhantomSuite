@@ -21,6 +21,8 @@ from phantom_suite.ui.injector_tab import InjectorTab
 from phantom_suite.ui.hex_tab import HexTab
 from phantom_suite.ui.threads_tab import ThreadsTab
 from phantom_suite.ui.handles_tab import HandlesTab
+from phantom_suite.ui.struct_tab import StructTab
+from phantom_suite.ui.symbols_tab import SymbolsTab
 
 
 class MainWindow(QMainWindow):
@@ -49,7 +51,7 @@ class MainWindow(QMainWindow):
         header = QHBoxLayout()
         header.setSpacing(12)
 
-        title_lbl = QLabel("PHANTOM<font color='#00f0ff'>SUITE</font> <font color='#ff007f'>v2.0</font>")
+        title_lbl = QLabel("PHANTOM<font color='#00f0ff'>SUITE</font> <font color='#ff007f'>v3.0</font>")
         title_lbl.setStyleSheet("font-size: 17px; font-weight: bold; letter-spacing: 1px;")
 
         self.target_badge = QLabel("[ NO TARGET ATTACHED ]")
@@ -104,6 +106,8 @@ class MainWindow(QMainWindow):
         self.scanner_tab = ScannerTab()
         self.injector_tab = InjectorTab()
         self.hex_tab = HexTab()
+        self.struct_tab = StructTab()
+        self.symbols_tab = SymbolsTab()
         self.threads_tab = ThreadsTab()
         self.handles_tab = HandlesTab()
 
@@ -111,6 +115,8 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.scanner_tab, "🔍 Memory Scanner")
         self.tabs.addTab(self.injector_tab, "💉 .so Injector")
         self.tabs.addTab(self.hex_tab, "🧬 Hex & Disasm")
+        self.tabs.addTab(self.struct_tab, "🔬 Struct Dissector")
+        self.tabs.addTab(self.symbols_tab, "📦 ELF Symbols")
         self.tabs.addTab(self.threads_tab, "🧵 Threads")
         self.tabs.addTab(self.handles_tab, "🌐 Sockets & Handles")
 
@@ -118,6 +124,10 @@ class MainWindow(QMainWindow):
 
         # Connect signals
         self.process_tab.target_attached.connect(self.attach_target)
+        self.struct_tab.add_to_cheat_table.connect(self.scanner_tab.add_cheat_entry)
+        self.struct_tab.jump_to_hex.connect(self._jump_to_hex_address)
+        self.symbols_tab.add_to_cheat_table.connect(self.scanner_tab.add_cheat_entry)
+        self.symbols_tab.jump_to_disasm.connect(self._jump_to_disasm_address)
 
         # Status Bar
         self.status_bar = QStatusBar()
@@ -160,6 +170,8 @@ class MainWindow(QMainWindow):
         self.scanner_tab.set_target(pid, name)
         self.injector_tab.set_target(pid, name)
         self.hex_tab.set_target(pid, name)
+        self.struct_tab.set_target(pid, name)
+        self.symbols_tab.set_target(pid, name)
         self.threads_tab.set_target(pid, name)
         self.handles_tab.set_target(pid, name)
 
@@ -202,10 +214,20 @@ class MainWindow(QMainWindow):
         self.scanner_tab.clear_target()
         self.injector_tab.clear_target()
         self.hex_tab.clear_target()
+        self.struct_tab.clear_target()
+        self.symbols_tab.clear_target()
         self.threads_tab.clear_target()
         self.handles_tab.clear_target()
 
         self.status_lbl.setText("Detached from target process.")
+
+    def _jump_to_hex_address(self, address: int):
+        self.hex_tab.navigate_to_address(address)
+        self.tabs.setCurrentWidget(self.hex_tab)
+
+    def _jump_to_disasm_address(self, address: int):
+        self.hex_tab.navigate_to_address(address)
+        self.tabs.setCurrentWidget(self.hex_tab)
 
     def _toggle_speedhack(self):
         if not self.current_target_pid:
