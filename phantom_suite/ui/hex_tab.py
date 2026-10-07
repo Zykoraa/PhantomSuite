@@ -222,8 +222,13 @@ class HexTab(QWidget):
         self.sigmaker_btn.setEnabled(False)
         self.sigmaker_btn.clicked.connect(self._on_sigmaker_clicked)
 
+        self.cfg_btn = QPushButton("🔀 CFG Graph")
+        self.cfg_btn.setEnabled(False)
+        self.cfg_btn.clicked.connect(self._on_cfg_clicked)
+
         disasm_top.addWidget(disasm_info)
         disasm_top.addStretch()
+        disasm_top.addWidget(self.cfg_btn)
         disasm_top.addWidget(self.sigmaker_btn)
         disasm_top.addWidget(self.nop_btn)
         disasm_top.addWidget(self.restore_btn)
@@ -318,6 +323,7 @@ class HexTab(QWidget):
             self.target_pid, self.current_address, length=64
         )
         self.disasm_table.setRowCount(len(self.current_instructions))
+        self.cfg_btn.setEnabled(len(self.current_instructions) > 0)
 
         for row, inst in enumerate(self.current_instructions):
             addr_item = QTableWidgetItem(f"0x{inst.address:X}")
@@ -433,6 +439,13 @@ class HexTab(QWidget):
 
         dlg = WatchpointDialog(self.target_pid, self.current_address, self)
         dlg.jump_to_disasm.connect(self.navigate_to_address)
+        dlg.exec()
+
+    def _on_cfg_clicked(self):
+        if not self.target_pid or self.current_address <= 0:
+            return
+        from phantom_suite.ui.cfg_dialog import CFGDialog
+        dlg = CFGDialog(self.target_pid, self.current_address, self)
         dlg.exec()
 
 

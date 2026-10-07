@@ -189,10 +189,18 @@ class CommandPaletteDialog(QDialog):
                 description=f"Synthesize Z3 pointer chains & C++ struct for {hex_str}",
                 callback=lambda a=addr_val: self.address_jump_callback("pointer", a) if self.address_jump_callback else None
             )
+            cfg_act = CommandAction(
+                action_id=f"jump_cfg_{addr_val}",
+                title=f"🔀 View Control Flow Graph (CFG) at {hex_str}",
+                category="JUMP",
+                description=f"Analyze function basic block graph at {hex_str}",
+                callback=lambda a=addr_val: self.address_jump_callback("cfg", a) if self.address_jump_callback else None
+            )
             self._add_list_item(hex_act)
             self._add_list_item(struct_act)
             self._add_list_item(ptr_act)
-            self.filtered_actions.extend([hex_act, struct_act, ptr_act])
+            self._add_list_item(cfg_act)
+            self.filtered_actions.extend([hex_act, struct_act, ptr_act, cfg_act])
 
         # Filter registered actions
         for act in self.actions:

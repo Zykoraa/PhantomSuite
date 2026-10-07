@@ -264,6 +264,10 @@ class MainWindow(QMainWindow):
             CommandAction("act_snap_b", "📸 Take Snapshot B", "ACTION", "Capture comparison memory snapshot", "", lambda: (self.switch_to_tab(6), self.snapshot_tab._take_snapshot_b())),
             CommandAction("act_shortcuts", "⌨ Keyboard Shortcuts", "ACTION", "View all global hotkeys and cheat sheet", "F1", self._open_shortcuts_dialog),
             CommandAction("act_toggle_sidebar", "◀ Toggle Sidebar", "ACTION", "Collapse or expand navigation sidebar", "Ctrl+B", self.sidebar.toggle_collapsed),
+            CommandAction("act_open_cfg", "🔀 Control Flow Graph (CFG)", "TOOL", "Interactive function basic block graph and branch inversion", "", self._open_cfg_tool),
+            CommandAction("act_open_heap", "🧱 Glibc Heap Introspector", "TOOL", "Inspect process heap chunks, tcache, and corruption", "", self._open_heap_tool),
+            CommandAction("act_open_pmu", "🛡️ Anti-Debug & PMU Profiler", "TOOL", "Audit TracerPid, wchan, and RDTSC timing delta loops", "", self._open_pmu_tool),
+            CommandAction("act_dwarf_types", "🧬 Synthesize DWARF Types", "TOOL", "Extract exact struct definitions from ELF DWARF metadata", "", self._open_dwarf_tool),
         ]
         self.command_palette.register_actions(actions)
         self.command_palette.set_address_jump_callback(self._on_address_jump)
@@ -327,6 +331,8 @@ class MainWindow(QMainWindow):
             self._jump_to_struct_address(addr)
         elif target == "pointer":
             self._jump_to_pointer_solver(addr)
+        elif target == "cfg":
+            self._jump_to_cfg(addr)
 
     def _jump_to_pointer_solver(self, addr: int):
         if not self.current_target_pid:
@@ -338,6 +344,53 @@ class MainWindow(QMainWindow):
         dialog.pointer_selected.connect(
             lambda desc, path: self.scanner_tab._insert_cheat_entry(addr, TypeFormat.INT32, f"{desc} [{path}]", "?")
         )
+        dialog.exec()
+
+    def _jump_to_cfg(self, addr: int):
+        if not self.current_target_pid:
+            self.status_lbl.setText("Cannot open CFG: No target attached.")
+            return
+        from phantom_suite.ui.cfg_dialog import CFGDialog
+        dialog = CFGDialog(self.current_target_pid, addr, self)
+        dialog.exec()
+
+    def _open_cfg_tool(self):
+        if not self.current_target_pid:
+            QMessageBox.information(self, "No Target", "Please attach to a process first.")
+            return
+        from phantom_suite.ui.cfg_dialog import CFGDialog
+        addr = self.hex_tab.current_address if self.hex_tab.current_address > 0 else 0x401000
+        dialog = CFGDialog(self.current_target_pid, addr, self)
+        dialog.exec()
+
+    def _open_heap_tool(self):
+        if not self.current_target_pid:
+            QMessageBox.information(self, "No Target", "Please attach to a process first.")
+            return
+        from phantom_suite.ui.heap_dialog import HeapDialog
+        dialog = HeapDialog(self.current_target_pid, self)
+        dialog.exec()
+
+    def _open_pmu_tool(self):
+        if not self.current_target_pid:
+            QMessageBox.information(self, "No Target", "Please attach to a process first.")
+            return
+        from phantom_suite.ui.pmu_dialog import PmuDialog
+        dialog = PmuDialog(self.current_target_pid, self)
+        dialog.exec()
+
+    def _open_dwarf_tool(self):
+        if not self.current_target_pid:
+            QMessageBox.information(self, "No Target", "Please attach to a process first.")
+            return
+        from phantom_suite.core.dwarf_synthesizer import DwarfSynthesizer
+        from phantom_suite.ui.pointer_dialog import StructPreviewDialog
+        structs = DwarfSynthesizer.get_module_dwarf_structs(self.current_target_pid)
+        if not structs:
+            QMessageBox.information(self, "DWARF Synthesizer", "No DWARF debug information found in loaded modules.")
+            return
+        full_code = "\n\n".join(s.to_c_header() for s in structs.values())
+        dialog = StructPreviewDialog(full_code, "All_DWARF_Structs", self)
         dialog.exec()
 
     def _set_speed_preset(self, speed: float):

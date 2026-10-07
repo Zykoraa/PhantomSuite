@@ -27,6 +27,11 @@ from phantom_suite.core.script_engine import ScriptEngine
 from phantom_suite.core.symbolic_solver import (
     SymbolicPointerSolver, SymbolicStructSynthesizer, SymbolicGraph, SymbolicEdge
 )
+from phantom_suite.core.dwarf_synthesizer import DwarfSynthesizer, DwarfStruct, DwarfMember
+from phantom_suite.core.cfg_engine import CFGEngine, ControlFlowGraph, BasicBlock, CFGInstruction
+from phantom_suite.core.heap_inspector import HeapInspector, HeapSnapshot, HeapChunk
+from phantom_suite.core.detour_engine import DetourEngine, DetourHook
+from phantom_suite.core.pmu_profiler import PmuProfiler, TimingProfileReport, AntiDebugIndicator
 
 __all__ = [
     "MemoryEngine",
@@ -79,4 +84,19 @@ __all__ = [
     "SymbolicStructSynthesizer",
     "SymbolicGraph",
     "SymbolicEdge",
+    "DwarfSynthesizer",
+    "DwarfStruct",
+    "DwarfMember",
+    "CFGEngine",
+    "ControlFlowGraph",
+    "BasicBlock",
+    "CFGInstruction",
+    "HeapInspector",
+    "HeapSnapshot",
+    "HeapChunk",
+    "DetourEngine",
+    "DetourHook",
+    "PmuProfiler",
+    "TimingProfileReport",
+    "AntiDebugIndicator",
 ]
