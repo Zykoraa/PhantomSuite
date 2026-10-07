@@ -24,6 +24,9 @@ from phantom_suite.core.syscall_tracer import SyscallTracer, SyscallEvent
 from phantom_suite.core.data_deserializer import DataDeserializer, DecodedString, DecodedVector, DecodedJson
 from phantom_suite.core.watchpoint_tracer import WatchpointTracer, WatchpointHit
 from phantom_suite.core.script_engine import ScriptEngine
+from phantom_suite.core.symbolic_solver import (
+    SymbolicPointerSolver, SymbolicStructSynthesizer, SymbolicGraph, SymbolicEdge
+)
 
 __all__ = [
     "MemoryEngine",
@@ -72,4 +75,8 @@ __all__ = [
     "WatchpointTracer",
     "WatchpointHit",
     "ScriptEngine",
+    "SymbolicPointerSolver",
+    "SymbolicStructSynthesizer",
+    "SymbolicGraph",
+    "SymbolicEdge",
 ]

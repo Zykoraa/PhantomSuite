@@ -325,6 +325,20 @@ class MainWindow(QMainWindow):
             self._jump_to_hex_address(addr)
         elif target == "struct":
             self._jump_to_struct_address(addr)
+        elif target == "pointer":
+            self._jump_to_pointer_solver(addr)
+
+    def _jump_to_pointer_solver(self, addr: int):
+        if not self.current_target_pid:
+            self.status_lbl.setText("Cannot run Pointer Solver: No target attached.")
+            return
+        from phantom_suite.ui.pointer_dialog import PointerDialog
+        from phantom_suite.core.memory_engine import TypeFormat
+        dialog = PointerDialog(self.current_target_pid, addr, self)
+        dialog.pointer_selected.connect(
+            lambda desc, path: self.scanner_tab._insert_cheat_entry(addr, TypeFormat.INT32, f"{desc} [{path}]", "?")
+        )
+        dialog.exec()
 
     def _set_speed_preset(self, speed: float):
         if not self.current_target_pid:

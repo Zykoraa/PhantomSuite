@@ -117,6 +117,7 @@ class CommandPaletteDialog(QDialog):
             "}"
         )
         self.list_widget.itemActivated.connect(self._on_item_activated)
+        self.list_widget.itemClicked.connect(self._on_item_activated)
         layout.addWidget(self.list_widget)
 
     def register_action(self, action: CommandAction):
@@ -172,18 +173,26 @@ class CommandPaletteDialog(QDialog):
                 title=f"🧬 Jump to Hex Editor at {hex_str}",
                 category="JUMP",
                 description=f"Inspect memory bytes and disassembly at {hex_str}",
-                callback=lambda: self.address_jump_callback("hex", addr_val) if self.address_jump_callback else None
+                callback=lambda a=addr_val: self.address_jump_callback("hex", a) if self.address_jump_callback else None
             )
             struct_act = CommandAction(
                 action_id=f"jump_struct_{addr_val}",
                 title=f"🔬 Dissect Struct at {hex_str}",
                 category="JUMP",
                 description=f"Heuristically dissect memory structure at {hex_str}",
-                callback=lambda: self.address_jump_callback("struct", addr_val) if self.address_jump_callback else None
+                callback=lambda a=addr_val: self.address_jump_callback("struct", a) if self.address_jump_callback else None
+            )
+            ptr_act = CommandAction(
+                action_id=f"jump_ptr_{addr_val}",
+                title=f"⚡ SMT Pointer Solver & Synthesizer at {hex_str}",
+                category="JUMP",
+                description=f"Synthesize Z3 pointer chains & C++ struct for {hex_str}",
+                callback=lambda a=addr_val: self.address_jump_callback("pointer", a) if self.address_jump_callback else None
             )
             self._add_list_item(hex_act)
             self._add_list_item(struct_act)
-            self.filtered_actions.extend([hex_act, struct_act])
+            self._add_list_item(ptr_act)
+            self.filtered_actions.extend([hex_act, struct_act, ptr_act])
 
         # Filter registered actions
         for act in self.actions:

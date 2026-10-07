@@ -46,6 +46,32 @@ class TestPointerScanner(unittest.TestCase):
             if resolved is not None:
                 self.assertEqual(resolved, self.score_addr)
 
+    def test_pointer_scanner_corner_cases(self):
+        """Verifies PID <= 0, None/invalid offsets, and null pointer safety."""
+        # PID <= 0
+        self.assertIsNone(PointerScanner.resolve_path(0, "test", 0x10, [0x20]))
+        self.assertIsNone(PointerScanner.resolve_path(-1, "test", 0x10, [0x20]))
+        self.assertEqual(PointerScanner.scan_for_pointers(0, self.score_addr), [])
+        self.assertEqual(PointerScanner.scan_for_pointers(-1, self.score_addr), [])
+
+        # Invalid offsets argument
+        self.assertIsNone(PointerScanner.resolve_path(self.pid, "test", 0x10, None))
+        self.assertIsNone(PointerScanner.resolve_path(self.pid, "test", 0x10, ["not_an_int"]))
+
+        # Invalid target address
+        self.assertEqual(PointerScanner.scan_for_pointers(self.pid, target_address=0), [])
+        self.assertEqual(PointerScanner.scan_for_pointers(self.pid, target_address=-1), [])
+
+        # Negative offset to_string formatting
+        path = PointerScanner.resolve_path(self.pid, "", 0, [])
+        p_obj = PointerScanner.scan_for_pointers(self.pid, self.score_addr, max_offset=4096, max_depth=1)
+        # Custom PointerPath string formatting check with negative offsets
+        from phantom_suite.core.pointer_scanner import PointerPath
+        p_neg = PointerPath(module_name="mod", base_offset=-0x20, offsets=[-0x10, 0x30], resolved_address=0x1000)
+        self.assertIn("- 0x20", p_neg.to_string())
+        self.assertIn("- 0x10", p_neg.to_string())
+        self.assertIn("+ 0x30", p_neg.to_string())
+
 
 if __name__ == "__main__":
     unittest.main()
