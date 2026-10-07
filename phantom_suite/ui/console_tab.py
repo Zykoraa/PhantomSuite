@@ -3,13 +3,15 @@ PhantomSuite Python Scripting Console Tab
 Interactive multi-line script editor, REPL output console, and automation templates.
 """
 
-from typing import Optional
+import html
+import textwrap
+from typing import Optional, List
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QPlainTextEdit, QTextEdit, QComboBox,
-    QMessageBox, QGroupBox, QFileDialog, QSplitter
+    QMessageBox, QGroupBox, QFileDialog, QSplitter, QLineEdit
 )
-from PySide6.QtGui import QFont, QKeySequence, QShortcut
+from PySide6.QtGui import QFont, QKeySequence, QShortcut, QKeyEvent
 from PySide6.QtCore import Qt
 from phantom_suite.core.script_engine import ScriptEngine
 
@@ -61,6 +63,8 @@ class ConsoleTab(QWidget):
         self.target_pid: Optional[int] = None
         self.target_name: str = ""
         self.engine = ScriptEngine()
+        self.command_history: List[str] = []
+        self.history_index: int = -1
 
         self._init_ui()
 
@@ -93,12 +97,15 @@ class ConsoleTab(QWidget):
 
         # Controls Bar
         ctrl_layout = QHBoxLayout()
-        self.run_btn = QPushButton("▶ Run Script (Ctrl+Enter)")
+        self.run_btn = QPushButton("▶ Run Script / Selection (Ctrl+Enter)")
         self.run_btn.setObjectName("accent_btn")
         self.run_btn.clicked.connect(self._run_code)
 
         self.clear_out_btn = QPushButton("🗑 Clear Log")
         self.clear_out_btn.clicked.connect(self.output_edit_clear)
+
+        self.reset_env_btn = QPushButton("♻ Reset Scope")
+        self.reset_env_btn.clicked.connect(self._reset_scope)
 
         self.template_combo = QComboBox()
         self.template_combo.addItems(list(EXAMPLES.keys()))
@@ -112,6 +119,7 @@ class ConsoleTab(QWidget):
 
         ctrl_layout.addWidget(self.run_btn)
         ctrl_layout.addWidget(self.clear_out_btn)
+        ctrl_layout.addWidget(self.reset_env_btn)
         ctrl_layout.addSpacing(15)
         ctrl_layout.addWidget(QLabel("Templates:"))
         ctrl_layout.addWidget(self.template_combo)
@@ -131,6 +139,7 @@ class ConsoleTab(QWidget):
         self.code_edit.setFont(font)
         self.code_edit.setPlaceholderText(
             "# Write Python code here to automate memory actions...\n"
+            "# Select any lines and press Ctrl+Enter to run only the selection.\n"
             "# Helpers available: read(addr, sz), write(addr, bytes), read_i32(addr), write_i32(addr, val),\n"
             "# scan(pattern), disasm(addr), dissect(addr), symbols(mod), MemoryEngine, TableSerializer...\n"
         )
@@ -141,33 +150,114 @@ class ConsoleTab(QWidget):
         editor_layout.addWidget(self.code_edit)
         splitter.addWidget(editor_group)
 
-        # Console Output
-        out_group = QGroupBox("Interactive Console Output")
+        # Console Output & Interactive Prompt
+        out_group = QGroupBox("Interactive Console Output & REPL")
         out_layout = QVBoxLayout(out_group)
         self.out_edit = QTextEdit()
         self.out_edit.setFont(font)
         self.out_edit.setReadOnly(True)
         self.out_edit.setStyleSheet("background-color: #080c14; color: #00ff9d;")
         out_layout.addWidget(self.out_edit)
-        splitter.addWidget(out_group)
 
+        # Interactive One-Line Command Bar
+        cmd_bar = QHBoxLayout()
+        self.cmd_prompt_lbl = QLabel(">>>")
+        self.cmd_prompt_lbl.setStyleSheet("color: #00f0ff; font-weight: bold; font-family: Monospace;")
+        self.cmd_input = QLineEdit()
+        self.cmd_input.setFont(font)
+        self.cmd_input.setPlaceholderText("Enter command (e.g. read_i32(0x555555558080) or scan('48 89...')) and press Enter...")
+        self.cmd_input.returnPressed.connect(self._run_single_command)
+        self.cmd_input.installEventFilter(self)
+
+        self.cmd_exec_btn = QPushButton("Send")
+        self.cmd_exec_btn.clicked.connect(self._run_single_command)
+
+        cmd_bar.addWidget(self.cmd_prompt_lbl)
+        cmd_bar.addWidget(self.cmd_input, 1)
+        cmd_bar.addWidget(self.cmd_exec_btn)
+        out_layout.addLayout(cmd_bar)
+
+        splitter.addWidget(out_group)
         layout.addWidget(splitter, 1)
 
-        # Keyboard Shortcut: Ctrl+Enter to run
-        shortcut = QShortcut(QKeySequence("Ctrl+Return"), self)
-        shortcut.activated.connect(self._run_code)
+        # Keyboard Shortcuts: scoped to this widget to prevent stealing focus across other tabs
+        self.shortcut_return = QShortcut(QKeySequence("Ctrl+Return"), self)
+        self.shortcut_return.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.shortcut_return.activated.connect(self._run_code)
 
-    def _run_code(self):
-        code = self.code_edit.toPlainText().strip()
-        if not code:
+        self.shortcut_enter = QShortcut(QKeySequence("Ctrl+Enter"), self)
+        self.shortcut_enter.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.shortcut_enter.activated.connect(self._run_code)
+
+    def eventFilter(self, obj, event):
+        if obj == self.cmd_input and event.type() == event.Type.KeyPress:
+            if event.key() == Qt.Key_Up:
+                if self.command_history:
+                    if self.history_index == -1:
+                        self._draft_command = self.cmd_input.text()
+                        self.history_index = len(self.command_history) - 1
+                    elif self.history_index > 0:
+                        self.history_index -= 1
+                    self.cmd_input.setText(self.command_history[self.history_index])
+                    self.cmd_input.setCursorPosition(len(self.cmd_input.text()))
+                    return True
+            elif event.key() == Qt.Key_Down:
+                if self.command_history and self.history_index != -1:
+                    if self.history_index < len(self.command_history) - 1:
+                        self.history_index += 1
+                        self.cmd_input.setText(self.command_history[self.history_index])
+                    else:
+                        self.history_index = -1
+                        self.cmd_input.setText(getattr(self, "_draft_command", ""))
+                    self.cmd_input.setCursorPosition(len(self.cmd_input.text()))
+                    return True
+        return super().eventFilter(obj, event)
+
+    def _reset_scope(self):
+        self.engine.reset_environment()
+        self.out_edit.append("<font color='#00f0ff'>[Kernel reset: all user variables cleared]</font><br>")
+
+    def _run_single_command(self):
+        cmd = self.cmd_input.text().strip()
+        if not cmd:
             return
 
-        self.out_edit.append(f"<font color='#00f0ff'><b>&gt;&gt;&gt; Running script...</b></font>")
+        if not self.command_history or self.command_history[-1] != cmd:
+            self.command_history.append(cmd)
+        self.history_index = -1
+        self._draft_command = ""
+        self.cmd_input.clear()
+
+        escaped_cmd = html.escape(cmd)
+        self.out_edit.append(f"<font color='#00f0ff'><b>&gt;&gt;&gt; {escaped_cmd}</b></font>")
+
+        success, output = self.engine.execute(cmd)
+        if output.strip():
+            color = "#00ff9d" if success else "#ff007f"
+            clean_out = html.escape(output.rstrip())
+            self.out_edit.append(f"<pre style='font-family: monospace; margin: 0; white-space: pre-wrap; color: {color};'>{clean_out}</pre>")
+        else:
+            self.out_edit.append("<font color='#7d90b3'>[Done]</font>")
+        self.out_edit.append("<br>")
+
+    def _run_code(self):
+        # If user has text selected in editor, run selection; otherwise run whole script
+        selected = self.code_edit.textCursor().selectedText().replace("\u2029", "\n").strip()
+        if selected:
+            # Dedent selected snippet so indented blocks don't trigger IndentationError
+            code = textwrap.dedent(selected)
+            self.out_edit.append("<font color='#00f0ff'><b>&gt;&gt;&gt; Running selected code...</b></font>")
+        else:
+            code = self.code_edit.toPlainText().strip()
+            if not code:
+                return
+            self.out_edit.append("<font color='#00f0ff'><b>&gt;&gt;&gt; Running script...</b></font>")
+
         success, output = self.engine.execute(code)
         if output.strip():
             color = "#00ff9d" if success else "#ff007f"
-            clean_out = output.replace("\n", "<br>")
-            self.out_edit.append(f"<font color='{color}'>{clean_out}</font>")
+            clean_out = html.escape(output.rstrip())
+            self.out_edit.append(f"<pre style='font-family: monospace; margin: 0; white-space: pre-wrap; color: {color};'>{clean_out}</pre>")
         else:
             self.out_edit.append("<font color='#7d90b3'>[Finished with no output]</font>")
         self.out_edit.append("<br>")

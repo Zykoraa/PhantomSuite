@@ -268,6 +268,11 @@ class MainWindow(QMainWindow):
             CommandAction("act_open_heap", "🧱 Glibc Heap Introspector", "TOOL", "Inspect process heap chunks, tcache, and corruption", "", self._open_heap_tool),
             CommandAction("act_open_pmu", "🛡️ Anti-Debug & PMU Profiler", "TOOL", "Audit TracerPid, wchan, and RDTSC timing delta loops", "", self._open_pmu_tool),
             CommandAction("act_dwarf_types", "🧬 Synthesize DWARF Types", "TOOL", "Extract exact struct definitions from ELF DWARF metadata", "", self._open_dwarf_tool),
+            CommandAction("act_open_il2cpp", "🎮 IL2CPP Metadata Introspector", "TOOL", "Inspect Il2CppClass, FieldInfo layouts, and generate C#/C++ headers", "", self._open_il2cpp_tool),
+            CommandAction("act_open_micro_emu", "⚙️ Micro-Execution Emulator", "TOOL", "Step sub-functions in sandboxed x86_64 CPU state without side-effects", "", self._open_micro_emu_tool),
+            CommandAction("act_open_entropy_crypto", "🔐 Shannon Entropy & Crypto Scanner", "TOOL", "Scan memory maps for AES/SHA primitives and high-entropy blocks", "", self._open_entropy_crypto_tool),
+            CommandAction("act_open_socket_interceptor", "🌐 Socket Stream Interceptor", "TOOL", "Inspect PID network connections, TCP/UDP sockets and stream queues", "", self._open_socket_interceptor_tool),
+            CommandAction("act_open_core_dump", "💥 ELF Core Dump Importer", "TOOL", "Load post-mortem core dumps, crash registers, and memory mappings", "", self._open_core_dump_tool),
         ]
         self.command_palette.register_actions(actions)
         self.command_palette.set_address_jump_callback(self._on_address_jump)
@@ -391,6 +396,160 @@ class MainWindow(QMainWindow):
             return
         full_code = "\n\n".join(s.to_c_header() for s in structs.values())
         dialog = StructPreviewDialog(full_code, "All_DWARF_Structs", self)
+        dialog.exec()
+
+    def _open_il2cpp_tool(self):
+        if not self.current_target_pid:
+            QMessageBox.information(self, "No Target", "Please attach to a process first.")
+            return
+        from PySide6.QtWidgets import QInputDialog
+        from phantom_suite.core.il2cpp_inspector import Il2CppInspector
+        from phantom_suite.ui.pointer_dialog import StructPreviewDialog
+
+        default_addr = f"0x{self.hex_tab.current_address:X}" if self.hex_tab.current_address > 0 else "0x0"
+        addr_str, ok = QInputDialog.getText(
+            self, "IL2CPP Klass Introspector",
+            "Enter Il2CppClass address (or 0 to check if IL2CPP is loaded):",
+            text=default_addr
+        )
+        if not ok or not addr_str.strip():
+            return
+
+        try:
+            addr = int(addr_str.strip(), 16) if addr_str.strip().startswith("0x") else int(addr_str.strip())
+        except ValueError:
+            QMessageBox.warning(self, "Invalid Address", "Address must be hexadecimal or integer.")
+            return
+
+        if addr == 0:
+            is_loaded = Il2CppInspector.detect_il2cpp(self.current_target_pid)
+            status = "DETECTED in loaded modules" if is_loaded else "NOT detected"
+            QMessageBox.information(self, "IL2CPP Runtime Check", f"IL2CPP Runtime is {status} in PID {self.current_target_pid}.")
+            return
+
+        klass = Il2CppInspector.inspect_class(self.current_target_pid, addr)
+        if not klass:
+            QMessageBox.warning(self, "Introspection Failed", f"No valid Il2CppClass found at 0x{addr:X}.")
+            return
+
+        cs_code = Il2CppInspector.generate_csharp_header(klass)
+        cpp_code = Il2CppInspector.generate_cpp_struct(klass)
+        combined = f"// --- C# Class Declaration ---\n{cs_code}\n\n// --- C++ Native Layout ---\n{cpp_code}"
+        dialog = StructPreviewDialog(combined, f"IL2CPP_{klass.name}", self)
+        dialog.exec()
+
+    def _open_micro_emu_tool(self):
+        if not self.current_target_pid:
+            QMessageBox.information(self, "No Target", "Please attach to a process first.")
+            return
+        from phantom_suite.core.micro_emulator import MicroEmulator
+        from phantom_suite.ui.pointer_dialog import StructPreviewDialog
+
+        addr = self.hex_tab.current_address if self.hex_tab.current_address > 0 else 0x401000
+        emu = MicroEmulator(target_pid=self.current_target_pid)
+        emu.set_reg("rip", addr)
+        res = emu.run(max_steps=50)
+
+        lines = [
+            f"// Micro-Execution Result for Sub-Function at 0x{addr:016X}",
+            f"// Steps Executed: {res.steps_executed} | Terminated: {res.terminated} | Reason: {res.halt_reason}",
+            f"// Final RIP: 0x{res.final_rip:016X}",
+            "",
+            "--- Execution Trace ---"
+        ]
+        for t in res.trace:
+            delta_str = ", ".join(f"{k}: 0x{v[0]:X}->0x{v[1]:X}" for k, v in t.regs_delta.items())
+            lines.append(f"0x{t.address:016X}: {t.mnemonic:<6} {t.op_str:<24} [{delta_str}]")
+
+        lines.append("")
+        lines.append("--- Final Registers ---")
+        for k, v in res.registers.items():
+            lines.append(f"{k.upper():<6} = 0x{v:016X}")
+
+        dialog = StructPreviewDialog("\n".join(lines), f"MicroEmu_0x{addr:X}", self)
+        dialog.exec()
+
+    def _open_entropy_crypto_tool(self):
+        if not self.current_target_pid:
+            QMessageBox.information(self, "No Target", "Please attach to a process first.")
+            return
+        from phantom_suite.core.entropy_crypto_scanner import EntropyCryptoScanner
+        from phantom_suite.ui.pointer_dialog import StructPreviewDialog
+
+        self.status_lbl.setText("Scanning process memory for cryptographic primitives and high entropy...")
+        entropy_blocks, crypto_matches = EntropyCryptoScanner.scan_process(self.current_target_pid)
+
+        lines = [
+            f"// Entropy & Cryptographic Primitive Scan for PID: {self.current_target_pid}",
+            f"// Found {len(crypto_matches)} Cryptographic Primitives, {len(entropy_blocks)} High-Entropy Blocks (H >= 7.5)",
+            "",
+            "--- DETECTED CRYPTOGRAPHIC PRIMITIVES ---"
+        ]
+        if crypto_matches:
+            for m in crypto_matches:
+                lines.append(f"[{m.algorithm}] {m.name} @ 0x{m.address:016X} (Conf: {m.confidence * 100:.0f}%)")
+                lines.append(f"    Description: {m.description}")
+                lines.append(f"    Sample Hex:  {m.sample_hex}")
+        else:
+            lines.append("<No known crypto lookup tables or constants detected>")
+
+        lines.append("")
+        lines.append("--- HIGH ENTROPY ANOMALOUS REGIONS (H >= 7.5) ---")
+        if entropy_blocks:
+            for b in entropy_blocks[:50]:
+                lines.append(f"0x{b.address:016X} - 0x{b.address + b.size:016X} | Size: {b.size} B | Entropy: {b.entropy:.3f} bits/byte ({b.classification})")
+        else:
+            lines.append("<No regions above threshold 7.5>")
+
+        self.status_lbl.setText("Ready")
+        dialog = StructPreviewDialog("\n".join(lines), "Crypto_Entropy_Report", self)
+        dialog.exec()
+
+    def _open_socket_interceptor_tool(self):
+        if not self.current_target_pid:
+            QMessageBox.information(self, "No Target", "Please attach to a process first.")
+            return
+        from phantom_suite.core.socket_stream_interceptor import SocketStreamInterceptor
+        from phantom_suite.ui.pointer_dialog import StructPreviewDialog
+
+        socks = SocketStreamInterceptor.get_process_sockets(self.current_target_pid)
+        lines = [
+            f"// PID {self.current_target_pid} Socket & Stream Interceptor",
+            f"// Active Network Descriptors: {len(socks)}",
+            ""
+        ]
+        if socks:
+            lines.append(f"{'FD':<4} {'PROTO':<6} {'LOCAL ADDR':<22} {'REMOTE ADDR':<22} {'STATE':<14} {'HINT':<16} {'QUEUES (TX/RX)'}")
+            lines.append("-" * 96)
+            for s in socks:
+                loc = f"{s.local_ip}:{s.local_port}"
+                rem = f"{s.remote_ip}:{s.remote_port}"
+                lines.append(f"{s.fd:<4} {s.protocol:<6} {loc:<22} {rem:<22} {s.state:<14} {s.protocol_hint:<16} {s.tx_queue}/{s.rx_queue}")
+        else:
+            lines.append("<No active network sockets open by this process>")
+
+        dialog = StructPreviewDialog("\n".join(lines), f"Sockets_PID_{self.current_target_pid}", self)
+        dialog.exec()
+
+    def _open_core_dump_tool(self):
+        from PySide6.QtWidgets import QFileDialog
+        from phantom_suite.core.core_dump_gdb_bridge import CoreDumpReader
+        from phantom_suite.ui.pointer_dialog import StructPreviewDialog
+
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Open ELF Core Dump", "",
+            "Core Dumps (*.core core* *.dmp);;All Files (*)"
+        )
+        if not path:
+            return
+
+        reader = CoreDumpReader(path)
+        if not reader.load():
+            QMessageBox.warning(self, "Load Error", f"Failed to parse valid 64-bit ELF core dump from {path}.")
+            return
+
+        report = reader.generate_report()
+        dialog = StructPreviewDialog(report, f"CrashReport_{reader.metadata.exec_name if reader.metadata else 'Core'}", self)
         dialog.exec()
 
     def _set_speed_preset(self, speed: float):

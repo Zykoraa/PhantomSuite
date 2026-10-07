@@ -18,6 +18,17 @@ from phantom_suite.core.table_serializer import TableSerializer
 from phantom_suite.core.disassembler import Disassembler
 from phantom_suite.core.speedhack_controller import SpeedhackController
 from phantom_suite.core.handle_tracer import HandleTracer
+from phantom_suite.core.symbolic_solver import SymbolicPointerSolver
+from phantom_suite.core.dwarf_synthesizer import DwarfSynthesizer
+from phantom_suite.core.cfg_engine import CFGEngine
+from phantom_suite.core.heap_inspector import HeapInspector
+from phantom_suite.core.detour_engine import DetourEngine
+from phantom_suite.core.pmu_profiler import PmuProfiler
+from phantom_suite.core.il2cpp_inspector import Il2CppInspector
+from phantom_suite.core.micro_emulator import MicroEmulator
+from phantom_suite.core.entropy_crypto_scanner import EntropyCryptoScanner
+from phantom_suite.core.socket_stream_interceptor import SocketStreamInterceptor
+from phantom_suite.core.core_dump_gdb_bridge import CoreDumpReader, GdbMiBridge
 
 
 class ScriptEngine:
@@ -72,7 +83,40 @@ class ScriptEngine:
                 return ElfExplorer.parse_symbols(mod.path, base_address=mod.base_address) if mod else []
             return mods
 
-        self.custom_globals = {
+        def _il2cpp_class(addr: int):
+            return Il2CppInspector.inspect_class(pid, addr) if pid else None
+
+        def _il2cpp_obj(addr: int):
+            return Il2CppInspector.inspect_object(pid, addr) if pid else None
+
+        def _il2cpp_str(addr: int):
+            return Il2CppInspector.read_il2cpp_string(pid, addr) if pid else ""
+
+        def _sockets():
+            return SocketStreamInterceptor.get_process_sockets(pid) if pid else []
+
+        def _crypto():
+            return EntropyCryptoScanner.scan_process(pid) if pid else ([], [])
+
+        def _entropy(data_or_addr, size: int = 1024):
+            if isinstance(data_or_addr, (bytes, bytearray)):
+                return EntropyCryptoScanner.calculate_entropy(data_or_addr)
+            elif isinstance(data_or_addr, int) and pid:
+                data = MemoryEngine.read_bytes(pid, data_or_addr, size)
+                return EntropyCryptoScanner.calculate_entropy(data)
+            return 0.0
+
+        def _emulate(addr: int, steps: int = 50):
+            emu = MicroEmulator(target_pid=pid)
+            emu.set_reg("rip", addr)
+            return emu.run(max_steps=steps)
+
+        def _core_dump(path: str):
+            reader = CoreDumpReader(path)
+            reader.load()
+            return reader
+
+        helpers = {
             "pid": pid,
             "read": _read,
             "write": _write,
@@ -84,20 +128,51 @@ class ScriptEngine:
             "disasm": _disasm,
             "dissect": _dissect,
             "symbols": _symbols,
+            "il2cpp_class": _il2cpp_class,
+            "il2cpp_obj": _il2cpp_obj,
+            "il2cpp_str": _il2cpp_str,
+            "sockets": _sockets,
+            "crypto": _crypto,
+            "entropy": _entropy,
+            "emulate": _emulate,
+            "core_dump": _core_dump,
             "MemoryEngine": MemoryEngine,
             "PatternScanner": PatternScanner,
             "StructDissector": StructDissector,
             "ElfExplorer": ElfExplorer,
             "TableSerializer": TableSerializer,
             "SpeedhackController": SpeedhackController,
-            "HandleTracer": HandleTracer
+            "HandleTracer": HandleTracer,
+            "Disassembler": Disassembler,
+            "SymbolicPointerSolver": SymbolicPointerSolver,
+            "DwarfSynthesizer": DwarfSynthesizer,
+            "CFGEngine": CFGEngine,
+            "HeapInspector": HeapInspector,
+            "DetourEngine": DetourEngine,
+            "PmuProfiler": PmuProfiler,
+            "Il2CppInspector": Il2CppInspector,
+            "MicroEmulator": MicroEmulator,
+            "EntropyCryptoScanner": EntropyCryptoScanner,
+            "SocketStreamInterceptor": SocketStreamInterceptor,
+            "CoreDumpReader": CoreDumpReader,
+            "GdbMiBridge": GdbMiBridge,
         }
+        self.custom_globals.update(helpers)
 
     def execute(self, code_str: str) -> Tuple[bool, str]:
         """
         Executes a block of Python code, capturing stdout and stderr.
+        Supports single expressions, multi-statement scripts, and hybrid
+        blocks where the final expression is evaluated and displayed (REPL-style).
         Returns (success, output_string).
         """
+        code_str = code_str.strip()
+        if not code_str:
+            return True, ""
+
+        import ast
+        import traceback
+
         stdout_buf = io.StringIO()
         stderr_buf = io.StringIO()
         old_stdout = sys.stdout
@@ -108,18 +183,28 @@ class ScriptEngine:
 
         success = True
         try:
-            # First try evaluating as single expression (like REPL)
-            try:
-                code_obj = compile(code_str, "<script>", "eval")
-                res = eval(code_obj, self.custom_globals)
+            tree = ast.parse(code_str, filename="<script>", mode="exec")
+            if not tree.body:
+                pass
+            elif isinstance(tree.body[-1], ast.Expr):
+                body_exec = tree.body[:-1]
+                last_expr = tree.body[-1]
+
+                if body_exec:
+                    mod = ast.Module(body=body_exec, type_ignores=[])
+                    compiled_exec = compile(mod, filename="<script>", mode="exec")
+                    exec(compiled_exec, self.custom_globals)
+
+                expr_mod = ast.Expression(body=last_expr.value)
+                compiled_eval = compile(expr_mod, filename="<script>", mode="eval")
+                res = eval(compiled_eval, self.custom_globals)
                 if res is not None:
                     print(repr(res))
-            except SyntaxError:
-                # Fallback to multi-line exec
-                exec(code_str, self.custom_globals)
-        except Exception as e:
+            else:
+                compiled_exec = compile(tree, filename="<script>", mode="exec")
+                exec(compiled_exec, self.custom_globals)
+        except (Exception, SystemExit):
             success = False
-            import traceback
             traceback.print_exc(file=stderr_buf)
         finally:
             sys.stdout = old_stdout
@@ -127,6 +212,11 @@ class ScriptEngine:
 
         output = stdout_buf.getvalue() + stderr_buf.getvalue()
         return success, output
+
+    def reset_environment(self):
+        """Clears all user variables and re-initializes custom globals."""
+        self.custom_globals.clear()
+        self._init_environment()
 
     @classmethod
     def load_plugins(cls, plugin_dir: str) -> List[str]:

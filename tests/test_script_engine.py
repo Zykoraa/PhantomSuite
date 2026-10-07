@@ -81,17 +81,55 @@ class TestScriptEngine(unittest.TestCase):
         # Reset value
         engine.execute(f"write_i32({self.health_addr}, 100)")
 
-    def test_load_plugins(self):
-        temp_dir = tempfile.mkdtemp()
-        try:
-            plugin_file = os.path.join(temp_dir, "my_custom_plugin.py")
-            with open(plugin_file, "w") as f:
-                f.write("# Sample plugin\nPLUGIN_ACTIVE = True\n")
+    def test_repl_hybrid_statement_and_expression(self):
+        engine = ScriptEngine()
+        code = "val_a = 50\nval_b = 25\nval_a + val_b"
+        success, out = engine.execute(code)
+        self.assertTrue(success)
+        self.assertIn("75", out)
 
-            loaded = ScriptEngine.load_plugins(temp_dir)
-            self.assertIn("my_custom_plugin", loaded)
-        finally:
-            shutil.rmtree(temp_dir)
+    def test_variable_persistence_across_executions(self):
+        engine = ScriptEngine()
+        s1, _ = engine.execute("custom_counter = 100")
+        self.assertTrue(s1)
+        s2, out = engine.execute("custom_counter + 25")
+        self.assertTrue(s2)
+        self.assertIn("125", out)
+
+    def test_variable_preservation_on_set_target(self):
+        engine = ScriptEngine()
+        engine.execute("stored_var = 999")
+        engine.set_target(self.pid)
+        success, out = engine.execute("stored_var")
+        self.assertTrue(success)
+        self.assertIn("999", out)
+
+    def test_syntax_error_handling(self):
+        engine = ScriptEngine()
+        success, out = engine.execute("def invalid_fn(")
+        self.assertFalse(success)
+        self.assertIn("SyntaxError", out)
+
+    def test_empty_execution(self):
+        engine = ScriptEngine()
+        success, out = engine.execute("   \n  ")
+        self.assertTrue(success)
+        self.assertEqual(out, "")
+
+    def test_system_exit_trapping(self):
+        engine = ScriptEngine()
+        # Ensure sys.exit(0) does NOT kill process and reports failure
+        success, out = engine.execute("import sys; sys.exit(0)")
+        self.assertFalse(success)
+        self.assertIn("SystemExit", out)
+
+    def test_reset_environment(self):
+        engine = ScriptEngine()
+        engine.execute("kernel_val = 555")
+        self.assertIn("kernel_val", engine.custom_globals)
+        engine.reset_environment()
+        self.assertNotIn("kernel_val", engine.custom_globals)
+        self.assertIn("read", engine.custom_globals)
 
 
 if __name__ == "__main__":

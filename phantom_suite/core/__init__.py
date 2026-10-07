@@ -32,6 +32,20 @@ from phantom_suite.core.cfg_engine import CFGEngine, ControlFlowGraph, BasicBloc
 from phantom_suite.core.heap_inspector import HeapInspector, HeapSnapshot, HeapChunk
 from phantom_suite.core.detour_engine import DetourEngine, DetourHook
 from phantom_suite.core.pmu_profiler import PmuProfiler, TimingProfileReport, AntiDebugIndicator
+from phantom_suite.core.il2cpp_inspector import (
+    Il2CppInspector, Il2CppClassDef, Il2CppFieldDef, Il2CppMethodDef,
+    Il2CppObjectDump, Il2CppLayoutOffsets
+)
+from phantom_suite.core.micro_emulator import MicroEmulator, EmulationResult, StepTrace
+from phantom_suite.core.entropy_crypto_scanner import (
+    EntropyCryptoScanner, EntropyBlock, CryptoMatch, CryptoSignature
+)
+from phantom_suite.core.socket_stream_interceptor import (
+    SocketStreamInterceptor, SocketConnection
+)
+from phantom_suite.core.core_dump_gdb_bridge import (
+    CoreDumpReader, CoreSegment, CoreDumpMetadata, GdbMiBridge
+)
 
 __all__ = [
     "MemoryEngine",
@@ -99,4 +113,23 @@ __all__ = [
     "PmuProfiler",
     "TimingProfileReport",
     "AntiDebugIndicator",
+    "Il2CppInspector",
+    "Il2CppClassDef",
+    "Il2CppFieldDef",
+    "Il2CppMethodDef",
+    "Il2CppObjectDump",
+    "Il2CppLayoutOffsets",
+    "MicroEmulator",
+    "EmulationResult",
+    "StepTrace",
+    "EntropyCryptoScanner",
+    "EntropyBlock",
+    "CryptoMatch",
+    "CryptoSignature",
+    "SocketStreamInterceptor",
+    "SocketConnection",
+    "CoreDumpReader",
+    "CoreSegment",
+    "CoreDumpMetadata",
+    "GdbMiBridge",
 ]
