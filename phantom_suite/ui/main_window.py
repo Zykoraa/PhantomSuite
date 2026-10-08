@@ -36,6 +36,9 @@ from phantom_suite.ui.treemap_tab import TreemapTab
 from phantom_suite.ui.syscalls_tab import SyscallsTab
 from phantom_suite.ui.deserializer_tab import DeserializerTab
 from phantom_suite.ui.console_tab import ConsoleTab
+from phantom_suite.ui.il2cpp_tab import Il2CppTab
+from phantom_suite.ui.micro_emulator_tab import MicroEmulatorTab
+from phantom_suite.ui.crypto_tab import CryptoTab
 from phantom_suite.ui.osd_overlay import OsdOverlay
 
 
@@ -171,6 +174,9 @@ class MainWindow(QMainWindow):
         self.threads_tab = ThreadsTab()
         self.handles_tab = HandlesTab()
         self.welcome_tab = WelcomeTab()
+        self.il2cpp_tab = Il2CppTab()
+        self.micro_emu_tab = MicroEmulatorTab()
+        self.crypto_tab = CryptoTab()
 
         self.tabs.addTab(self.process_tab, "⚡ Processes & Windows")       # Index 0
         self.tabs.addTab(self.scanner_tab, "🔍 Memory Scanner")            # Index 1
@@ -186,6 +192,9 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.threads_tab, "🧵 Threads")                   # Index 11
         self.tabs.addTab(self.handles_tab, "🌐 Sockets & Handles")         # Index 12
         self.tabs.addTab(self.welcome_tab, "🚀 Mission Control")           # Index 13
+        self.tabs.addTab(self.il2cpp_tab, "🎮 IL2CPP Inspector")           # Index 14
+        self.tabs.addTab(self.micro_emu_tab, "⚙️ Micro-Emulator")          # Index 15
+        self.tabs.addTab(self.crypto_tab, "🔐 Entropy & Crypto")           # Index 16
 
         body_layout.addWidget(self.tabs, 1)
         main_layout.addLayout(body_layout, 1)
@@ -215,6 +224,12 @@ class MainWindow(QMainWindow):
         self.treemap_tab.jump_to_struct.connect(self._jump_to_struct_address)
         self.deserializer_tab.add_to_cheat_table.connect(self.scanner_tab.add_cheat_entry)
         self.deserializer_tab.jump_to_hex.connect(self._jump_to_hex_address)
+        self.il2cpp_tab.add_to_cheat_table.connect(self.scanner_tab.add_cheat_entry)
+        self.il2cpp_tab.jump_to_hex.connect(self._jump_to_hex_address)
+        self.micro_emu_tab.add_to_cheat_table.connect(self.scanner_tab.add_cheat_entry)
+        self.micro_emu_tab.jump_to_hex.connect(self._jump_to_hex_address)
+        self.crypto_tab.add_to_cheat_table.connect(self.scanner_tab.add_cheat_entry)
+        self.crypto_tab.jump_to_hex.connect(self._jump_to_hex_address)
 
         # Status Bar
         self.status_bar = QStatusBar()
@@ -247,6 +262,9 @@ class MainWindow(QMainWindow):
             CommandAction("nav_injector", "💉 .so Injector", "NAVIGATION", "Dynamic library injection & module explorer", "", lambda: self.switch_to_tab(2)),
             CommandAction("nav_threads", "🧵 Threads & Affinity", "NAVIGATION", "Thread tasks, CPU time & core affinity", "", lambda: self.switch_to_tab(11)),
             CommandAction("nav_handles", "🌐 Sockets & Handles", "NAVIGATION", "File descriptors, TCP/UDP sockets & IPC pipes", "", lambda: self.switch_to_tab(12)),
+            CommandAction("nav_il2cpp", "🎮 IL2CPP Inspector", "NAVIGATION", "Inspect Il2CppClass, FieldInfo, and generate C#/C++ headers", "", lambda: self.switch_to_tab(14)),
+            CommandAction("nav_micro_emu", "⚙️ Micro-Emulator", "NAVIGATION", "Step sub-functions in sandboxed x86_64 CPU state", "", lambda: self.switch_to_tab(15)),
+            CommandAction("nav_crypto", "🔐 Shannon Entropy & Crypto Scanner", "NAVIGATION", "Scan memory maps for AES/SHA primitives and high entropy", "", lambda: self.switch_to_tab(16)),
 
             # Target & Tool Actions
             CommandAction("act_attach_active", "🎯 Attach Active Window", "ACTION", "Query Hyprland and attach to focused window", "", self._attach_active_hyprland_window),
@@ -399,111 +417,19 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def _open_il2cpp_tool(self):
-        if not self.current_target_pid:
-            QMessageBox.information(self, "No Target", "Please attach to a process first.")
-            return
-        from PySide6.QtWidgets import QInputDialog
-        from phantom_suite.core.il2cpp_inspector import Il2CppInspector
-        from phantom_suite.ui.pointer_dialog import StructPreviewDialog
-
-        default_addr = f"0x{self.hex_tab.current_address:X}" if self.hex_tab.current_address > 0 else "0x0"
-        addr_str, ok = QInputDialog.getText(
-            self, "IL2CPP Klass Introspector",
-            "Enter Il2CppClass address (or 0 to check if IL2CPP is loaded):",
-            text=default_addr
-        )
-        if not ok or not addr_str.strip():
-            return
-
-        try:
-            addr = int(addr_str.strip(), 16) if addr_str.strip().startswith("0x") else int(addr_str.strip())
-        except ValueError:
-            QMessageBox.warning(self, "Invalid Address", "Address must be hexadecimal or integer.")
-            return
-
-        if addr == 0:
-            is_loaded = Il2CppInspector.detect_il2cpp(self.current_target_pid)
-            status = "DETECTED in loaded modules" if is_loaded else "NOT detected"
-            QMessageBox.information(self, "IL2CPP Runtime Check", f"IL2CPP Runtime is {status} in PID {self.current_target_pid}.")
-            return
-
-        klass = Il2CppInspector.inspect_class(self.current_target_pid, addr)
-        if not klass:
-            QMessageBox.warning(self, "Introspection Failed", f"No valid Il2CppClass found at 0x{addr:X}.")
-            return
-
-        cs_code = Il2CppInspector.generate_csharp_header(klass)
-        cpp_code = Il2CppInspector.generate_cpp_struct(klass)
-        combined = f"// --- C# Class Declaration ---\n{cs_code}\n\n// --- C++ Native Layout ---\n{cpp_code}"
-        dialog = StructPreviewDialog(combined, f"IL2CPP_{klass.name}", self)
-        dialog.exec()
+        self.switch_to_tab(14)
+        if self.hex_tab.current_address > 0 and not self.il2cpp_tab.addr_input.text():
+            self.il2cpp_tab.addr_input.setText(f"0x{self.hex_tab.current_address:X}")
 
     def _open_micro_emu_tool(self):
-        if not self.current_target_pid:
-            QMessageBox.information(self, "No Target", "Please attach to a process first.")
-            return
-        from phantom_suite.core.micro_emulator import MicroEmulator
-        from phantom_suite.ui.pointer_dialog import StructPreviewDialog
-
-        addr = self.hex_tab.current_address if self.hex_tab.current_address > 0 else 0x401000
-        emu = MicroEmulator(target_pid=self.current_target_pid)
-        emu.set_reg("rip", addr)
-        res = emu.run(max_steps=50)
-
-        lines = [
-            f"// Micro-Execution Result for Sub-Function at 0x{addr:016X}",
-            f"// Steps Executed: {res.steps_executed} | Terminated: {res.terminated} | Reason: {res.halt_reason}",
-            f"// Final RIP: 0x{res.final_rip:016X}",
-            "",
-            "--- Execution Trace ---"
-        ]
-        for t in res.trace:
-            delta_str = ", ".join(f"{k}: 0x{v[0]:X}->0x{v[1]:X}" for k, v in t.regs_delta.items())
-            lines.append(f"0x{t.address:016X}: {t.mnemonic:<6} {t.op_str:<24} [{delta_str}]")
-
-        lines.append("")
-        lines.append("--- Final Registers ---")
-        for k, v in res.registers.items():
-            lines.append(f"{k.upper():<6} = 0x{v:016X}")
-
-        dialog = StructPreviewDialog("\n".join(lines), f"MicroEmu_0x{addr:X}", self)
-        dialog.exec()
+        self.switch_to_tab(15)
+        if self.hex_tab.current_address > 0 and not self.micro_emu_tab.addr_input.text():
+            self.micro_emu_tab.addr_input.setText(f"0x{self.hex_tab.current_address:X}")
 
     def _open_entropy_crypto_tool(self):
-        if not self.current_target_pid:
-            QMessageBox.information(self, "No Target", "Please attach to a process first.")
-            return
-        from phantom_suite.core.entropy_crypto_scanner import EntropyCryptoScanner
-        from phantom_suite.ui.pointer_dialog import StructPreviewDialog
-
-        self.status_lbl.setText("Scanning process memory for cryptographic primitives and high entropy...")
-        entropy_blocks, crypto_matches = EntropyCryptoScanner.scan_process(self.current_target_pid)
-
-        lines = [
-            f"// Entropy & Cryptographic Primitive Scan for PID: {self.current_target_pid}",
-            f"// Found {len(crypto_matches)} Cryptographic Primitives, {len(entropy_blocks)} High-Entropy Blocks (H >= 7.5)",
-            "",
-            "--- DETECTED CRYPTOGRAPHIC PRIMITIVES ---"
-        ]
-        if crypto_matches:
-            for m in crypto_matches:
-                lines.append(f"[{m.algorithm}] {m.name} @ 0x{m.address:016X} (Conf: {m.confidence * 100:.0f}%)")
-                lines.append(f"    Description: {m.description}")
-                lines.append(f"    Sample Hex:  {m.sample_hex}")
-        else:
-            lines.append("<No known crypto lookup tables or constants detected>")
-
-        lines.append("")
-        lines.append("--- HIGH ENTROPY ANOMALOUS REGIONS (H >= 7.5) ---")
-        if entropy_blocks:
-            for b in entropy_blocks[:50]:
-                lines.append(f"0x{b.address:016X} - 0x{b.address + b.size:016X} | Size: {b.size} B | Entropy: {b.entropy:.3f} bits/byte ({b.classification})")
-        else:
-            lines.append("<No regions above threshold 7.5>")
-
-        self.status_lbl.setText("Ready")
-        dialog = StructPreviewDialog("\n".join(lines), "Crypto_Entropy_Report", self)
-        dialog.exec()
+        self.switch_to_tab(16)
+        if self.current_target_pid and not self.crypto_tab.cached_crypto_matches:
+            self.crypto_tab._scan_process()
 
     def _open_socket_interceptor_tool(self):
         if not self.current_target_pid:
@@ -645,6 +571,9 @@ class MainWindow(QMainWindow):
         self.console_tab.set_target(pid, name)
         self.threads_tab.set_target(pid, name)
         self.handles_tab.set_target(pid, name)
+        self.il2cpp_tab.set_target(pid, name)
+        self.micro_emu_tab.set_target(pid, name)
+        self.crypto_tab.set_target(pid, name)
 
         if self.osd_overlay.isVisible():
             self.osd_overlay.set_target(pid, name)
@@ -699,6 +628,9 @@ class MainWindow(QMainWindow):
         self.console_tab.clear_target()
         self.threads_tab.clear_target()
         self.handles_tab.clear_target()
+        self.il2cpp_tab.clear_target()
+        self.micro_emu_tab.clear_target()
+        self.crypto_tab.clear_target()
         self.osd_overlay.clear_target()
 
         self.status_lbl.setText("Detached from target process.")

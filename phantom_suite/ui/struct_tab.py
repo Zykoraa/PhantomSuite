@@ -60,8 +60,8 @@ class StructTab(QWidget):
     """Live Struct Dissector and Heatmap Tab."""
 
     # Signal to request adding fields to the Cheat Table in ScannerTab
-    add_to_cheat_table = Signal(int, str, str) # address, type, description
-    jump_to_hex = Signal(int)                  # address
+    add_to_cheat_table = Signal(object, str, str) # address, type, description
+    jump_to_hex = Signal(object)                  # address
 
     def __init__(self, parent=None):
         super().__init__(parent)

@@ -18,8 +18,8 @@ from phantom_suite.core.memory_engine import TypeFormat
 class SymbolsTab(QWidget):
     """ELF Module, Symbol & Section Explorer Tab."""
 
-    jump_to_disasm = Signal(int)              # runtime address
-    add_to_cheat_table = Signal(int, str, str) # address, type, description
+    jump_to_disasm = Signal(object)              # runtime address
+    add_to_cheat_table = Signal(object, str, str) # address, type, description
 
     def __init__(self, parent=None):
         super().__init__(parent)

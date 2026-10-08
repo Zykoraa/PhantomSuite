@@ -106,6 +106,9 @@ class SidebarWidget(QWidget):
             ("struct", "🔬", "Struct Dissector", "Ctrl+5", 4),
             ("symbols", "📦", "ELF Symbols", "Ctrl+6", 5),
             ("deserializer", "🧩", "Data Deserializer", "", 9),
+            ("il2cpp", "🎮", "IL2CPP Inspector", "", 14),
+            ("micro_emu", "⚙️", "Micro-Emulator", "", 15),
+            ("crypto", "🔐", "Entropy & Crypto", "", 16),
         ]),
         ("TOOLBOX & SCRIPTS", [
             ("injector", "💉", ".so Injector", "", 2),
@@ -116,8 +119,8 @@ class SidebarWidget(QWidget):
 
     MODES = {
         "All Tools": None, # All tools visible
-        "Game Modding": {"welcome", "process", "scanner", "snapshot", "struct"},
-        "Binary Reversing": {"welcome", "process", "hex", "struct", "symbols", "deserializer", "console"},
+        "Game Modding": {"welcome", "process", "scanner", "snapshot", "struct", "il2cpp"},
+        "Binary Reversing": {"welcome", "process", "hex", "struct", "symbols", "deserializer", "console", "il2cpp", "micro_emu", "crypto"},
         "System Forensics": {"welcome", "process", "threads", "handles", "syscalls", "treemap"}
     }
 

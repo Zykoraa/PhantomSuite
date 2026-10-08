@@ -66,8 +66,8 @@ class MemoryBarWidget(QFrame):
 class TreemapTab(QWidget):
     """Virtual Address Space & Memory Map Visualizer Tab."""
 
-    jump_to_hex = Signal(int)     # address
-    jump_to_struct = Signal(int)  # address
+    jump_to_hex = Signal(object)     # address
+    jump_to_struct = Signal(object)  # address
 
     def __init__(self, parent=None):
         super().__init__(parent)

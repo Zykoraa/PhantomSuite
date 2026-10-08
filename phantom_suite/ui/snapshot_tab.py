@@ -59,8 +59,8 @@ class DiffWorker(QThread):
 class SnapshotTab(QWidget):
     """Full-Process Memory Snapshot & Differential Comparison Tab."""
 
-    add_to_cheat_table = Signal(int, str, str) # address, type, description
-    jump_to_hex = Signal(int)                  # address
+    add_to_cheat_table = Signal(object, str, str) # address, type, description
+    jump_to_hex = Signal(object)                  # address
 
     def __init__(self, parent=None):
         super().__init__(parent)
