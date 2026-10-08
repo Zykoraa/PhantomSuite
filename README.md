@@ -6,6 +6,16 @@ Built specifically for Linux (Wayland / Hyprland and X11), utilizing zero-latenc
 
 ---
 
+## 📚 Essential Documentation
+
+| Document | Format | Description |
+| :--- | :--- | :--- |
+| **[Interactive Field Manual](FIELD_MANUAL.html)** | Interactive HTML | Complete pedagogical field guide from 0 knowledge to expert operator with inline SVG architecture diagrams and How & Why breakdowns. |
+| **[Visual Field Guide](GUIDE.md)** | Markdown | High-level overview of all 17 cockpit tabs, keyboard shortcuts, HUD, and workflows. |
+| **[AI Agent Handoff Guide](AGENT_HANDOFF.md)** | Markdown | Deep architectural blueprint, 64-bit signal invariants, subsystem map, and developer playbooks for autonomous AI agents. |
+
+---
+
 ## 🚀 Modern Cockpit & Ergonomic Navigation Overhaul
 
 PhantomSuite features a streamlined, productivity-first desktop layout designed for fast, frictionless reverse engineering:
@@ -42,11 +52,11 @@ PhantomSuite features a streamlined, productivity-first desktop layout designed 
   * **🎮 Game Modding**: Processes, Memory Scanner, Snapshot Diff, Struct Dissector.
   * **🔬 Binary Reversing**: Processes, Hex & Disasm, Struct Dissector, ELF Symbols, Data Deserializer, Python Console.
   * **🕵️ System Forensics**: Processes, Threads, Sockets/Handles, Syscall Monitor, Memory Treemap.
-  * **⚡ All Tools**: Full workbench access to all 13 tools.
+  * **⚡ All Tools**: Full workbench access to all 17 cockpit tools.
 
 ---
 
-## ⚡ 13 Core Modules & Features
+## ⚡ 17 Cockpit Modules & Features
 
 ### 1. 🪟 Process Explorer & Hyprland Integration (`Ctrl+1`)
 * **Hyprland IPC Binding**: Auto-discovers active Wayland windows (`hyprctl clients -j`) with window titles, classes, and workspace IDs.
@@ -142,6 +152,22 @@ PhantomSuite features a streamlined, productivity-first desktop layout designed 
 * **Descriptor Tracer**: Enumerates all open file descriptors from `/proc/<pid>/fd/`.
 * **Network Socket Resolution**: Cross-references socket inodes with `/proc/net/tcp` and `/proc/net/udp` to display real-time connection state (`ESTABLISHED`, `LISTEN`), local address/port, and remote endpoints.
 * **IPC Pipes & Device Files**: Distinguishes between regular files, FIFOs, and hardware devices.
+
+### 14. 🎮 IL2CPP Klass Inspector & Struct Synthesizer
+* **Runtime Klass & Object Walker**: Introspects Unity IL2CPP memory layouts directly without static metadata dumpers.
+* **Fields & Offsets Table**: Resolves field names, static/instance offsets, and VTable method pointers in real-time.
+* **C# / C++20 Header Synthesizer**: Generates compilable C# class declarations and C++20 structs with exact field padding and offsets.
+
+### 15. ⚙️ Sandboxed x86_64 Micro-Emulator
+* **Zero-Side-Effect Emulation**: Emulates arbitrary sub-routines in a sandboxed CPU context with lazy Copy-on-Write (COW) shadow paging.
+* **Interactive Stepping**: Single-step (`F7`), step over calls (`F8`), and run until return (`F9`).
+* **Delta Register Grid & Stack**: Highlights register mutations in neon orange and tracks 16 QWORDs relative to `RSP`.
+* **Snapshot Undo Stack**: Push execution checkpoints (`💾 Snapshot`) and instantly roll back (`⏪ Rollback`) on faults.
+
+### 16. 🔐 Shannon Entropy & Cryptographic Primitive Scanner
+* **Information Entropy Profiler**: Computes Shannon entropy ($H \in [0.0, 8.0]$ bits/byte) across memory regions with visual density meters (`█`/`░`) to detect packed/encrypted buffers.
+* **Cryptographic Magic Constant Database**: Scans process memory for AES S-Boxes/Rcon, SHA-256 H0-H7 / K0-K7, ChaCha20 constants, MD5, CRC32, and Curve25519 primitives.
+* **Instant Routing**: Context menu routes discovered crypto constants directly to Hex view or Cheat Table.
 
 ---
 
@@ -248,30 +274,39 @@ If `ptrace_scope` is set to 1 or higher, PhantomSuite gracefully triggers a `pke
 
 ## 🧪 Automated Testing
 
-PhantomSuite includes a 55-test automated verification suite tested against live Linux processes:
+PhantomSuite includes an exhaustive 132-test automated verification suite tested against live Linux processes and mock environments:
 
 ```bash
-python3 -m unittest discover -s tests
+python3 -m unittest discover tests/
 ```
 
 Tests cover:
-* Memory reading, writing, and differential multi-pass scanning.
-* Active background value freezing.
-* Full-process memory snapshots and differential comparison.
+* Memory reading, writing, and differential multi-pass scanning (`process_vm_readv`/`writev`).
+* Active background value freezing and thread safety.
+* Full-process memory snapshots and multi-format delta comparison.
 * Modern collapsible sidebar navigation, width transitions, and preset mode filtering.
-* Command palette fuzzy filtering, action callbacks, and hex address jump parsing.
+* Command palette fuzzy filtering, action callbacks, and 64-bit hex address jump parsing.
 * Recent targets persistence, deduplication, and history retrieval.
 * Virtual address space memory map calculation and KPI aggregations.
 * Real-time syscall tracer streaming and line parsing.
 * Dynamic data deserialization (`std::string`, `std::vector`, embedded JSON, string tables).
-* Python scripting console execution, REPL evaluation, and plugin loader.
-* Hardware watchpoint output regex parsing and error handling.
+* Python scripting console execution, hybrid AST exec/eval, and plugin loader.
+* Hardware watchpoint output regex parsing and error handling (`DR0-DR3`).
 * AOB pattern scanning with wildcards (`??`, `*`) and unique signature generation (`SigMaker`).
 * Live Struct dissection, heuristic type detection, and heatmap delta tracking.
 * ELF module exploration, symbol demangling, and section parsing.
 * Multi-level pointer path crawling and table serialization.
-* Process listing, signal dispatch (`SIGSTOP`/`SIGCONT`), and Hyprland window detection.
-* Handle and TCP listening socket enumeration.
+* DWARF `.debug_info` / `.debug_types` type reconstruction and C struct synthesis.
+* Control Flow Graph (CFG) basic block DAG construction and conditional branch inversion.
+* Glibc ptmalloc heap chunk walking, tcache / fastbin corruption auditing.
+* Mid-function detour hook relocation trampolines and length disassembly.
+* RDTSC / PMU execution timing profiler and anti-debug trap auditing.
+* Z3 SMT symbolic path constraint solving.
+* In-memory Unity IL2CPP runtime klass inspection and C#/C++20 struct generator.
+* Sandboxed x86_64 micro-emulator with lazy shadow paging and snapshot rollback.
+* Shannon entropy profiling and cryptographic primitive magic constant matching.
+* PID-scoped socket stream correlation and network byte order parsing.
+* ELF64 core dump PT_NOTE/PT_LOAD segment parsing and GDB/MI bridge.
 * Shared object (`.so`) injection and `/proc/<pid>/maps` verification.
 
 ---
@@ -282,11 +317,17 @@ Tests cover:
 Projects/PhantomSuite/
 ├── phantom-suite                 # Executable launcher script
 ├── install.sh                    # User installation script
+├── FIELD_MANUAL.html             # Zero-knowledge to expert interactive HTML field manual
+├── GUIDE.md                      # Complete visual field guide & shortcuts cheat sheet
+├── AGENT_HANDOFF.md              # AI Agent architectural handoff & continuity guide
 ├── plugins/                      # Custom Python scripting plugins
 │   └── sample_plugin.py          # Sample plugin script
 ├── phantom_suite/
 │   ├── app.py                    # Application bootstrap & CLI arguments
 │   ├── theme.py                  # Cyberpunk dark stylesheet (QSS)
+│   ├── payloads/
+│   │   ├── speedhack.c           # Hooked clock_gettime & gettimeofday
+│   │   └── speedhack.so          # Compiled speedhack payload
 │   ├── core/
 │   │   ├── memory_engine.py      # process_vm_readv / writev & scanner
 │   │   ├── snapshot_engine.py    # Full-process memory snapshot diff engine
@@ -303,39 +344,65 @@ Projects/PhantomSuite/
 │   │   ├── pointer_scanner.py    # Multi-level pointer path crawler
 │   │   ├── pattern_scanner.py    # AOB pattern scanner & SigMaker
 │   │   ├── struct_dissector.py   # Live struct dissection & heatmaps
+│   │   ├── dwarf_synthesizer.py  # DWARF type extractor & C struct synthesizer
+│   │   ├── cfg_engine.py         # Control Flow Graph generator & branch inversion
+│   │   ├── heap_inspector.py     # Glibc ptmalloc arena & tcache chunk auditor
+│   │   ├── detour_engine.py      # Mid-function detour hook engine & trampolines
+│   │   ├── pmu_profiler.py       # RDTSC & PMU anti-debug timing profiler
+│   │   ├── symbolic_solver.py    # Z3 SMT symbolic path solver
+│   │   ├── il2cpp_inspector.py   # Unity IL2CPP metadata & klass layout walker
+│   │   ├── micro_emulator.py     # Sandboxed x86_64 micro-emulator & shadow paging
+│   │   ├── entropy_crypto_scanner.py # Shannon entropy & crypto primitive matcher
+│   │   ├── socket_stream_interceptor.py # PID socket to IP:port stream interceptor
+│   │   ├── core_dump_gdb_bridge.py # ELF64 core dump reader & GDB/MI bridge
 │   │   ├── elf_explorer.py       # ELF symbol (.symtab/.dynsym) & sections
 │   │   ├── speedhack_controller.py# Shared memory IPC speedhack controller
 │   │   ├── thread_manager.py     # Thread task manager & CPU affinity
 │   │   ├── handle_tracer.py      # File descriptors & socket parser
 │   │   └── table_serializer.py   # ASLR-surviving .phantom cheat tables
-│   ├── payloads/
-│   │   ├── speedhack.c           # Hooked clock_gettime & gettimeofday
-│   │   └── speedhack.so          # Compiled speedhack payload
 │   └── ui/
-│       ├── main_window.py        # Main workbench shell
-│       ├── sidebar.py            # Collapsible categorized navigation sidebar
+│       ├── main_window.py        # Main workbench shell (17 tabs stack)
+│       ├── sidebar.py            # Collapsible categorized navigation sidebar (Ctrl+B)
 │       ├── command_palette.py    # Fuzzy search action & address launcher (Ctrl+K)
 │       ├── shortcuts_dialog.py   # Hotkey cheat sheet & quick guide dialog
-│       ├── welcome_tab.py        # Mission Control dashboard & recent targets
-│       ├── process_tab.py        # Process list & Hyprland picker
-│       ├── scanner_tab.py        # Memory scanner, AOB & cheat table
-│       ├── snapshot_tab.py       # Memory snapshot & diff viewer
-│       ├── injector_tab.py       # .so injector & module list
-│       ├── hex_tab.py            # Memory hex viewer, disasm & SigMaker
-│       ├── struct_tab.py         # Live struct dissector & heatmaps
-│       ├── symbols_tab.py        # ELF symbol explorer & disasm navigator
-│       ├── treemap_tab.py        # Memory map visualizer & KPI metrics
-│       ├── syscalls_tab.py       # Syscall telemetry monitor & CSV exporter
-│       ├── deserializer_tab.py   # Data deserializer (std::string/vector/JSON)
-│       ├── console_tab.py        # Python scripting console & plugin runner
-│       ├── threads_tab.py        # Thread task explorer & affinity
-│       ├── handles_tab.py        # Handles & network sockets
+│       ├── welcome_tab.py        # Tab 0: Mission Control & recent targets
+│       ├── process_tab.py        # Tab 1: Process list & Hyprland picker
+│       ├── scanner_tab.py        # Tab 2: Memory scanner, AOB & cheat table
+│       ├── snapshot_tab.py       # Tab 3: Memory snapshot & diff viewer
+│       ├── hex_tab.py            # Tab 4: Memory hex viewer, disasm & SigMaker
+│       ├── struct_tab.py         # Tab 5: Live struct dissector & heatmaps
+│       ├── symbols_tab.py        # Tab 6: ELF symbol explorer & disasm navigator
+│       ├── treemap_tab.py        # Tab 7: Memory map visualizer & KPI metrics
+│       ├── syscalls_tab.py       # Tab 8: Syscall telemetry monitor & CSV exporter
+│       ├── console_tab.py        # Tab 9: Python scripting console & plugin runner
+│       ├── deserializer_tab.py   # Tab 10: Data deserializer (std::string/vector/JSON)
+│       ├── injector_tab.py       # Tab 11: .so injector & module list
+│       ├── threads_tab.py        # Tab 12: Thread task explorer & affinity
+│       ├── handles_tab.py        # Tab 13: Handles & network sockets
+│       ├── il2cpp_tab.py         # Tab 14: IL2CPP runtime klass inspector
+│       ├── micro_emulator_tab.py # Tab 15: Sandboxed x86_64 micro-emulator
+│       ├── crypto_tab.py         # Tab 16: Shannon entropy & crypto scanner
 │       ├── osd_overlay.py        # Floating HUD OSD overlay
 │       ├── watchpoint_dialog.py  # Hardware watchpoint tracer & NOP patcher
-│       └── pointer_dialog.py     # Multi-level pointer scan dialog
+│       ├── pointer_dialog.py     # Multi-level pointer scan dialog
+│       ├── cfg_dialog.py         # CFG visualizer & branch inverter dialog
+│       ├── heap_dialog.py        # Glibc ptmalloc heap chunk auditor dialog
+│       └── pmu_dialog.py         # PMU / RDTSC anti-debug profiler dialog
 └── tests/
     ├── test_target.c             # C binary with predictable memory/sockets
     ├── test_payload.c            # C shared library for injection verification
+    ├── test_visual_tabs.py       # Tabs 14-16 & 64-bit signal safety tests
+    ├── test_il2cpp_inspector.py  # Unity IL2CPP klass introspection tests
+    ├── test_micro_emulator.py    # Sandboxed x86_64 CPU emulator tests
+    ├── test_entropy_crypto_scanner.py # Shannon entropy & crypto scanner tests
+    ├── test_socket_stream_interceptor.py # Socket stream interceptor tests
+    ├── test_core_dump_gdb_bridge.py # Core dump reader & GDB/MI bridge tests
+    ├── test_dwarf_synthesizer.py # DWARF type synthesis tests
+    ├── test_cfg_engine.py        # Control Flow Graph engine tests
+    ├── test_heap_inspector.py    # Glibc heap chunk auditor tests
+    ├── test_detour_engine.py     # Mid-function detour trampoline tests
+    ├── test_pmu_profiler.py      # PMU execution timing profiler tests
+    ├── test_symbolic_solver.py   # Z3 SMT symbolic solver tests
     ├── test_sidebar.py           # Sidebar navigation & collapsible modes tests
     ├── test_command_palette.py   # Command palette fuzzy search & jump tests
     ├── test_recent_targets.py    # Target history persistence tests
