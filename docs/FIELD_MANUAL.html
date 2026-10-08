@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PhantomSuite // Complete Tactical Field Manual (Zero-Knowledge to Expert)</title>
+<title>PhantomSuite // Tactical Field Manual & Reverse-Engineering Master Specification</title>
 <style>
   :root {
     --bg-base: #0b0e14;
@@ -69,10 +69,11 @@
   }
 
   .sidebar-header .subtitle {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--text-muted);
     font-family: var(--font-mono);
     margin-top: 4px;
+    letter-spacing: 0.5px;
   }
 
   .sidebar-search {
@@ -140,8 +141,8 @@
   /* Typography */
   h1, h2, h3, h4 { color: #ffffff; font-weight: 700; }
   h1 { font-size: 2.3rem; margin-bottom: 16px; border-bottom: 2px solid var(--border); padding-bottom: 12px; }
-  h2 { font-size: 1.65rem; margin-top: 52px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; color: var(--cyan); display: flex; align-items: center; gap: 10px; }
-  h3 { font-size: 1.25rem; margin-top: 32px; margin-bottom: 12px; color: #e2eafc; }
+  h2 { font-size: 1.65rem; margin-top: 54px; margin-bottom: 18px; border-bottom: 1px solid var(--border); padding-bottom: 8px; color: var(--cyan); display: flex; align-items: center; gap: 10px; }
+  h3 { font-size: 1.25rem; margin-top: 36px; margin-bottom: 14px; color: #e2eafc; }
   h4 { font-size: 1.05rem; margin-top: 24px; margin-bottom: 8px; color: var(--orange); font-family: var(--font-mono); }
   p { margin-bottom: 16px; color: var(--text-main); font-size: 0.98rem; }
   ul, ol { margin-left: 24px; margin-bottom: 18px; color: var(--text-main); }
@@ -194,6 +195,7 @@
   .badge-green { background-color: rgba(0, 255, 157, 0.15); color: var(--green); border: 1px solid var(--green); }
   .badge-pink { background-color: rgba(255, 0, 127, 0.15); color: var(--pink); border: 1px solid var(--pink); }
   .badge-orange { background-color: rgba(255, 184, 108, 0.15); color: var(--orange); border: 1px solid var(--orange); }
+  .badge-purple { background-color: rgba(189, 147, 249, 0.15); color: var(--purple); border: 1px solid var(--purple); }
 
   /* Callouts */
   .callout {
@@ -223,6 +225,57 @@
     display: flex;
     align-items: center;
     gap: 8px;
+  }
+
+  /* Educational How & Why Box */
+  .how-why-box {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px 26px;
+    margin: 26px 0;
+  }
+  .hw-item {
+    margin-bottom: 18px;
+  }
+  .hw-item:last-child { margin-bottom: 0; }
+  .hw-tag {
+    display: inline-block;
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .hw-what { background-color: rgba(0, 240, 255, 0.15); color: var(--cyan); }
+  .hw-how { background-color: rgba(0, 255, 157, 0.15); color: var(--green); }
+  .hw-why { background-color: rgba(255, 184, 108, 0.15); color: var(--orange); }
+  .hw-use { background-color: rgba(189, 147, 249, 0.15); color: var(--purple); }
+
+  /* SVG Diagram Canvas */
+  .diagram-container {
+    background-color: #070a10;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 24px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+  .diagram-caption {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    margin-top: 10px;
+    text-align: center;
+  }
+  svg {
+    max-width: 100%;
+    height: auto;
   }
 
   /* Tables */
@@ -315,56 +368,56 @@
 <nav id="sidebar">
   <div class="sidebar-header">
     <h1><span>🧬</span> PhantomSuite</h1>
-    <div class="subtitle">TACTICAL FIELD MANUAL // ZERO-TO-EXPERT</div>
+    <div class="subtitle">TACTICAL FIELD MANUAL // HOW & WHY</div>
   </div>
   <div class="sidebar-search">
     <input type="text" id="nav-filter" placeholder="Search manual..." onkeyup="filterNav()">
   </div>
 
   <div class="nav-group">
-    <div class="nav-group-title">Level 0: Absolute Beginner Primer</div>
-    <a href="#primer-what-is-computer" class="nav-item">1. What is a Computer & RAM?</a>
-    <a href="#primer-bits-bytes-hex" class="nav-item">2. Bits, Bytes, Numbers & Hexadecimal</a>
-    <a href="#primer-processes-pids" class="nav-item">3. What is a Program, Process & PID?</a>
-    <a href="#primer-addresses-pointers" class="nav-item">4. Memory Addresses & The Postbox Analogy</a>
-    <a href="#primer-aslr" class="nav-item">5. What is ASLR & Why Addresses Move</a>
-    <a href="#primer-assembly-cpu" class="nav-item">6. CPU Instructions, Registers & NOPs</a>
-    <a href="#primer-what-is-reversing" class="nav-item">7. What Reverse Engineering Actually Is</a>
+    <div class="nav-group-title">Level 0: Fundamental Mechanics</div>
+    <a href="#primer-hardware" class="nav-item">1. Hardware & The Office Desk (Diagram)</a>
+    <a href="#primer-bytes-hex" class="nav-item">2. Bits, Bytes & Hexadecimal (Diagram)</a>
+    <a href="#primer-processes" class="nav-item">3. Processes & Virtual Memory (Diagram)</a>
+    <a href="#primer-pointers" class="nav-item">4. Addresses & Pointer Chains (Diagram)</a>
+    <a href="#primer-aslr" class="nav-item">5. ASLR: Why Addresses Move (Diagram)</a>
+    <a href="#primer-cpu-nops" class="nav-item">6. CPU Pipeline, OpCodes & NOPs (Diagram)</a>
+    <a href="#primer-reversing" class="nav-item">7. What Reverse Engineering Is</a>
   </div>
 
   <div class="nav-group">
-    <div class="nav-group-title">Level 1: Step-by-Step Field Missions</div>
-    <a href="#mission-1-attach" class="nav-item">Mission 1: Attaching to Your First Game</a>
-    <a href="#mission-2-ammo" class="nav-item">Mission 2: Finding & Freezing Ammo/Gold</a>
+    <div class="nav-group-title">Level 1: Step-by-Step Missions</div>
+    <a href="#mission-1-attach" class="nav-item">Mission 1: Attaching (Hyprland Diagram)</a>
+    <a href="#mission-2-scanner" class="nav-item">Mission 2: Finding Ammo (Scan Diagram)</a>
     <a href="#mission-3-unknown" class="nav-item">Mission 3: Finding Values With No Numbers</a>
-    <a href="#mission-4-pointers" class="nav-item">Mission 4: Defeating ASLR with Pointer Scans</a>
-    <a href="#mission-5-hex-nop" class="nav-item">Mission 5: Peeking at Raw Bytes & NOPing</a>
-    <a href="#mission-6-structs" class="nav-item">Mission 6: Dissecting Whole Game Entities</a>
-    <a href="#mission-7-il2cpp" class="nav-item">Mission 7: Cracking Unity & VRChat Objects</a>
-    <a href="#mission-8-micro-emu" class="nav-item">Mission 8: Virtual CPU Stepping & Undo Stack</a>
-    <a href="#mission-9-crypto" class="nav-item">Mission 9: Hunting Secret Keys & Encrypted Data</a>
-    <a href="#mission-10-speedhack-hud" class="nav-item">Mission 10: Speedhack & Transparent HUD</a>
+    <a href="#mission-4-smt" class="nav-item">Mission 4: Defeating ASLR with Z3 (Diagram)</a>
+    <a href="#mission-5-hex-nop" class="nav-item">Mission 5: Raw Bytes & Code NOPing (Diagram)</a>
+    <a href="#mission-6-structs" class="nav-item">Mission 6: Entity Structs (Diagram)</a>
+    <a href="#mission-7-il2cpp" class="nav-item">Mission 7: Cracking Unity IL2CPP (Diagram)</a>
+    <a href="#mission-8-micro-emu" class="nav-item">Mission 8: Virtual CPU Sandbox (Diagram)</a>
+    <a href="#mission-9-crypto" class="nav-item">Mission 9: Shannon Entropy & Crypto (Diagram)</a>
+    <a href="#mission-10-speed-hud" class="nav-item">Mission 10: Speedhack & OSD HUD (Diagram)</a>
   </div>
 
   <div class="nav-group">
-    <div class="nav-group-title">Level 2: Button-by-Button Catalog</div>
-    <a href="#ref-header" class="nav-item">Global Header Controls & HUD</a>
-    <a href="#ref-sidebar" class="nav-item">Collapsible Sidebar & Workflow Modes</a>
+    <div class="nav-group-title">Level 2: Visual Cockpit Catalog</div>
+    <a href="#ref-header" class="nav-item">Header HUD & Persistent Controls</a>
+    <a href="#ref-sidebar" class="nav-item">Sidebar & Workflow Modes</a>
     <a href="#ref-palette" class="nav-item">Command Palette (Ctrl+K)</a>
-    <a href="#ref-scanner-tab" class="nav-item">Tab 1: Memory Scanner In-Depth</a>
-    <a href="#ref-hex-tab" class="nav-item">Tab 3: Hex Viewer & Live Disassembler</a>
-    <a href="#ref-struct-tab" class="nav-item">Tab 4: Struct Dissector & Heatmaps</a>
-    <a href="#ref-symbols-tab" class="nav-item">Tab 5: ELF Symbols & DWARF Synthesizer</a>
-    <a href="#ref-snapshot-tab" class="nav-item">Tab 6: Snapshot Diff Forensic Engine</a>
-    <a href="#ref-treemap-tab" class="nav-item">Tab 7: Memory Treemap Visualizer</a>
-    <a href="#ref-il2cpp-tab" class="nav-item">Tab 14: IL2CPP Klass Inspector</a>
-    <a href="#ref-micro-emu-tab" class="nav-item">Tab 15: Sandboxed Micro-Emulator</a>
-    <a href="#ref-crypto-tab" class="nav-item">Tab 16: Shannon Entropy & Crypto Scanner</a>
+    <a href="#ref-scanner" class="nav-item">Tab 1: Memory Scanner Controls</a>
+    <a href="#ref-hex" class="nav-item">Tab 3: Hex Viewer & SigMaker</a>
+    <a href="#ref-struct" class="nav-item">Tab 4: Struct Dissector & Heatmaps</a>
+    <a href="#ref-symbols" class="nav-item">Tab 5: Symbols & DWARF Synthesizer</a>
+    <a href="#ref-snapshot" class="nav-item">Tab 6: Snapshot Diff Engine</a>
+    <a href="#ref-treemap" class="nav-item">Tab 7: Virtual Memory Treemap</a>
+    <a href="#ref-il2cpp" class="nav-item">Tab 14: IL2CPP Klass Inspector</a>
+    <a href="#ref-micro-emu" class="nav-item">Tab 15: Sandboxed Micro-Emulator</a>
+    <a href="#ref-crypto" class="nav-item">Tab 16: Shannon Entropy & Crypto</a>
   </div>
 
   <div class="nav-group">
-    <div class="nav-group-title">Level 3: Core API & Developer Reference</div>
-    <a href="#api-reference" class="nav-item">Python Core Engine Method Catalog</a>
+    <div class="nav-group-title">Level 3: Developer Core API</div>
+    <a href="#api-reference" class="nav-item">Python Subsystem Method Catalog</a>
   </div>
 </nav>
 
@@ -372,574 +425,943 @@
 <main id="main">
 
   <div class="hero-banner">
-    <h1>PHANTOMSUITE FIELD MANUAL</h1>
-    <p>A ground-up, zero-assumptions guide to computer internals, memory inspection, and software reverse engineering—from your very first click to expert automated memory manipulation.</p>
+    <h1>PHANTOMSUITE TACTICAL FIELD MANUAL</h1>
+    <p>A rigorous, visual, first-principles guide to computing internals, virtual memory architecture, and binary reverse engineering. Written to teach the deep <em>HOW</em> and <em>WHY</em> of modern systems from absolute zero to principal operator.</p>
     <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
-      <span class="badge badge-purple">Assumed Knowledge: Zero</span>
-      <span class="badge badge-cyan">Platform: Linux x86_64</span>
-      <span class="badge badge-green">Dual Mode: Visual GUI + Python REPL</span>
-      <span class="badge badge-orange">17 Specialized Cockpit Tabs</span>
+      <span class="badge badge-purple">Zero Computer Knowledge Assumed</span>
+      <span class="badge badge-cyan">Visual Architecture Diagrams</span>
+      <span class="badge badge-green">Full How & Why Mechanics</span>
+      <span class="badge badge-orange">17 Reversing Cockpits</span>
     </div>
   </div>
 
   <!-- LEVEL 0: PRIMER -->
-  <section id="primer-what-is-computer">
-    <h2><span>🧠</span> Level 0: The Fundamentals (Assuming Zero Computer Knowledge)</h2>
+  <section id="primer-hardware">
+    <h2><span>🧠</span> Level 0: The Fundamentals (Zero Knowledge Assumed)</h2>
     <div class="callout callout-primer">
-      <div class="callout-title">Welcome to the Machine Room</div>
+      <div class="callout-title">Welcome to Ground Zero</div>
       <p>
-        If you have never coded, never opened a terminal, or never understood how computers work on the inside, <strong>this section is written for you</strong>. Before we click buttons in PhantomSuite, let's build a clear, crystal-solid mental picture of what is actually happening inside your physical machine.
+        If you have never coded, never opened a terminal, or never understood how computers work under the hood, <strong>this curriculum is built for you</strong>. Before pressing buttons, we must construct an accurate physical and mental model of the computer hardware you are operating.
       </p>
     </div>
 
     <h3>1. The Physical Computer & The Office Desk Analogy</h3>
-    <p>Every computer (whether it's a desktop, laptop, or gaming rig) has three main hardware parts that matter for our work:</p>
+    <p>
+      Every computer consists of three fundamental hardware parts: the <strong>Hard Drive/SSD</strong>, the <strong>RAM (Memory)</strong>, and the <strong>CPU (Processor)</strong>.
+    </p>
 
-    <div class="grid-2">
-      <div class="card">
-        <h4>1. The Hard Drive / SSD (The Filing Cabinet)</h4>
-        <p>This is where games, movies, and programs sleep when they are turned off. It holds massive amounts of data, but it is <em>very slow</em> compared to the CPU. The CPU cannot work on files while they are sitting in the filing cabinet.</p>
-      </div>
-      <div class="card">
-        <h4>2. The RAM / Memory (The Giant Desk)</h4>
-        <p>When you double-click a game icon, your computer copies the game's code and variables from the SSD onto your <strong>RAM</strong> (Random Access Memory). Think of RAM as a gigantic desk covered in billions of numbered sticky note slots. Anything on this desk can be read or changed in nanoseconds.</p>
-      </div>
+    <!-- DIAGRAM 1: HARDWARE BUS -->
+    <div class="diagram-container">
+      <svg width="780" height="260" viewBox="0 0 780 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Storage Box -->
+        <rect x="20" y="40" width="180" height="180" rx="8" fill="#101726" stroke="#1f2d44" stroke-width="2"/>
+        <text x="110" y="70" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="bold" text-anchor="middle">STORAGE (SSD / HDD)</text>
+        <rect x="35" y="90" width="150" height="24" rx="4" fill="#090d15" stroke="#1c283d"/>
+        <text x="110" y="106" fill="#8ca0be" font-family="'Inter', sans-serif" font-size="11" text-anchor="middle">game_client.exe</text>
+        <rect x="35" y="122" width="150" height="24" rx="4" fill="#090d15" stroke="#1c283d"/>
+        <text x="110" y="138" fill="#8ca0be" font-family="'Inter', sans-serif" font-size="11" text-anchor="middle">libunity.so / assets</text>
+        <text x="110" y="180" fill="#5c6e88" font-family="'Inter', sans-serif" font-size="11" text-anchor="middle">Permanent / Very Slow</text>
+        <text x="110" y="200" fill="#5c6e88" font-family="'Inter', sans-serif" font-size="11" text-anchor="middle">(The Filing Cabinet)</text>
+
+        <!-- Arrow Storage -> RAM -->
+        <path d="M 200 130 L 260 130" stroke="#00f0ff" stroke-width="2" marker-end="url(#arrow)"/>
+        <text x="230" y="120" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">COPIED TO RAM</text>
+
+        <!-- RAM Box -->
+        <rect x="260" y="20" width="230" height="220" rx="8" fill="#101726" stroke="#00f0ff" stroke-width="2"/>
+        <text x="375" y="45" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="bold" text-anchor="middle">RAM (MAIN MEMORY)</text>
+        <text x="375" y="65" fill="#8ca0be" font-family="'Inter', sans-serif" font-size="11" text-anchor="middle">Billions of Numbered Postbox Slots</text>
+
+        <rect x="275" y="80" width="200" height="26" rx="4" fill="#162234" stroke="#00f0ff"/>
+        <text x="285" y="97" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="10">0x7FFF0040 : Ammo = 50</text>
+        <rect x="275" y="112" width="200" height="26" rx="4" fill="#162234" stroke="#1f2d44"/>
+        <text x="285" y="129" fill="#f8f8f2" font-family="'JetBrains Mono', monospace" font-size="10">0x7FFF0044 : Health = 100</text>
+        <rect x="275" y="144" width="200" height="26" rx="4" fill="#162234" stroke="#1f2d44"/>
+        <text x="285" y="161" fill="#f8f8f2" font-family="'JetBrains Mono', monospace" font-size="10">0x7FFF0048 : Pos_X = 14.5</text>
+        <text x="375" y="200" fill="#5c6e88" font-family="'Inter', sans-serif" font-size="11" text-anchor="middle">Volatile / Microsecond Fast</text>
+        <text x="375" y="220" fill="#5c6e88" font-family="'Inter', sans-serif" font-size="11" text-anchor="middle">(The Mega-Desk)</text>
+
+        <!-- Arrow RAM <-> CPU -->
+        <path d="M 490 120 L 550 120" stroke="#00ff9d" stroke-width="2"/>
+        <path d="M 550 140 L 490 140" stroke="#00ff9d" stroke-width="2"/>
+        <text x="520" y="110" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">READ / WRITE</text>
+
+        <!-- CPU Box -->
+        <rect x="550" y="40" width="210" height="180" rx="8" fill="#101726" stroke="#00ff9d" stroke-width="2"/>
+        <text x="655" y="70" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="bold" text-anchor="middle">THE CPU (PROCESSOR)</text>
+        <rect x="565" y="85" width="180" height="22" rx="3" fill="#090d15"/>
+        <text x="655" y="100" fill="#ff79c6" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">REGISTERS: RAX, RBX, RIP</text>
+        <rect x="565" y="113" width="180" height="22" rx="3" fill="#090d15"/>
+        <text x="655" y="128" fill="#bd93f9" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">ALU: Adds / Multiplies</text>
+        <text x="655" y="170" fill="#5c6e88" font-family="'Inter', sans-serif" font-size="11" text-anchor="middle">4 Billion Operations / Sec</text>
+        <text x="655" y="190" fill="#5c6e88" font-family="'Inter', sans-serif" font-size="11" text-anchor="middle">(The Fast Clerk)</text>
+      </svg>
+      <div class="diagram-caption">Figure 1.1: Physical Computer Architecture — How software moves from storage into RAM, and how the CPU interacts with memory.</div>
     </div>
 
-    <div class="card" style="margin-bottom: 24px;">
-      <h4>3. The CPU (The Ultra-Fast Office Clerk)</h4>
-      <p>The CPU (Central Processing Unit) is the beating heart of your computer. It is a tireless clerk who does about <strong>4 billion tiny math calculations every second</strong> (4.0 GHz). The CPU only knows how to do very simple steps: <em>"Look at sticky note #100, add 1 to it, put it back on sticky note #100, then jump to sticky note #105"</em>.</p>
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>Your computer is an electronic desk. The <strong>Hard Drive</strong> is the storage filing cabinet across the room. The <strong>RAM (Memory)</strong> is your physical desk surface. The <strong>CPU</strong> is the clerk sitting at the desk.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>When you double-click an icon, the operating system copies the file's bytes from the slow SSD into RAM. Once in RAM, the CPU reads instructions and data numbers over the high-speed memory bus billions of times per second.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>CPUs work at light-speed (fractions of a nanosecond). Hard drives and SSDs are thousands of times too slow to feed the CPU directly. RAM was invented as a high-speed intermediary buffer so the CPU never sits idle waiting for storage.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">HOW TO USE THIS IN PHANTOMSUITE</span>
+        <p>PhantomSuite <strong>never</strong> modifies files on your hard drive! PhantomSuite works entirely inside <strong>RAM</strong> while the program is alive. If you make a mistake, simply closing the game leaves your original files 100% untouched.</p>
+      </div>
     </div>
-
-    <pre><code>+-------------------+             Copies game files             +-------------------+
-|  Hard Drive / SSD |   ------------------------------------->  |     RAM (Memory)  |
-|  (Filing Cabinet) |                                           |  (Billions of     |
-+-------------------+                                           |   numbered slots) |
-                                                                +---------+---------+
-                                                                          |
-                                                      CPU reads & writes  |
-                                                      4 billion times/sec |
-                                                                          v
-                                                                +-------------------+
-                                                                |     The CPU       |
-                                                                | (The Fast Clerk)  |
-                                                                +-------------------+</code></pre>
   </section>
 
-  <section id="primer-bits-bytes-hex">
+  <section id="primer-bytes-hex">
     <h3>2. Bits, Bytes, Numbers & Hexadecimal</h3>
-    <p>Computers do not understand words, English, or pictures. Computers are built out of microscopic transistors, which are just tiny electrical light switches.</p>
-
-    <ul>
-      <li><strong>A Bit:</strong> A single switch. It can only be <code>0</code> (Off) or <code>1</code> (On).</li>
-      <li><strong>A Byte:</strong> A group of <strong>8 bits</strong> side-by-side. With 8 switches, you can represent any whole number between <code>0</code> and <code>255</code>.</li>
-    </ul>
-
-    <h4>Why Do Programmers Use "Hexadecimal" (Hex)?</h4>
     <p>
-      Normal humans count in decimal (Base-10: <code>0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10...</code>) because we have 10 fingers. Computers count in binary (Base-2: <code>0, 1</code>). Writing binary like <code>1101101011110001</code> is exhausting for human eyes.
+      Computers don't have letters, words, or pictures. At the physical layer, computers are made of billions of microscopic transistors—electrical light switches that can only be <strong>OFF (0)</strong> or <strong>ON (1)</strong>.
     </p>
-    <p>
-      So programmers invented <strong>Hexadecimal (Base-16)</strong>. It counts from <code>0</code> to <code>15</code> using 16 single symbols:
-    </p>
-    <pre><code>Decimal:      0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-Hexadecimal:  0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F</code></pre>
 
-    <div class="callout callout-note">
-      <div class="callout-title">The "0x" Prefix</div>
-      <p>
-        Whenever you see <code>0x</code> in PhantomSuite (like <code>0xFF</code> or <code>0x10</code>), the <code>0x</code> simply means: <em>"Attention! The numbers following this are in Hexadecimal, not regular decimal!"</em>
-      </p>
-      <ul>
-        <li><code>0x0A</code> in Hex = <code>10</code> in Decimal.</li>
-        <li><code>0x10</code> in Hex = <code>16</code> in Decimal.</li>
-        <li><code>0xFF</code> in Hex = <code>255</code> in Decimal (the maximum value a single byte can hold).</li>
-      </ul>
-      <p>
-        <strong>The superpower of Hex:</strong> Exactly two hex digits (like <code>A4</code> or <code>FF</code>) represent exactly <strong>one byte</strong>!
-      </p>
+    <!-- DIAGRAM 2: BYTE ANATOMY -->
+    <div class="diagram-container">
+      <svg width="780" height="230" viewBox="0 0 780 230" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="390" y="25" fill="#f0f4fc" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="bold" text-anchor="middle">ANATOMY OF A SINGLE BYTE (8 BITS = 1 BYTE = 2 HEX DIGITS)</text>
+
+        <!-- 8 Bits Box -->
+        <g id="bits">
+          <!-- Bit 7 -->
+          <rect x="70" y="50" width="70" height="60" rx="4" fill="#121a28" stroke="#00f0ff" stroke-width="1.5"/>
+          <text x="105" y="75" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="bold" text-anchor="middle">1</text>
+          <text x="105" y="100" fill="#5c6e88" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">2^7 (128)</text>
+          <!-- Bit 6 -->
+          <rect x="145" y="50" width="70" height="60" rx="4" fill="#121a28" stroke="#00f0ff" stroke-width="1.5"/>
+          <text x="180" y="75" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="bold" text-anchor="middle">0</text>
+          <text x="180" y="100" fill="#5c6e88" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">2^6 (64)</text>
+          <!-- Bit 5 -->
+          <rect x="220" y="50" width="70" height="60" rx="4" fill="#121a28" stroke="#00f0ff" stroke-width="1.5"/>
+          <text x="255" y="75" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="bold" text-anchor="middle">1</text>
+          <text x="255" y="100" fill="#5c6e88" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">2^5 (32)</text>
+          <!-- Bit 4 -->
+          <rect x="295" y="50" width="70" height="60" rx="4" fill="#121a28" stroke="#00f0ff" stroke-width="1.5"/>
+          <text x="330" y="75" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="bold" text-anchor="middle">1</text>
+          <text x="330" y="100" fill="#5c6e88" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">2^4 (16)</text>
+          <!-- Bit 3 -->
+          <rect x="415" y="50" width="70" height="60" rx="4" fill="#121a28" stroke="#00ff9d" stroke-width="1.5"/>
+          <text x="450" y="75" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="bold" text-anchor="middle">0</text>
+          <text x="450" y="100" fill="#5c6e88" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">2^3 (8)</text>
+          <!-- Bit 2 -->
+          <rect x="490" y="50" width="70" height="60" rx="4" fill="#121a28" stroke="#00ff9d" stroke-width="1.5"/>
+          <text x="525" y="75" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="bold" text-anchor="middle">1</text>
+          <text x="525" y="100" fill="#5c6e88" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">2^2 (4)</text>
+          <!-- Bit 1 -->
+          <rect x="565" y="50" width="70" height="60" rx="4" fill="#121a28" stroke="#00ff9d" stroke-width="1.5"/>
+          <text x="600" y="75" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="bold" text-anchor="middle">0</text>
+          <text x="600" y="100" fill="#5c6e88" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">2^1 (2)</text>
+          <!-- Bit 0 -->
+          <rect x="640" y="50" width="70" height="60" rx="4" fill="#121a28" stroke="#00ff9d" stroke-width="1.5"/>
+          <text x="675" y="75" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="bold" text-anchor="middle">1</text>
+          <text x="675" y="100" fill="#5c6e88" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">2^0 (1)</text>
+        </g>
+
+        <!-- High Nibble Bracket -->
+        <path d="M 70 120 L 70 135 L 217 135 L 217 150 L 217 135 L 365 135 L 365 120" stroke="#00f0ff" stroke-width="1.5" fill="none"/>
+        <text x="217" y="170" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="bold" text-anchor="middle">HIGH NIBBLE (4 BITS)</text>
+        <text x="217" y="195" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="16" font-weight="bold" text-anchor="middle">1101 in Binary = 13 Decimal = 'D' in Hex</text>
+
+        <!-- Low Nibble Bracket -->
+        <path d="M 415 120 L 415 135 L 562 135 L 562 150 L 562 135 L 710 135 L 710 120" stroke="#00ff9d" stroke-width="1.5" fill="none"/>
+        <text x="562" y="170" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="bold" text-anchor="middle">LOW NIBBLE (4 BITS)</text>
+        <text x="562" y="195" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="16" font-weight="bold" text-anchor="middle">0101 in Binary = 5 Decimal = '5' in Hex</text>
+
+        <!-- Final Byte Summary -->
+        <rect x="250" y="210" width="280" height="1" fill="#1f2d44"/>
+      </svg>
+      <div class="diagram-caption">Figure 1.2: Anatomy of a Byte — 8 bits split into two 4-bit nibbles, mapping to exactly two Hex characters: <code>0xD5</code> (= 213 in decimal).</div>
     </div>
 
-    <h4>Data Types: How Computers Store Different Things</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>Type Name</th>
-          <th>Size in Bytes</th>
-          <th>What It Is Used For</th>
-          <th>Range of Values</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Byte (int8)</strong></td>
-          <td>1 byte</td>
-          <td>Small flags, characters, yes/no switches</td>
-          <td>0 to 255</td>
-        </tr>
-        <tr>
-          <td><strong>2 Bytes (int16)</strong></td>
-          <td>2 bytes</td>
-          <td>Medium numbers, retro game scores</td>
-          <td>-32,768 to 32,767</td>
-        </tr>
-        <tr>
-          <td><strong>4 Bytes (int32)</strong></td>
-          <td>4 bytes</td>
-          <td><strong>Most common!</strong> Player health, ammo, gold, coins</td>
-          <td>-2.1 billion to +2.1 billion</td>
-        </tr>
-        <tr>
-          <td><strong>8 Bytes (int64)</strong></td>
-          <td>8 bytes</td>
-          <td>Memory addresses, large currency, timestamps</td>
-          <td>Virtually infinite</td>
-        </tr>
-        <tr>
-          <td><strong>Float</strong></td>
-          <td>4 bytes</td>
-          <td>Numbers with decimals: X, Y, Z coordinates, speed</td>
-          <td>e.g. <code>100.5</code>, <code>-14.287</code></td>
-        </tr>
-        <tr>
-          <td><strong>String</strong></td>
-          <td>Dynamic</td>
-          <td>Human readable words: player names, item names</td>
-          <td><code>"PlayerOne"</code>, <code>"Excalibur"</code></td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
-
-  <section id="primer-processes-pids">
-    <h3>3. What is a Program, a Process & a PID?</h3>
-    <ul>
-      <li><strong>A Program:</strong> An inactive file sitting on your hard drive (like <code>game.exe</code> or <code>vrc.x86_64</code>). Think of it like a recipe inside a cookbook.</li>
-      <li><strong>A Process:</strong> The active, living instance running in RAM right now. Think of it like a chef actively cooking that recipe in the kitchen. If you run two copies of the game, you have one program, but <strong>two distinct processes</strong>.</li>
-      <li><strong>A PID (Process ID):</strong> Every time any program starts, the Linux operating system gives it a unique badge number called a <strong>PID</strong> (like <code>42195</code>). No two running programs have the same PID.</li>
-    </ul>
-
-    <div class="callout callout-warning">
-      <div class="callout-title">The Virtual Memory Bubble</div>
-      <p>
-        Modern operating systems put every process inside a sealed, private protective bubble called <strong>Virtual Memory</strong>. By default, Program A is not allowed to peek inside Program B's memory. If Program A tries, Linux immediately kills it with an error called a <code>Segmentation Fault</code>.
-      </p>
-      <p>
-        <strong>PhantomSuite's Job:</strong> PhantomSuite is an authorized inspection tool that asks Linux for permission to reach across processes and look inside another program's private memory bubble.
-      </p>
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>A <strong>Bit</strong> is a single switch (0 or 1). A <strong>Byte</strong> is 8 switches grouped together, which can count from 0 up to 255. <strong>Hexadecimal</strong> is Base-16 counting (0-9 followed by A-F), where two symbols represent an entire byte.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>Each group of 4 bits can represent 16 combinations ($2^4 = 16$). Because Hex has exactly 16 symbols ($0, 1, 2, ..., 9, A, B, C, D, E, F$), four bits map to exactly one hex character. Eight bits map to exactly two hex characters (e.g. <code>0xFF</code> = 255).</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>Humans cannot read strings of raw binary like <code>1101010111110000</code> without losing their minds. Hexadecimal compresses binary into readable, two-letter byte pairs without losing any mathematical precision.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">HOW TO USE THIS IN PHANTOMSUITE</span>
+        <p>In the <strong>Hex Viewer (Tab 3)</strong>, every pair of characters you see (like <code>48 89 5C</code>) is exactly one byte. You can read, search, or edit bytes directly in hex.</p>
+      </div>
     </div>
   </section>
 
-  <section id="primer-addresses-pointers">
+  <section id="primer-processes">
+    <h3>3. Programs, Processes & Virtual Memory Bubbles</h3>
+    <p>
+      When you run a program on Linux, the kernel creates an isolated sandbox called a <strong>Process</strong>. Every process is assigned a unique numerical identity called a <strong>PID (Process ID)</strong>.
+    </p>
+
+    <!-- DIAGRAM 3: VIRTUAL MEMORY BUBBLE -->
+    <div class="diagram-container">
+      <svg width="780" height="280" viewBox="0 0 780 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Kernel Banner -->
+        <rect x="20" y="20" width="740" height="35" rx="4" fill="#1b1222" stroke="#ff007f" stroke-width="1.5"/>
+        <text x="390" y="42" fill="#ff007f" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">LINUX KERNEL SPACE (0xFFFF800000000000 - Protected / Inaccessible to User)</text>
+
+        <!-- Process A Bubble -->
+        <rect x="20" y="70" width="350" height="190" rx="8" fill="#0d1420" stroke="#00f0ff" stroke-width="1.5"/>
+        <text x="195" y="95" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">TARGET GAME (PID: 42195)</text>
+        <rect x="40" y="110" width="310" height="24" rx="4" fill="#132034"/>
+        <text x="195" y="126" fill="#8ca0be" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">0x7FFFFFFF... : Stack (Function calls)</text>
+        <rect x="40" y="140" width="310" height="24" rx="4" fill="#132034"/>
+        <text x="195" y="156" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">0x7FFF0000... : Heap (Ammo, Health, Entities)</text>
+        <rect x="40" y="170" width="310" height="24" rx="4" fill="#132034"/>
+        <text x="195" y="186" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">0x55550000... : Game Binary (.text r-x)</text>
+        <text x="195" y="235" fill="#5c6e88" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Isolated Virtual Memory Sandbox</text>
+
+        <!-- Process B Bubble -->
+        <rect x="410" y="70" width="350" height="190" rx="8" fill="#0d1420" stroke="#00ff9d" stroke-width="1.5"/>
+        <text x="585" y="95" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">PHANTOMSUITE (PID: 88102)</text>
+        <rect x="430" y="110" width="310" height="24" rx="4" fill="#132620"/>
+        <text x="585" y="126" fill="#8ca0be" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">PhantomSuite Private GUI & Scan Engine</text>
+
+        <!-- Kernel Tunnel Arrow -->
+        <path d="M 585 145 C 585 190, 195 190, 195 145" stroke="#ff007f" stroke-width="2" stroke-dasharray="4 4"/>
+        <rect x="330" y="185" width="120" height="24" rx="4" fill="#200d18" stroke="#ff007f"/>
+        <text x="390" y="201" fill="#ff007f" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="bold" text-anchor="middle">process_vm_readv</text>
+      </svg>
+      <div class="diagram-caption">Figure 1.3: Virtual Memory Architecture — How Linux keeps processes isolated, and how PhantomSuite inspects target memory via authorized kernel interfaces.</div>
+    </div>
+
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>A <strong>Program</strong> is an inactive executable file on your SSD. A <strong>Process</strong> is the live instance running in RAM with a unique <strong>PID</strong> number.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>The Linux kernel uses hardware page tables inside the CPU (the MMU) to give each process an illusion: each process thinks it has the entire computer's memory to itself. Process A cannot write to Process B without raising a segmentation fault.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>Without virtual memory, one crashing program or malware could overwrite your entire operating system or steal passwords from other open windows.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">HOW TO USE THIS IN PHANTOMSUITE</span>
+        <p>PhantomSuite uses the Linux system call <code>process_vm_readv</code> to read data across memory bubbles safely without pausing or crashing the target game.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="primer-pointers">
     <h3>4. Memory Addresses & The Postbox Analogy</h3>
     <p>
-      Imagine a street with 16 billion houses in a straight line. Every house has a unique number plate stamped onto its door: <code>0x00000000</code>, <code>0x00000001</code>, ..., all the way up to <code>0x7FFFFFFFFFFF</code>.
+      Every byte in RAM has a number plate called its <strong>Memory Address</strong>. A <strong>Pointer</strong> is simply a variable whose content is the address of another variable!
     </p>
-    <ul>
-      <li>The number plate on the door is the <strong>Memory Address</strong>.</li>
-      <li>Whoever or whatever is living inside the house is the <strong>Value</strong>.</li>
-    </ul>
 
-    <h4>What is a Pointer?</h4>
-    <p>
-      A <strong>Pointer</strong> is a house whose value is simply <em>the address of another house</em>!
-    </p>
-    <div class="callout callout-tip">
-      <div class="callout-title">The Treasure Hunt Analogy</div>
-      <p>Imagine you want to find the Player's Health in memory:</p>
-      <ol>
-        <li>You open House <code>0x1000</code> (The Game Module). Inside, you find a note saying: <em>"The Player lives at House <code>0x5000</code>"</em>.</li>
-        <li>You walk to House <code>0x5000</code> (The Player Object). Inside, you find another note saying: <em>"The Player's stats are at House <code>0x8200</code>"</em>.</li>
-        <li>You walk to House <code>0x8200</code>. Offset <code>+0x18</code> down the hallway is the bedroom holding the number <code>100</code> (Your Health!).</li>
-      </ol>
-      <p>
-        House <code>0x1000</code> is a <strong>Pointer</strong> to House <code>0x5000</code>, which is a <strong>Pointer</strong> to House <code>0x8200</code>. This is called a <strong>Multi-Level Pointer Chain</strong>.
-      </p>
+    <!-- DIAGRAM 4: POINTER CHAIN -->
+    <div class="diagram-container">
+      <svg width="780" height="210" viewBox="0 0 780 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Static Base -->
+        <rect x="30" y="50" width="190" height="110" rx="6" fill="#121824" stroke="#ffb86c" stroke-width="2"/>
+        <text x="125" y="75" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" text-anchor="middle">STATIC MODULE BASE</text>
+        <text x="125" y="95" fill="#8ca0be" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">"GameClient.x86_64" + 0x5000</text>
+        <rect x="45" y="110" width="160" height="30" rx="4" fill="#0a0e16"/>
+        <text x="125" y="130" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" text-anchor="middle">Value: 0x7FFF1000</text>
+
+        <!-- Arrow 1 -->
+        <path d="M 220 125 L 290 125" stroke="#00f0ff" stroke-width="2"/>
+        <text x="255" y="115" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">+0x10</text>
+
+        <!-- Heap Object 1 -->
+        <rect x="290" y="50" width="190" height="110" rx="6" fill="#121824" stroke="#00f0ff" stroke-width="2"/>
+        <text x="385" y="75" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" text-anchor="middle">PLAYER OBJECT (HEAP)</text>
+        <text x="385" y="95" fill="#8ca0be" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">Address: 0x7FFF1010</text>
+        <rect x="305" y="110" width="160" height="30" rx="4" fill="#0a0e16"/>
+        <text x="385" y="130" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" text-anchor="middle">Value: 0x7FFF8500</text>
+
+        <!-- Arrow 2 -->
+        <path d="M 480 125 L 550 125" stroke="#00ff9d" stroke-width="2"/>
+        <text x="515" y="115" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">+0x28</text>
+
+        <!-- Target Health -->
+        <rect x="550" y="50" width="200" height="110" rx="6" fill="#121824" stroke="#00ff9d" stroke-width="2"/>
+        <text x="650" y="75" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" text-anchor="middle">WEAPON STATS (TARGET)</text>
+        <text x="650" y="95" fill="#8ca0be" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">Address: 0x7FFF8528</text>
+        <rect x="565" y="110" width="170" height="30" rx="4" fill="#0a0e16"/>
+        <text x="650" y="130" fill="#ff79c6" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="bold" text-anchor="middle">AMMO = 50 (INT32)</text>
+      </svg>
+      <div class="diagram-caption">Figure 1.4: Multi-Level Pointer Path — Moving from the static module base through heap objects to the final target variable.</div>
+    </div>
+
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>A <strong>Pointer</strong> is a memory slot holding a number that points to another slot. A <strong>Pointer Path</strong> is a chain of directions like: <em>"Start at Game Base, add 0x5000, read the address inside, add 0x10, read that address, add 0x28 &rarr; Ammo!"</em></p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>When game code creates objects using C++ <code>new</code> or C# <code>new</code>, the operating system allocates memory wherever it has free space on the heap, and stores the address in a pointer variable.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>Games cannot hardcode memory locations because levels, enemies, and weapons are created and destroyed dynamically while you play.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">HOW TO USE THIS IN PHANTOMSUITE</span>
+        <p>Right-click any address in the Cheat Table &rarr; select <strong>🧩 Find Pointer Paths (SMT Solver)</strong>. PhantomSuite uses the Z3 solver to discover these paths automatically!</p>
+      </div>
     </div>
   </section>
 
   <section id="primer-aslr">
     <h3>5. What is ASLR & Why Addresses Move on Every Launch</h3>
     <p>
-      In old 1990s games, the player's health was always at the exact same address every time you started your computer (e.g., always at <code>0x00401000</code>).
-    </p>
-    <p>
-      Today, operating systems use a security defense called <strong>ASLR (Address Space Layout Randomization)</strong>. Every time you launch a game, Linux rolls a pair of dice and shifts the entire game to a completely random address in RAM!
-    </p>
-    <ul>
-      <li>Run the game on Monday: Health is at <code>0x55A1B0402800</code>.</li>
-      <li>Run the game on Tuesday: Health is at <code>0x55F980108200</code>.</li>
-    </ul>
-    <p>
-      <strong>How we beat ASLR:</strong> The <em>base of the game module</em> moves, but the <strong>offsets</strong> (the distances between things) never change! If the player's health is always <code>Module + 0x4800</code>, PhantomSuite finds the module base on launch, adds <code>0x4800</code>, and finds your health instantly.
-    </p>
-  </section>
-
-  <section id="primer-assembly-cpu">
-    <h3>6. CPU Instructions, Registers & NOPing</h3>
-    <p>
-      The CPU reads instructions one by one. But the CPU cannot do math directly inside RAM. It has to pull numbers into its own ultra-fast internal pockets called <strong>Registers</strong>:
+      If you find your ammo address today, why does it break tomorrow when you restart the game?
     </p>
 
-    <h4>The 64-Bit General Purpose Registers</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>Register Name</th>
-          <th>Nickname / Common Purpose</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><code>RAX</code></td><td>Accumulator (Math results, function return values)</td></tr>
-        <tr><td><code>RBX</code></td><td>Base register (General storage)</td></tr>
-        <tr><td><code>RCX</code></td><td>Counter (Loops and repetition)</td></tr>
-        <tr><td><code>RDX</code></td><td>Data register (Multiplication, division, I/O)</td></tr>
-        <tr><td><code>RSI</code> / <code>RDI</code></td><td>Source / Destination indices (Copying memory)</td></tr>
-        <tr><td><code>RBP</code></td><td>Base Pointer (Stack frame anchor)</td></tr>
-        <tr><td><code>RSP</code></td><td>Stack Pointer (Points to current top of the stack)</td></tr>
-        <tr><td><code>R8</code> .. <code>R15</code></td><td>General purpose fast worker pockets</td></tr>
-        <tr><td><code>RIP</code></td><td><strong>Instruction Pointer</strong> (The laser pointer showing the exact instruction the CPU is executing right now!)</td></tr>
-      </tbody>
-    </table>
+    <!-- DIAGRAM 5: ASLR REBOOT SHIFT -->
+    <div class="diagram-container">
+      <svg width="780" height="200" viewBox="0 0 780 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="390" y="25" fill="#f0f4fc" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="bold" text-anchor="middle">HOW ASLR SHIFTS MEMORY BASES BETWEEN SESSIONS</text>
 
-    <h4>What is "NOPing"?</h4>
-    <p>
-      When you play a game and fire a gun, the CPU executes an instruction like:
-    </p>
-    <pre><code>sub [rax+0x18], 1    ; Subtract 1 from Ammo</code></pre>
-    <p>
-      If we replace those machine code bytes with <code>0x90</code> (the x86_64 opcode for <strong>NOP</strong>, meaning <em>"No Operation"</em> or <em>"Do Nothing"</em>):
-    </p>
-    <pre><code>nop                  ; Do nothing
-nop                  ; Do nothing
-nop                  ; Do nothing</code></pre>
-    <p>
-      The CPU executes the NOP, does nothing, and moves on. The subtraction never happens! You now have <strong>Infinite Ammo</strong>!
-    </p>
-  </section>
+        <!-- Session 1 -->
+        <g id="session1">
+          <text x="60" y="65" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold">SESSION 1 (MONDAY):</text>
+          <rect x="230" y="50" width="180" height="36" rx="4" fill="#122438" stroke="#00f0ff"/>
+          <text x="320" y="73" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">Base: 0x55550000</text>
 
-  <section id="primer-what-is-reversing">
-    <h3>7. What Reverse Engineering Actually Is</h3>
-    <p>
-      When people write software, they write readable human code (C++, C#, Rust, Python). They run a compiler, which turns that code into billions of raw numbers that only the CPU understands.
-    </p>
-    <p>
-      <strong>Reverse Engineering</strong> is the art of taking that compiled, running binary and working backward: finding where variables live, understanding how rules are enforced, and creating clean modifications without needing the original developer's source code.
-    </p>
-  </section>
+          <path d="M 410 68 L 540 68" stroke="#ffb86c" stroke-width="2"/>
+          <text x="475" y="60" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">+ 0x4800 (OFFSET)</text>
 
-  <!-- LEVEL 1: MISSIONS -->
-  <section id="mission-1-attach">
-    <h2><span>🚀</span> Level 1: Step-by-Step Field Missions (Tutorial)</h2>
+          <rect x="540" y="50" width="200" height="36" rx="4" fill="#201a12" stroke="#ffb86c"/>
+          <text x="640" y="73" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">Health @ 0x55554800</text>
+        </g>
 
-    <h3>Mission 1: Attaching to Your First Game / Target Process</h3>
-    <p>Let's attach PhantomSuite to a running game or program.</p>
+        <!-- Session 2 -->
+        <g id="session2">
+          <text x="60" y="145" fill="#ff007f" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold">SESSION 2 (TUESDAY):</text>
+          <rect x="230" y="130" width="180" height="36" rx="4" fill="#2a1220" stroke="#ff007f"/>
+          <text x="320" y="153" fill="#ff007f" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">Base: 0x55990000 (RANDOM!)</text>
 
-    <div class="callout callout-tip">
-      <div class="callout-title">Step-by-Step Instructions</div>
-      <ol>
-        <li>Start your game or target program (e.g. on your desktop or another monitor).</li>
-        <li>Launch PhantomSuite. You will land on the <strong>🚀 Mission Control Dashboard</strong>.</li>
-        <li>
-          <strong>The Fastest Way (If using Hyprland/Wayland):</strong>
-          Click on your game window so it is focused. Switch back to PhantomSuite and click the <strong>🎯 Attach Active Window</strong> button at the top right of the header.
-        </li>
-        <li>
-          <strong>The Manual Way:</strong>
-          Click <strong>⚡ Processes & Windows</strong> in the sidebar (or press <code>Ctrl+1</code>). Type the name of your game into the search bar. Click on your game in the table, then click <strong>🎯 Attach Selected</strong> at the bottom.
-        </li>
-        <li>
-          <strong>Verify Attachment:</strong>
-          Look at the top header. The badge will change from <code>[ NO TARGET ATTACHED ]</code> to a bright cyan badge: <code>[ ATTACHED: PID 12345 — GameClient.x86_64 ]</code>.
-        </li>
-        <li>
-          <strong>Check Yama Status:</strong>
-          Look at the bottom right status bar. If it says <code>ptrace: 0 (Classic / Unrestricted)</code> in green, you are good to go!
-        </li>
-      </ol>
+          <path d="M 410 148 L 540 148" stroke="#ffb86c" stroke-width="2"/>
+          <text x="475" y="140" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">+ 0x4800 (STAYS SAME!)</text>
+
+          <rect x="540" y="130" width="200" height="36" rx="4" fill="#201a12" stroke="#ffb86c"/>
+          <text x="640" y="153" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">Health @ 0x55994800</text>
+        </g>
+      </svg>
+      <div class="diagram-caption">Figure 1.5: Address Space Layout Randomization (ASLR) — The base address shifts randomly, but the relative offset (+0x4800) remains constant.</div>
+    </div>
+
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p><strong>ASLR</strong> stands for Address Space Layout Randomization. It is a security feature in the Linux kernel that places programs at a completely random memory address every time they start.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>During the <code>execve</code> system call, the kernel generates entropy bits and applies a randomized offset to the memory map, shifting executable code, heap, and stack segments.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>ASLR prevents malicious hackers from using hardcoded memory addresses to hijack software via buffer overflow exploits.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">HOW TO USE THIS IN PHANTOMSUITE</span>
+        <p>When you save a <code>.phantom</code> cheat table (<code>Ctrl+S</code>), PhantomSuite saves <strong>Module Base + Offset</strong> instead of the raw number. When you load the table, PhantomSuite recalculates the new base automatically!</p>
+      </div>
     </div>
   </section>
 
-  <section id="mission-2-ammo">
-    <h3>Mission 2: Finding and Freezing Your First Value (Ammo / Gold / Health)</h3>
-    <p>The classic memory scanning workflow. We want to find our ammo count and make it infinite.</p>
+  <section id="primer-cpu-nops">
+    <h3>6. The CPU Instruction Cycle, Registers & NOPing</h3>
+    <p>
+      How does the CPU actually execute code, and how does changing one byte give you infinite ammo?
+    </p>
 
-    <ol>
-      <li>
-        <strong>Look at your in-game ammo count:</strong>
-        Suppose your gun currently has <strong>50</strong> bullets.
-      </li>
-      <li>
-        <strong>Navigate to the Scanner:</strong>
-        Click <strong>🔍 Memory Scanner</strong> in the sidebar (or press <code>Ctrl+2</code>).
-      </li>
-      <li>
-        <strong>Configure the First Scan:</strong>
-        <ul>
-          <li>Set <em>Value Type</em> to <code>4 Bytes (int32)</code> (standard for games).</li>
-          <li>Set <em>Scan Type</em> to <code>Exact Value</code>.</li>
-          <li>In the <em>Target Value</em> box, type <code>50</code>.</li>
-          <li>Click the blue <strong>🔍 First Scan</strong> button.</li>
-        </ul>
-      </li>
-      <li>
-        <strong>Observe the Results:</strong>
-        The results table on the left will populate with thousands of addresses. Why? Because thousands of variables in the game happen to equal 50 right now (timers, enemy coordinates, texture settings). We need to filter them down!
-      </li>
-      <li>
-        <strong>Change the value in-game:</strong>
-        Return to your game and fire one bullet. Your ammo is now <strong>49</strong>.
-      </li>
-      <li>
-        <strong>Filter with Next Scan:</strong>
-        Return to PhantomSuite. Type <code>49</code> into the <em>Target Value</em> box, and click <strong>⏩ Next Scan</strong>.
-      </li>
-      <li>
-        <strong>Repeat if necessary:</strong>
-        Fire again (now 48) &rarr; type <code>48</code> &rarr; click <strong>⏩ Next Scan</strong>. You will quickly narrow the results down to just 1 or 2 addresses!
-      </li>
-      <li>
-        <strong>Add to Cheat Table:</strong>
-        Double-click the remaining address in the scan results. It will immediately appear in your <strong>Saved Cheat Table</strong> at the bottom.
-      </li>
-      <li>
-        <strong>Freeze & Modify:</strong>
-        <ul>
-          <li>Double-click the <em>Value</em> column in your table and change it to <code>999</code>.</li>
-          <li>Click the <strong>Active (Freeze)</strong> checkbox next to it. PhantomSuite will now write 999 into that address every 50 milliseconds.</li>
-        </ul>
-      </li>
-      <li>
-        <strong>Return to game:</strong>
-        Fire your gun. Your ammo never decreases. You have successfully created your first memory cheat!
-      </li>
-    </ol>
+    <!-- DIAGRAM 6: CPU INSTRUCTION CYCLE -->
+    <div class="diagram-container">
+      <svg width="780" height="240" viewBox="0 0 780 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="390" y="25" fill="#f0f4fc" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="bold" text-anchor="middle">CPU EXECUTION CYCLE: SUBTRACTION VS 1-CLICK NOP OVERWRITE</text>
+
+        <!-- Original Instruction -->
+        <g id="orig">
+          <rect x="40" y="50" width="330" height="160" rx="6" fill="#141c2c" stroke="#ff5555" stroke-width="1.5"/>
+          <text x="205" y="75" fill="#ff5555" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">ORIGINAL GAME CODE (AMMO DROPS)</text>
+          <rect x="60" y="90" width="290" height="30" rx="4" fill="#090d15"/>
+          <text x="205" y="110" fill="#f8f8f2" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">Machine Bytes: 48 83 E8 01</text>
+          <rect x="60" y="130" width="290" height="30" rx="4" fill="#090d15"/>
+          <text x="205" y="150" fill="#ff79c6" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">Assembly: sub rax, 1</text>
+          <text x="205" y="190" fill="#ffb86c" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">CPU subtracts 1 from your ammo!</text>
+        </g>
+
+        <!-- Patched NOP Instruction -->
+        <g id="patched">
+          <rect x="410" y="50" width="330" height="160" rx="6" fill="#141c2c" stroke="#00ff9d" stroke-width="1.5"/>
+          <text x="575" y="75" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">PATCHED VIA PHANTOMSUITE (NOP)</text>
+          <rect x="430" y="90" width="290" height="30" rx="4" fill="#090d15"/>
+          <text x="575" y="110" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">Machine Bytes: 90 90 90 90</text>
+          <rect x="430" y="130" width="290" height="30" rx="4" fill="#090d15"/>
+          <text x="575" y="150" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">Assembly: nop; nop; nop; nop</text>
+          <text x="575" y="190" fill="#00ff9d" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">CPU does nothing! Infinite Ammo active!</text>
+        </g>
+      </svg>
+      <div class="diagram-caption">Figure 1.6: 1-Click Code Patching — Replacing the decrement machine instruction with <code>0x90</code> (NOP = No Operation).</div>
+    </div>
+
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>The CPU fetches machine code bytes, decodes them into instructions (like <code>sub rax, 1</code>), and executes them. <strong>NOP</strong> stands for <em>"No Operation"</em> (byte opcode <code>0x90</code>). When the CPU hits a NOP, it simply wastes one clock cycle doing nothing and moves to the next instruction.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>In the <strong>Hex & Disasm Tab (Tab 3)</strong>, clicking <strong>🚫 NOP Instruction</strong> overwrites the exact bytes of the subtraction instruction with <code>0x90</code> using <code>process_vm_writev</code>.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>NOPing is superior to freezing numbers because freezing fights the game's code 20 times a second. NOPing permanently disables the subtraction at the source code level!</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">HOW TO USE THIS IN PHANTOMSUITE</span>
+        <p>Highlight the instruction in Tab 3 &rarr; click <strong>🚫 NOP Instruction</strong>. To undo it, click <strong>↩ Restore Original</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="primer-reversing">
+    <h3>7. What Reverse Engineering Actually Is</h3>
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>Reverse engineering is the scientific process of analyzing a compiled software system to understand its components, reconstruct its architecture, and inspect its runtime state without having access to the original source code.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>We use PhantomSuite as an active diagnostic instrument: peeking into RAM pages, disassembling machine opcodes into assembly, tracing control flow graphs, and interrogating CPU register deltas.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>Developers and researchers reverse engineer binaries to audit security vulnerabilities, create compatibility mods, fix bugs in abandoned legacy software, unpack malware safely, and optimize performance.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">HOW TO USE THIS IN PHANTOMSUITE</span>
+        <p>You now possess the foundational knowledge. Proceed to <strong>Level 1: Field Missions</strong> to execute your first real-world reverse engineering workflows!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEVEL 1: MISSIONS WITH HOW & WHY -->
+  <section id="mission-1-attach">
+    <h2><span>🚀</span> Level 1: Step-by-Step Field Missions (Tutorials)</h2>
+
+    <h3>Mission 1: Attaching to Your First Target</h3>
+    <!-- DIAGRAM: HYPRLAND IPC -->
+    <div class="diagram-container">
+      <svg width="780" height="160" viewBox="0 0 780 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="30" y="40" width="200" height="80" rx="6" fill="#121824" stroke="#00f0ff" stroke-width="1.5"/>
+        <text x="130" y="75" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">1. FOCUS GAME</text>
+        <text x="130" y="95" fill="#8ca0be" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Window active on Wayland</text>
+
+        <path d="M 230 80 L 300 80" stroke="#00f0ff" stroke-width="2"/>
+
+        <rect x="300" y="40" width="200" height="80" rx="6" fill="#121824" stroke="#ffb86c" stroke-width="1.5"/>
+        <text x="400" y="75" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">2. CLICK "ATTACH"</text>
+        <text x="400" y="95" fill="#8ca0be" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Queries Hyprland socket</text>
+
+        <path d="M 500 80 L 570 80" stroke="#00ff9d" stroke-width="2"/>
+
+        <rect x="570" y="40" width="180" height="80" rx="6" fill="#121824" stroke="#00ff9d" stroke-width="1.5"/>
+        <text x="660" y="75" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">3. 17 TABS BOUND</text>
+        <text x="660" y="95" fill="#00ff9d" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Instant 5ms attachment!</text>
+      </svg>
+      <div class="diagram-caption">Figure 2.1: 1-Click Hyprland Snapping — Instant Wayland window capture without searching thousands of background processes.</div>
+    </div>
+
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>Binding PhantomSuite's memory readers and disassemblers to a specific target game.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>PhantomSuite queries the desktop compositor socket (<code>hyprctl activewindow -j</code>), extracts the PID, opens <code>/proc/[pid]/maps</code>, and validates Yama security permissions.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>Searching through hundreds of Linux system processes is tedious. 1-click active window snapping attaches you to whatever is focused immediately.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">PRACTICAL STEPS</span>
+        <ol>
+          <li>Launch game. Focus game window.</li>
+          <li>Click <strong>🎯 Attach Active Window</strong> in header.</li>
+          <li>Look for cyan badge: <code>[ ATTACHED: PID 12345 — Game ]</code>.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="mission-2-scanner">
+    <h3>Mission 2: Finding and Freezing Ammo / Gold</h3>
+    <!-- DIAGRAM: SCANNER MULTI-PASS -->
+    <div class="diagram-container">
+      <svg width="780" height="180" viewBox="0 0 780 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="30" y="40" width="210" height="100" rx="6" fill="#121824" stroke="#00f0ff" stroke-width="1.5"/>
+        <text x="135" y="70" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">PASS 1: VALUE = 50</text>
+        <text x="135" y="95" fill="#8ca0be" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Finds 42,000 matches in RAM</text>
+        <text x="135" y="115" fill="#5c6e88" font-family="'Inter', sans-serif" font-size="9" text-anchor="middle">(Too many false positives!)</text>
+
+        <path d="M 240 90 L 300 90" stroke="#ffb86c" stroke-width="2"/>
+        <text x="270" y="80" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="8" text-anchor="middle">FIRE GUN</text>
+
+        <rect x="300" y="40" width="210" height="100" rx="6" fill="#121824" stroke="#ffb86c" stroke-width="1.5"/>
+        <text x="405" y="70" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">PASS 2: VALUE = 49</text>
+        <text x="405" y="95" fill="#ffb86c" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Filters to 3 matches!</text>
+        <text x="405" y="115" fill="#5c6e88" font-family="'Inter', sans-serif" font-size="9" text-anchor="middle">(Intersected results)</text>
+
+        <path d="M 510 90 L 570 90" stroke="#00ff9d" stroke-width="2"/>
+        <text x="540" y="80" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="8" text-anchor="middle">DOUBLE CLICK</text>
+
+        <rect x="570" y="40" width="180" height="100" rx="6" fill="#121824" stroke="#00ff9d" stroke-width="1.5"/>
+        <text x="660" y="70" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">CHEAT TABLE</text>
+        <text x="660" y="95" fill="#00ff9d" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Freeze checked [x]</text>
+        <text x="660" y="115" fill="#00ff9d" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Ammo set to 999!</text>
+      </svg>
+      <div class="diagram-caption">Figure 2.2: Multi-Pass Memory Filtering — How successive scans eliminate false positives through set intersection.</div>
+    </div>
+
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>Scanning all readable memory pages to pinpoint the exact 4-byte slot holding a variable.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>Pass 1 snapshots every 4-byte integer matching your input. Pass 2 only checks the addresses from Pass 1, keeping only those that changed to the new value.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>RAM holds gigabytes of data. Millions of numbers exist simultaneously. Multi-pass intersection filtering is mathematically guaranteed to isolate variables in seconds.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">PRACTICAL STEPS</span>
+        <ol>
+          <li>Set Type: <code>4 Bytes (int32)</code>, Target: <code>50</code> &rarr; Click <strong>🔍 First Scan</strong>.</li>
+          <li>Shoot bullet in game (ammo now 49).</li>
+          <li>Set Target: <code>49</code> &rarr; Click <strong>⏩ Next Scan</strong>.</li>
+          <li>Double-click remaining address &rarr; check <strong>Active (Freeze)</strong> &rarr; set value to <code>999</code>.</li>
+        </ol>
+      </div>
+    </div>
   </section>
 
   <section id="mission-3-unknown">
-    <h3>Mission 3: Finding Values With No Numbers (Health Bars / Stamina)</h3>
-    <p>What if your health bar doesn't have a visible number on the screen?</p>
-
-    <ol>
-      <li>With full health, start by setting <em>Scan Type</em> to <strong>Unknown Initial Value</strong> and click <strong>🔍 First Scan</strong>.</li>
-      <li>Take damage in the game (your health bar decreases).</li>
-      <li>Set <em>Scan Type</em> to <strong>Decreased Value</strong> and click <strong>⏩ Next Scan</strong>.</li>
-      <li>Stand still without taking damage. Set <em>Scan Type</em> to <strong>Unchanged Value</strong> and click <strong>⏩ Next Scan</strong> (prunes away fluctuating timers).</li>
-      <li>Heal with a medkit. Set <em>Scan Type</em> to <strong>Increased Value</strong> and click <strong>⏩ Next Scan</strong>.</li>
-      <li>After 4 or 5 iterations, only the exact health variable remains!</li>
-    </ol>
+    <h3>Mission 3: Finding Values With No Numbers</h3>
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>Locating health bars, stamina meters, or invisible timers that do not display numeric text on screen.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>Instead of matching exact numbers, PhantomSuite compares the current byte values against the previous scan snapshot using relative math (<code>Current &lt; Previous</code> or <code>Current &gt; Previous</code>).</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>Many games display visual UI bars (like red health bars) while storing the underlying health as a float or percentage between <code>0.0</code> and <code>1.0</code>.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">PRACTICAL STEPS</span>
+        <ol>
+          <li>Scan Type: <strong>Unknown Initial Value</strong> &rarr; Click <strong>🔍 First Scan</strong>.</li>
+          <li>Take damage in game &rarr; Scan Type: <strong>Decreased Value</strong> &rarr; Click <strong>⏩ Next Scan</strong>.</li>
+          <li>Stand still &rarr; Scan Type: <strong>Unchanged Value</strong> &rarr; Click <strong>⏩ Next Scan</strong> (prunes timers).</li>
+          <li>Heal with potion &rarr; Scan Type: <strong>Increased Value</strong> &rarr; Click <strong>⏩ Next Scan</strong>.</li>
+        </ol>
+      </div>
+    </div>
   </section>
 
-  <section id="mission-4-pointers">
+  <section id="mission-4-smt">
     <h3>Mission 4: Defeating ASLR with Pointer Scans & SMT Z3</h3>
-    <p>
-      You restart your game. You load your table, but your ammo address from Mission 2 doesn't work anymore! Why? Because <strong>ASLR</strong> moved the game in memory! Here is how we make our cheats permanent:
-    </p>
+    <!-- DIAGRAM: SMT SOLVER GRAPH -->
+    <div class="diagram-container">
+      <svg width="780" height="170" viewBox="0 0 780 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="30" y="35" width="180" height="90" rx="6" fill="#121824" stroke="#ffb86c" stroke-width="1.5"/>
+        <text x="120" y="65" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" text-anchor="middle">STATIC MODULE</text>
+        <text x="120" y="85" fill="#8ca0be" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Base + 0x51A020</text>
+        <text x="120" y="105" fill="#5c6e88" font-family="'Inter', sans-serif" font-size="9" text-anchor="middle">Always discoverable!</text>
 
-    <ol>
-      <li>Find your ammo address again using Mission 2.</li>
-      <li>Right-click the address in the Cheat Table &rarr; select <strong>🧩 Find Pointer Paths (SMT Solver)</strong>.</li>
-      <li>The <strong>Pointer Solver Dialog</strong> appears. Leave Max Depth at 4 and Max Offset at <code>0x1000</code>.</li>
-      <li>Click <strong>🚀 Run Symbolic Solver</strong>.</li>
-      <li>
-        PhantomSuite's multi-threaded crawler scans process memory, formulates mathematical constraints, and asks the <strong>Z3 SMT Solver</strong> to prove which path links a static game module to your ammo!
-      </li>
-      <li>
-        The solver finds: <code>[ "GameClient.x86_64 + 0x51A020" -> +0x38 -> +0x10 -> +0x118 ]</code>.
-      </li>
-      <li>Click <strong>➕ Add to Cheat Table</strong>.</li>
-      <li>Press <code>Ctrl+S</code> to save your table as <code>game.phantom</code>. This table will now work forever, across reboots and game restarts!</li>
-    </ol>
+        <path d="M 210 80 L 290 80" stroke="#00f0ff" stroke-width="2"/>
+        <text x="250" y="70" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">+ 0x38</text>
+
+        <rect x="290" y="35" width="180" height="90" rx="6" fill="#121824" stroke="#00f0ff" stroke-width="1.5"/>
+        <text x="380" y="65" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" text-anchor="middle">Z3 SMT PROVER</text>
+        <text x="380" y="85" fill="#00ff9d" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Proves Satisfiability</text>
+        <text x="380" y="105" fill="#5c6e88" font-family="'Inter', sans-serif" font-size="9" text-anchor="middle">Filters dead cycles</text>
+
+        <path d="M 470 80 L 550 80" stroke="#00ff9d" stroke-width="2"/>
+        <text x="510" y="70" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">+ 0x118</text>
+
+        <rect x="550" y="35" width="200" height="90" rx="6" fill="#121824" stroke="#00ff9d" stroke-width="1.5"/>
+        <text x="650" y="65" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" text-anchor="middle">TARGET HEALTH</text>
+        <text x="650" y="85" fill="#f8f8f2" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Permanent Pointer Path</text>
+        <text x="650" y="105" fill="#00ff9d" font-family="'Inter', sans-serif" font-size="9" text-anchor="middle">Survives all game reboots!</text>
+      </svg>
+      <div class="diagram-caption">Figure 2.3: Symbolic SMT Pointer Solving — Transforming memory hops into mathematical constraints solved by Microsoft Z3.</div>
+    </div>
+
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>Automatically tracing the chain of heap pointers back to a permanent static game module.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>A multi-threaded breadth-first crawler builds an address graph. PhantomSuite translates nodes into SMT bit-vector equations and asks Microsoft Z3 to prove which chain is mathematically deterministic.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>Traditional pointer scanners freeze your PC or get stuck in circular loops. Z3 SMT solving proves exact paths in seconds without freezing your system.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">PRACTICAL STEPS</span>
+        <ol>
+          <li>Right-click address in Cheat Table &rarr; <strong>🧩 Find Pointer Paths (SMT Solver)</strong>.</li>
+          <li>Leave Max Depth at 4 &rarr; Click <strong>🚀 Run Symbolic Solver</strong>.</li>
+          <li>Click <strong>➕ Add to Cheat Table</strong> &rarr; Save table with <code>Ctrl+S</code>.</li>
+        </ol>
+      </div>
+    </div>
   </section>
 
   <section id="mission-5-hex-nop">
-    <h3>Mission 5: Peeking at Raw Bytes & 1-Click NOPing</h3>
-    <p>
-      Instead of constantly freezing numbers, let's stop the game from subtracting ammo altogether!
-    </p>
-
-    <ol>
-      <li>Navigate to <strong>🧬 Hex & Disasm Tab</strong> (or press <code>Ctrl+4</code>).</li>
-      <li>Enter your ammo address in the address bar and press Enter.</li>
-      <li>
-        You will see the raw bytes in hex on the left, and the human-readable x86_64 assembly instructions on the right.
-      </li>
-      <li>
-        Find the instruction that touches your ammo (e.g., <code>sub dword ptr [rax+0x18], 1</code>).
-      </li>
-      <li>
-        Click the instruction row to highlight it.
-      </li>
-      <li>
-        Click the red <strong>🚫 NOP Instruction</strong> button at the top.
-      </li>
-      <li>
-        PhantomSuite automatically replaces the machine bytes with <code>0x90</code> (NOP). Return to your game—every weapon now has permanent infinite ammo at the code level!
-      </li>
-      <li>
-        Want to restore it? Click the green <strong>↩ Restore Original</strong> button to undo your patch.
-      </li>
-    </ol>
+    <h3>Mission 5: Peeking at Raw Bytes & 1-Click Code NOPing</h3>
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>Inspecting the compiled machine code instructions executing inside the game and turning off unwanted code permanently.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>PhantomSuite reads the executable memory segment (<code>r-x</code>), runs Capstone 64-bit disassembly to produce readable assembly instructions, and overwrites target opcodes with <code>0x90</code> (NOP).</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>Freezing a value fights the game engine 20 times a second. NOPing turns off the subtraction instruction entirely so ammo or health never decreases.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">PRACTICAL STEPS</span>
+        <ol>
+          <li>Open <strong>🧬 Hex & Disasm Tab (Ctrl+4)</strong>.</li>
+          <li>Navigate to the code address. Highlight the instruction (e.g. <code>sub dword ptr [rax+0x18], 1</code>).</li>
+          <li>Click <strong>🚫 NOP Instruction</strong> &rarr; Infinite Ammo achieved at the machine code level!</li>
+        </ol>
+      </div>
+    </div>
   </section>
 
   <section id="mission-6-structs">
-    <h3>Mission 6: Dissecting Whole Game Entities (The Struct Dissector)</h3>
-    <p>
-      Games don't store player variables randomly. They group them into a single <code>Player</code> entity:
-    </p>
-    <ol>
-      <li>Navigate to <strong>🔬 Struct Dissector Tab</strong> (<code>Ctrl+5</code>).</li>
-      <li>Enter the base address of the player object in the top address bar.</li>
-      <li>Click <strong>🔬 Dissect Address</strong>.</li>
-      <li>
-        PhantomSuite automatically breaks down the memory into 4-byte and 8-byte rows:
-        <ul>
-          <li><code>+0x00</code> &rarr; Health (int32)</li>
-          <li><code>+0x04</code> &rarr; Armor (int32)</li>
-          <li><code>+0x08</code> &rarr; Position X (float)</li>
-          <li><code>+0x0C</code> &rarr; Position Y (float)</li>
-          <li><code>+0x10</code> &rarr; Position Z (float)</li>
-        </ul>
-      </li>
-      <li>
-        Watch the <strong>Live Heatmap</strong>: As you walk around in-game, the X/Y/Z coordinate rows will glow in bright neon pink because they are constantly changing, while your player name stays calm and steady!
-      </li>
-    </ol>
+    <h3>Mission 6: Dissecting Whole Game Entities (Struct Dissector)</h3>
+    <!-- DIAGRAM: STRUCT DISSECTOR -->
+    <div class="diagram-container">
+      <svg width="780" height="180" viewBox="0 0 780 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="40" y="30" width="700" height="120" rx="6" fill="#101726" stroke="#00f0ff" stroke-width="1.5"/>
+        <text x="390" y="55" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">LIVE STRUCT DISSECTION: PLAYER OBJECT (BASE: 0x7FFF5000)</text>
+
+        <rect x="60" y="70" width="120" height="30" rx="4" fill="#162438"/>
+        <text x="120" y="89" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">+0x00: Health (100)</text>
+
+        <rect x="190" y="70" width="120" height="30" rx="4" fill="#162438"/>
+        <text x="250" y="89" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">+0x04: Armor (50)</text>
+
+        <rect x="320" y="70" width="120" height="30" rx="4" fill="#301424" stroke="#ff007f"/>
+        <text x="380" y="89" fill="#ff79c6" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">+0x08: Pos_X (14.2)</text>
+
+        <rect x="450" y="70" width="120" height="30" rx="4" fill="#301424" stroke="#ff007f"/>
+        <text x="510" y="89" fill="#ff79c6" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">+0x0C: Pos_Y (88.1)</text>
+
+        <rect x="580" y="70" width="140" height="30" rx="4" fill="#162438"/>
+        <text x="650" y="89" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">+0x10: Name ("Hero")</text>
+
+        <text x="390" y="130" fill="#ff79c6" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">🔥 Pink fields glow with live mutation heatmaps as the player moves in-game!</text>
+      </svg>
+      <div class="diagram-caption">Figure 2.4: Struct Dissector Layout — Visualizing contiguous entity fields with real-time mutation heatmaps.</div>
+    </div>
+
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>Inspecting how variables are clustered together into full objects (Player, Enemy, Vehicle, Weapon).</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>PhantomSuite analyzes memory alignment boundaries (4 and 8-byte steps) and detects variable types based on numeric value ranges and pointer validity.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>Finding one variable (like health) instantly gives you the coordinates, stamina, name, and inventory because they all live side-by-side in the same struct.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">PRACTICAL STEPS</span>
+        <ol>
+          <li>Open <strong>🔬 Struct Dissector Tab (Ctrl+5)</strong>.</li>
+          <li>Enter the entity address &rarr; click <strong>🔬 Dissect Address</strong>.</li>
+          <li>Observe the live mutation heatmap: moving in-game makes coordinates flash neon pink!</li>
+        </ol>
+      </div>
+    </div>
   </section>
 
   <section id="mission-7-il2cpp">
-    <h3>Mission 7: Reverse Engineering Unity & VRChat (IL2CPP Inspector)</h3>
-    <p>
-      Unity games are everywhere (VRChat, Beat Saber, Among Us, Genshin). Unity compiles C# into native code using a technology called <strong>IL2CPP</strong>.
-    </p>
-    <ol>
-      <li>Attach PhantomSuite to your Unity game.</li>
-      <li>Click <strong>🎮 IL2CPP Inspector</strong> in the sidebar.</li>
-      <li>
-        Look at the top banner: PhantomSuite will detect <code>IL2CPP Runtime Detected</code> in neon green!
-      </li>
-      <li>
-        Enter the address of any <code>Il2CppClass</code> or a live game object (<code>Il2CppObject</code>).
-      </li>
-      <li>Click <strong>🎯 Inspect Object</strong>.</li>
-      <li>
-        PhantomSuite inspects the game's internal metadata and displays:
-        <ul>
-          <li>Every field name in plain English (e.g. <code>currentStamina</code>, <code>isInvulnerable</code>).</li>
-          <li>The exact C# data type (<code>System.Single</code>, <code>System.Boolean</code>).</li>
-          <li>The exact live value currently in memory!</li>
-        </ul>
-      </li>
-      <li>
-        Click <strong>📋 Copy C# Declaration</strong> to export pure, compilable C# source code for your mod!
-      </li>
-    </ol>
+    <h3>Mission 7: Cracking Unity & VRChat (IL2CPP Inspector)</h3>
+    <!-- DIAGRAM: IL2CPP ARCHITECTURE -->
+    <div class="diagram-container">
+      <svg width="780" height="200" viewBox="0 0 780 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="30" y="30" width="220" height="140" rx="6" fill="#121824" stroke="#ffb86c" stroke-width="1.5"/>
+        <text x="140" y="60" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">IL2CPP METADATA</text>
+        <text x="140" y="80" fill="#8ca0be" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Stored in libil2cpp.so memory</text>
+        <rect x="45" y="95" width="190" height="24" rx="3" fill="#090d15"/>
+        <text x="140" y="111" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">Class: "PlayerController"</text>
+        <rect x="45" y="125" width="190" height="24" rx="3" fill="#090d15"/>
+        <text x="140" y="141" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">Namespace: "Game.Entities"</text>
+
+        <path d="M 250 100 L 320 100" stroke="#00f0ff" stroke-width="2"/>
+
+        <rect x="320" y="30" width="200" height="140" rx="6" fill="#121824" stroke="#00f0ff" stroke-width="1.5"/>
+        <text x="420" y="60" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">FIELD & METHOD VTBL</text>
+        <rect x="335" y="80" width="170" height="20" rx="3" fill="#090d15"/>
+        <text x="420" y="94" fill="#f8f8f2" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">+0x20: currentHealth (float)</text>
+        <rect x="335" y="105" width="170" height="20" rx="3" fill="#090d15"/>
+        <text x="420" y="119" fill="#f8f8f2" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">+0x24: walkSpeed (float)</text>
+        <rect x="335" y="130" width="170" height="20" rx="3" fill="#090d15"/>
+        <text x="420" y="144" fill="#ff79c6" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">Method: TakeDamage() @ 0x4018A0</text>
+
+        <path d="M 520 100 L 590 100" stroke="#00ff9d" stroke-width="2"/>
+
+        <rect x="590" y="30" width="160" height="140" rx="6" fill="#121824" stroke="#00ff9d" stroke-width="1.5"/>
+        <text x="670" y="60" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="bold" text-anchor="middle">LIVE HEAP INSTANCE</text>
+        <text x="670" y="85" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">Health = 100.0</text>
+        <text x="670" y="105" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">Speed = 8.5</text>
+        <text x="670" y="140" fill="#8ca0be" font-family="'Inter', sans-serif" font-size="9" text-anchor="middle">1-Click C# Generator!</text>
+      </svg>
+      <div class="diagram-caption">Figure 2.5: Unity IL2CPP In-Memory Architecture — Traversing metadata tables to reconstruct clean C# source code and live instance values.</div>
+    </div>
+
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>A specialized visual explorer for Unity games that converts compiled IL2CPP binaries back into readable C# classes and live game objects.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>IL2CPP preserves metadata descriptors (<code>Il2CppClass</code>, <code>FieldInfo</code>) in memory so Unity's garbage collector and reflection engine can work. PhantomSuite crawls these structures live in memory.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>Traditional static dumpers produce huge 500MB text files that go out of date on game updates. PhantomSuite introspects the live game in real-time with zero dump files needed.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">PRACTICAL STEPS</span>
+        <ol>
+          <li>Open <strong>🎮 IL2CPP Inspector (Tab 14)</strong>.</li>
+          <li>Enter an <code>Il2CppClass</code> address or live instance address.</li>
+          <li>Click <strong>🎯 Inspect Object</strong> to see all fields and live values.</li>
+          <li>Click <strong>📋 Copy C# Declaration</strong> to generate C# source code for your mod!</li>
+        </ol>
+      </div>
+    </div>
   </section>
 
   <section id="mission-8-micro-emu">
-    <h3>Mission 8: Virtual CPU Stepping & The Undo Stack (Micro-Emulator)</h3>
-    <p>
-      What if a game has a complex, dangerous, or obfuscated function (like a decryption routine or anti-cheat check), and you want to see what it does <em>without risking a ban or a game crash</em>?
-    </p>
-    <ol>
-      <li>Navigate to <strong>⚙️ Micro-Emulator Tab</strong> (Sidebar &rarr; Reversing).</li>
-      <li>Type the function's entry address in <em>Entry RIP</em> (e.g. <code>0x401000</code>).</li>
-      <li>Click <strong>⚙️ Init CPU</strong>. PhantomSuite boots an isolated, virtual x86_64 CPU state.</li>
-      <li>
-        Press <strong>F7 (Step)</strong> to execute exactly one instruction.
-      </li>
-      <li>
-        Look at the <strong>Registers Table</strong> on the right: Any register whose value changed glows in bright neon orange (e.g., <code>RAX: 0x0 -> 0x42</code>).
-      </li>
-      <li>
-        Click <strong>💾 Snapshot</strong> to save your current CPU position and memory state.
-      </li>
-      <li>
-        Experiment freely! If the code crashes or enters an infinite loop, click <strong>⏪ Rollback</strong> to rewind time back to your snapshot instantly!
-      </li>
-    </ol>
+    <h3>Mission 8: Virtual CPU Sandbox & The Undo Stack (Micro-Emulator)</h3>
+    <!-- DIAGRAM: MICRO-EMULATOR COW PAGING -->
+    <div class="diagram-container">
+      <svg width="780" height="190" viewBox="0 0 780 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="30" y="30" width="220" height="130" rx="6" fill="#121824" stroke="#00f0ff" stroke-width="1.5"/>
+        <text x="140" y="55" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" text-anchor="middle">TARGET PROCESS MEMORY</text>
+        <text x="140" y="75" fill="#8ca0be" font-family="'Inter', sans-serif" font-size="9" text-anchor="middle">Read-Only Lazy Paging</text>
+        <text x="140" y="115" fill="#00ff9d" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Live process memory is</text>
+        <text x="140" y="135" fill="#00ff9d" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">NEVER modified!</text>
+
+        <path d="M 250 95 L 320 95" stroke="#00f0ff" stroke-width="2"/>
+        <text x="285" y="85" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="8" text-anchor="middle">COW READ</text>
+
+        <rect x="320" y="30" width="220" height="130" rx="6" fill="#121824" stroke="#ffb86c" stroke-width="1.5"/>
+        <text x="430" y="55" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" text-anchor="middle">PHANTOM SHADOW MEMORY</text>
+        <text x="430" y="75" fill="#8ca0be" font-family="'Inter', sans-serif" font-size="9" text-anchor="middle">Local Copy-on-Write Sandbox</text>
+        <text x="430" y="115" fill="#ffb86c" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Writes stay in sandbox</text>
+        <text x="430" y="135" fill="#ffb86c" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Zero ban risk!</text>
+
+        <path d="M 540 95 L 610 95" stroke="#00ff9d" stroke-width="2"/>
+        <text x="575" y="85" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="8" text-anchor="middle">STEP F7</text>
+
+        <rect x="610" y="30" width="140" height="130" rx="6" fill="#121824" stroke="#00ff9d" stroke-width="1.5"/>
+        <text x="680" y="55" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" text-anchor="middle">CPU STATE</text>
+        <text x="680" y="80" fill="#ff79c6" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">RAX = 0x42</text>
+        <text x="680" y="100" fill="#f8f8f2" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">RBX = 0x00</text>
+        <text x="680" y="120" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">RIP = 0x401004</text>
+        <text x="680" y="145" fill="#ffb86c" font-family="'Inter', sans-serif" font-size="8" text-anchor="middle">💾 Snapshot & ⏪ Rollback</text>
+      </svg>
+      <div class="diagram-caption">Figure 2.6: Sandboxed Micro-Execution — Isolated x86_64 CPU state and Copy-on-Write shadow memory.</div>
+    </div>
+
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>A virtual, sandboxed x86_64 CPU inside PhantomSuite that steps through functions one instruction at a time without running them in the real game.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>Uses Capstone for decoding instructions and maintains a local dictionary of shadow memory pages. Reads from target RAM on demand, but all writes stay isolated in shadow pages.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>Testing unknown functions inside a real game can trigger anti-cheat bans, crash the game, or write corrupt data. The micro-emulator lets you test safely with a complete undo stack.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">PRACTICAL STEPS</span>
+        <ol>
+          <li>Open <strong>⚙️ Micro-Emulator (Tab 15)</strong>.</li>
+          <li>Enter function address in <em>Entry RIP</em> &rarr; click <strong>⚙️ Init CPU</strong>.</li>
+          <li>Press <strong>F7 (Step)</strong> to step instructions. Watch registers change color in neon orange!</li>
+          <li>Click <strong>💾 Snapshot</strong> to save state; click <strong>⏪ Rollback</strong> to undo!</li>
+        </ol>
+      </div>
+    </div>
   </section>
 
   <section id="mission-9-crypto">
     <h3>Mission 9: Hunting Secret Keys & Encrypted Data (Entropy & Crypto Scanner)</h3>
-    <p>
-      How do you find where a game decrypts its network packets or configuration files?
-    </p>
-    <ol>
-      <li>Navigate to <strong>🔐 Entropy & Crypto Tab</strong>.</li>
-      <li>Click <strong>🔐 Scan Process Memory</strong>.</li>
-      <li>
-        <strong>Cryptographic Primitives Table:</strong>
-        PhantomSuite inspects all memory segments for mathematical constants. It will list exact matches for:
-        <ul>
-          <li><strong>AES S-Boxes:</strong> Shows the exact address where AES encryption tables live.</li>
-          <li><strong>SHA-256 State Vectors:</strong> Identifies where hashing functions run.</li>
-          <li><strong>ChaCha20 Constants:</strong> Identifies ChaCha/Poly1305 streams.</li>
-        </ul>
-      </li>
-      <li>
-        <strong>Shannon Entropy Profile:</strong>
-        Look at the visual density meters (<code>██████████░░░░░░░░░░</code>).
-        Regions with an entropy score of <code>H >= 7.5</code> glow in pink/red: this is <strong>guaranteed to be encrypted data, compressed assets, or packed code</strong>!
-      </li>
-      <li>
-        Double-click any entry to jump straight to that encrypted buffer in the <strong>Hex Viewer</strong>!
-      </li>
-    </ol>
-  </section>
+    <!-- DIAGRAM: SHANNON ENTROPY -->
+    <div class="diagram-container">
+      <svg width="780" height="170" viewBox="0 0 780 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="390" y="25" fill="#f0f4fc" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="bold" text-anchor="middle">SHANNON ENTROPY SPECTRUM (H IN [0.0, 8.0 BITS/BYTE])</text>
 
-  <section id="mission-10-speedhack-hud">
-    <h3>Mission 10: Speedhack Time Dilation & Floating In-Game HUD</h3>
-    <div class="grid-2">
-      <div class="card">
-        <h4>⚡ Speedhack (Time Dilation)</h4>
-        <p>In the main header, drag the <strong>Speed slider</strong>:</p>
-        <ul>
-          <li>Drag left to <code>0.5x</code>: The game enters slow-motion bullet time! Perfect for dodging difficult attacks.</li>
-          <li>Drag right to <code>2.0x</code> or <code>5.0x</code>: Fast-forwards through unskippable cutscenes, dialogues, and loading screens.</li>
-        </ul>
+        <!-- Spectrum Bar -->
+        <rect x="50" y="45" width="680" height="30" rx="4" fill="#090d15" stroke="#1f2d44"/>
+        <!-- Sparse -->
+        <rect x="50" y="45" width="220" height="30" fill="#00ff9d" fill-opacity="0.3"/>
+        <text x="160" y="65" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="bold" text-anchor="middle">H &lt; 5.0 (SPARSE / TEXT)</text>
+        <!-- Code -->
+        <rect x="270" y="45" width="230" height="30" fill="#00f0ff" fill-opacity="0.3"/>
+        <text x="385" y="65" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="bold" text-anchor="middle">5.0 &le; H &lt; 7.5 (COMPILED CODE)</text>
+        <!-- Encrypted -->
+        <rect x="500" y="45" width="230" height="30" fill="#ff007f" fill-opacity="0.4"/>
+        <text x="615" y="65" fill="#ff007f" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="bold" text-anchor="middle">H &ge; 7.5 (ENCRYPTED / PACKED)</text>
+
+        <!-- Detection Indicators -->
+        <rect x="520" y="95" width="200" height="50" rx="4" fill="#201018" stroke="#ff007f"/>
+        <text x="620" y="115" fill="#ff007f" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="bold" text-anchor="middle">AES S-BOX DETECTED!</text>
+        <text x="620" y="132" fill="#8ca0be" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">0x7FFF4000: 63 7C 77 7B...</text>
+      </svg>
+      <div class="diagram-caption">Figure 2.7: Shannon Information Entropy Spectrum — Detecting encrypted memory buffers and mathematical crypto constants.</div>
+    </div>
+
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>A scanner that calculates the mathematical randomness of memory pages to identify encrypted buffers, packed shellcode, and cryptographic keys.</p>
       </div>
-      <div class="card">
-        <h4>🪟 In-Game Floating HUD</h4>
-        <p>Click <strong>🪟 HUD Overlay</strong> in the header:</p>
-        <ul>
-          <li>A sleek, borderless, semi-transparent window floats on top of all games.</li>
-          <li>Shows your pinned cheat table values live on your screen while you play.</li>
-          <li>Draggable with mouse; opacity slider included.</li>
-        </ul>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>Computes Shannon Information Entropy ($H = -\sum p_i \log_2 p_i$). Also scans memory maps against signature tables for AES S-Boxes, SHA-256 vectors, and ChaCha20 constants.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>Encrypted data is mathematically indistinguishable from random noise ($H \ge 7.5$). Entropy analysis immediately reveals where decryption routines are storing secrets.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">PRACTICAL STEPS</span>
+        <ol>
+          <li>Open <strong>🔐 Entropy & Crypto (Tab 16)</strong>.</li>
+          <li>Click <strong>🔐 Scan Process Memory</strong>.</li>
+          <li>Matches for AES/SHA tables appear in the top table; high-entropy buffers appear in the bottom table. Double-click any row to view it in the Hex Viewer!</li>
+        </ol>
       </div>
     </div>
   </section>
 
-  <!-- LEVEL 2: BUTTON BY BUTTON -->
+  <section id="mission-10-speed-hud">
+    <h3>Mission 10: Speedhack Time Dilation & Floating In-Game HUD</h3>
+    <!-- DIAGRAM: SPEEDHACK IPC -->
+    <div class="diagram-container">
+      <svg width="780" height="160" viewBox="0 0 780 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="30" y="35" width="200" height="90" rx="6" fill="#121824" stroke="#00f0ff" stroke-width="1.5"/>
+        <text x="130" y="65" fill="#00f0ff" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" text-anchor="middle">GAME MAIN LOOP</text>
+        <text x="130" y="85" fill="#8ca0be" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">Calls clock_gettime()</text>
+        <text x="130" y="105" fill="#5c6e88" font-family="'Inter', sans-serif" font-size="9" text-anchor="middle">To calculate frame delta</text>
+
+        <path d="M 230 80 L 300 80" stroke="#ff007f" stroke-width="2"/>
+
+        <rect x="300" y="35" width="220" height="90" rx="6" fill="#121824" stroke="#ff007f" stroke-width="1.5"/>
+        <text x="410" y="65" fill="#ff007f" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" text-anchor="middle">PHANTOM SPEEDHACK</text>
+        <text x="410" y="85" fill="#ffb86c" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">Shared Block: /dev/shm</text>
+        <text x="410" y="105" fill="#00ff9d" font-family="'Inter', sans-serif" font-size="9" text-anchor="middle">Multiplies delta by speed!</text>
+
+        <path d="M 520 80 L 590 80" stroke="#00ff9d" stroke-width="2"/>
+
+        <rect x="590" y="35" width="160" height="90" rx="6" fill="#121824" stroke="#00ff9d" stroke-width="1.5"/>
+        <text x="670" y="65" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="bold" text-anchor="middle">GAME REALITY</text>
+        <text x="670" y="85" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">0.5x Bullet Time</text>
+        <text x="670" y="105" fill="#00ff9d" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">or 5.0x Fast-Forward!</text>
+      </svg>
+      <div class="diagram-caption">Figure 2.8: Shared-Memory Speedhack Architecture — Hooking kernel time calls to dilate game speed without audio desync or stutter.</div>
+    </div>
+
+    <div class="how-why-box">
+      <div class="hw-item">
+        <span class="hw-tag hw-what">WHAT IT IS</span>
+        <p>A time dilation engine that accelerates or slows down the game, paired with a transparent On-Screen Display HUD.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-how">HOW IT WORKS</span>
+        <p>Hooks the glibc time function <code>clock_gettime(CLOCK_MONOTONIC)</code> using a shared memory block in <code>/dev/shm</code>. Virtualized time steps run faster or slower on demand.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-why">WHY IT EXISTS</span>
+        <p>Lets you breeze through unskippable cutscenes or enter slow-motion bullet time to dodge difficult attacks.</p>
+      </div>
+      <div class="hw-item">
+        <span class="hw-tag hw-use">PRACTICAL STEPS</span>
+        <ol>
+          <li>Drag the <strong>Speed slider</strong> in the header: left for slow-mo (0.5x), right for fast-forward (2.0x - 5.0x).</li>
+          <li>Click <strong>🪟 HUD Overlay</strong> to float a transparent cheat status window over your game screen!</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEVEL 2: BUTTON CATALOG -->
   <section id="ref-header">
-    <h2><span>🎛️</span> Level 2: Exhaustive Button-by-Button Cockpit Catalog</h2>
+    <h2><span>🎛️</span> Level 2: Visual Cockpit Catalog & Button Specifications</h2>
 
-    <h3>Global Cockpit Header</h3>
-    <p>The top toolbar is persistent across all 17 tabs:</p>
-
+    <h3>Global Header HUD</h3>
     <div class="button-spec">
       <div class="button-spec-header">
         <span class="button-name">Target Badge</span>
-        <span class="button-shortcut">Status Indicator</span>
+        <span class="button-shortcut">Status Banner</span>
       </div>
-      <p><strong>What it does:</strong> Displays the currently attached Process ID (PID), binary name, and window title. Amber/dark when detached; glowing cyan when attached.</p>
+      <p><strong>What it does:</strong> Displays target PID, binary name, and window title.</p>
+      <p><strong>Under the hood:</strong> Updates whenever <code>attach_target()</code> or <code>detach_target()</code> is invoked.</p>
     </div>
 
     <div class="button-spec">
       <div class="button-spec-header">
-        <span class="button-name">⚡ Speedhack: ON / OFF & Slider</span>
-        <span class="button-shortcut">Slider: 0.1x - 10.0x</span>
+        <span class="button-name">⚡ Speedhack Slider</span>
+        <span class="button-shortcut">0.1x to 10.0x</span>
       </div>
-      <p><strong>What it does:</strong> Injects or activates the shared-memory time dilation hook (<code>/dev/shm/.phantom_speed_[pid]</code>). Accelerates or decelerates <code>clock_gettime</code> calls in the target process.</p>
-    </div>
-
-    <div class="button-spec">
-      <div class="button-spec-header">
-        <span class="button-name">⌘ Command Palette</span>
-        <span class="button-shortcut">Ctrl+K / Ctrl+P</span>
-      </div>
-      <p><strong>What it does:</strong> Opens the floating search launcher. Type tool names, actions, or direct hexadecimal addresses to navigate instantaneously.</p>
+      <p><strong>What it does:</strong> Adjusts game execution speed in real time.</p>
+      <p><strong>Under the hood:</strong> Writes floating-point multiplier into <code>/dev/shm/.phantom_speed_[pid]</code> control block.</p>
     </div>
 
     <div class="button-spec">
@@ -947,7 +1369,8 @@ nop                  ; Do nothing</code></pre>
         <span class="button-name">🎯 Attach Active Window</span>
         <span class="button-shortcut">Hyprland IPC</span>
       </div>
-      <p><strong>What it does:</strong> Queries the Wayland compositor socket (<code>hyprctl activewindow -j</code>), extracts the PID of the currently focused desktop window, and binds PhantomSuite to it in under 5ms.</p>
+      <p><strong>What it does:</strong> 1-click attachment to currently focused desktop window.</p>
+      <p><strong>Under the hood:</strong> Reads JSON from <code>hyprctl activewindow -j</code> socket.</p>
     </div>
 
     <div class="button-spec">
@@ -955,27 +1378,26 @@ nop                  ; Do nothing</code></pre>
         <span class="button-name">🪟 HUD Overlay</span>
         <span class="button-shortcut">Toggle Window</span>
       </div>
-      <p><strong>What it does:</strong> Spawns or hides the frameless, translucent floating On-Screen Display window pinned above your game screen.</p>
+      <p><strong>What it does:</strong> Shows/hides floating transparent game overlay displaying pinned cheat table values.</p>
     </div>
 
     <div class="button-spec">
       <div class="button-spec-header">
         <span class="button-name">✕ Detach</span>
-        <span class="button-shortcut">Target Release</span>
+        <span class="button-shortcut">Clean Exit</span>
       </div>
-      <p><strong>What it does:</strong> Safely disconnects from the target process, cleans up temporary file descriptors, unfreezes active values, and returns PhantomSuite to Mission Control.</p>
+      <p><strong>What it does:</strong> Safely unfreezes all variables and unbinds from target process.</p>
     </div>
   </section>
 
-  <section id="ref-scanner-tab">
-    <h3>Tab 1: Memory Scanner Controls</h3>
-
+  <section id="ref-scanner">
+    <h3>Tab 1: Memory Scanner In-Depth</h3>
     <div class="button-spec">
       <div class="button-spec-header">
         <span class="button-name">🔍 First Scan</span>
         <span class="button-shortcut">Return / Enter</span>
       </div>
-      <p><strong>When to use:</strong> When beginning a search for a new variable. Reads all writable virtual memory pages and records every address matching your value.</p>
+      <p><strong>What it does:</strong> Reads all writable pages in target RAM and records matches.</p>
     </div>
 
     <div class="button-spec">
@@ -983,71 +1405,61 @@ nop                  ; Do nothing</code></pre>
         <span class="button-name">⏩ Next Scan</span>
         <span class="button-shortcut">Filter Step</span>
       </div>
-      <p><strong>When to use:</strong> After the in-game value has changed. Re-reads the addresses discovered during previous scans, discarding all addresses that did not follow the expected change.</p>
-    </div>
-
-    <div class="button-spec">
-      <div class="button-spec-header">
-        <span class="button-name">🔄 Reset Scan</span>
-        <span class="button-shortcut">Clear Memory</span>
-      </div>
-      <p><strong>When to use:</strong> When you are finished with a search or made a mistake. Clears cached scan buffers so you can start fresh.</p>
+      <p><strong>What it does:</strong> Filters discovered addresses against new value, discarding false positives.</p>
     </div>
 
     <div class="button-spec">
       <div class="button-spec-header">
         <span class="button-name">Fast Scan Checkbox (Alignment: 4)</span>
-        <span class="button-shortcut">Default: Checked</span>
+        <span class="button-shortcut">Performance Optimization</span>
       </div>
-      <p><strong>What it does:</strong> Restricts scans to memory addresses divisible by 4. Cuts scan time by 75% while matching 99.9% of compiled integers and floats.</p>
+      <p><strong>What it does:</strong> Scans only addresses divisible by 4. Cuts scan time by 75%.</p>
     </div>
 
     <div class="button-spec">
       <div class="button-spec-header">
         <span class="button-name">Active (Freeze Checkbox)</span>
-        <span class="button-shortcut">In Cheat Table</span>
+        <span class="button-shortcut">50ms Background Timer</span>
       </div>
-      <p><strong>What it does:</strong> Starts a background QTimer running every 50ms that continuously overwrites the memory address with your chosen value, effectively locking it in place.</p>
+      <p><strong>What it does:</strong> Locks value in place by writing to it every 50ms.</p>
     </div>
   </section>
 
-  <section id="ref-il2cpp-tab">
-    <h3>Tab 14: IL2CPP Klass Inspector Controls</h3>
-
+  <section id="ref-il2cpp">
+    <h3>Tab 14: IL2CPP Klass Inspector</h3>
     <div class="button-spec">
       <div class="button-spec-header">
         <span class="button-name">🔍 Inspect Class</span>
-        <span class="button-shortcut">Class Pointer</span>
+        <span class="button-shortcut">Class Metadata</span>
       </div>
-      <p><strong>What it does:</strong> Takes a 64-bit <code>Il2CppClass</code> address, traverses metadata vtables, and displays class name, namespace, parent inheritance, and field layout definitions.</p>
+      <p><strong>What it does:</strong> Traverses <code>Il2CppClass</code> descriptors to display fields, offsets, and method pointers.</p>
     </div>
 
     <div class="button-spec">
       <div class="button-spec-header">
         <span class="button-name">🎯 Inspect Object</span>
-        <span class="button-shortcut">Instance Pointer</span>
+        <span class="button-shortcut">Live Instance</span>
       </div>
-      <p><strong>What it does:</strong> Takes a live <code>Il2CppObject</code> memory instance address, resolves its class descriptor, and reads the actual values inside every single field right out of memory!</p>
+      <p><strong>What it does:</strong> Dereferences live instance in memory and displays real-time field values.</p>
     </div>
 
     <div class="button-spec">
       <div class="button-spec-header">
         <span class="button-name">📋 Copy C# Declaration</span>
-        <span class="button-shortcut">Export Button</span>
+        <span class="button-shortcut">Clipboard Export</span>
       </div>
-      <p><strong>What it does:</strong> Synthesizes standard C# code containing all fields, offsets, and methods, ready to paste into Unity mod projects (like MelonLoader, BepInEx, or Roslyn).</p>
+      <p><strong>What it does:</strong> Generates clean C# class code ready to paste into Unity mod projects.</p>
     </div>
   </section>
 
-  <section id="ref-micro-emu-tab">
-    <h3>Tab 15: Micro-Emulator Controls</h3>
-
+  <section id="ref-micro-emu">
+    <h3>Tab 15: Sandboxed Micro-Emulator</h3>
     <div class="button-spec">
       <div class="button-spec-header">
         <span class="button-name">⚙️ Init CPU</span>
-        <span class="button-shortcut">CPU Reset</span>
+        <span class="button-shortcut">State Reset</span>
       </div>
-      <p><strong>What it does:</strong> Binds an isolated x86_64 CPU register state to the specified entry RIP address and prepares lazy copy-on-write memory paging.</p>
+      <p><strong>What it does:</strong> Initializes x86_64 CPU registers and binds copy-on-write shadow paging.</p>
     </div>
 
     <div class="button-spec">
@@ -1055,7 +1467,7 @@ nop                  ; Do nothing</code></pre>
         <span class="button-name">▶ Step</span>
         <span class="button-shortcut">F7</span>
       </div>
-      <p><strong>What it does:</strong> Executes precisely one machine instruction. Logs disassembled opcode, operand values, register deltas, and memory reads/writes to the execution trace table.</p>
+      <p><strong>What it does:</strong> Executes one machine instruction in the sandbox. Logs register deltas in neon orange.</p>
     </div>
 
     <div class="button-spec">
@@ -1063,7 +1475,7 @@ nop                  ; Do nothing</code></pre>
         <span class="button-name">⏭ Step Over</span>
         <span class="button-shortcut">F8</span>
       </div>
-      <p><strong>What it does:</strong> If the current instruction is a <code>call</code>, executes the entire called sub-routine and pauses at the return address. Otherwise steps one instruction.</p>
+      <p><strong>What it does:</strong> Steps over <code>call</code> instructions, pausing at the return address.</p>
     </div>
 
     <div class="button-spec">
@@ -1071,7 +1483,7 @@ nop                  ; Do nothing</code></pre>
         <span class="button-name">🚀 Run</span>
         <span class="button-shortcut">F9</span>
       </div>
-      <p><strong>What it does:</strong> Runs instructions continuously until hitting a <code>ret</code> instruction, reaching the maximum step limit, or encountering a stop address.</p>
+      <p><strong>What it does:</strong> Runs instructions continuously until hitting <code>ret</code> or stop address.</p>
     </div>
 
     <div class="button-spec">
@@ -1079,58 +1491,99 @@ nop                  ; Do nothing</code></pre>
         <span class="button-name">💾 Snapshot & ⏪ Rollback</span>
         <span class="button-shortcut">Undo Stack</span>
       </div>
-      <p><strong>What it does:</strong> Pushes complete CPU registers and shadow memory pages onto an undo stack. Rollback pops the stack to revert state without restarting.</p>
+      <p><strong>What it does:</strong> Saves and restores complete CPU and shadow memory state on demand.</p>
+    </div>
+  </section>
+
+  <section id="ref-crypto">
+    <h3>Tab 16: Shannon Entropy & Crypto Scanner</h3>
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">🔐 Scan Process Memory</span>
+        <span class="button-shortcut">Full Audit</span>
+      </div>
+      <p><strong>What it does:</strong> Scans readable memory maps for cryptographic lookup tables and high entropy ($H \ge 7.5$).</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">🎯 Scan Range</span>
+        <span class="button-shortcut">Targeted Buffer</span>
+      </div>
+      <p><strong>What it does:</strong> Computes entropy and crypto matches for a specific address and size range.</p>
     </div>
   </section>
 
   <!-- LEVEL 3: API SPEC -->
   <section id="api-reference">
     <h2><span>📚</span> Level 3: Developer Core API Reference</h2>
-    <p>
-      For headless script automation in the <strong>Python Console Tab</strong> (<code>Ctrl+9</code>) or writing custom external plugins:
-    </p>
+    <p>Complete programmatic reference for automation scripts and plugins running in the <strong>Python Console Tab (Ctrl+9)</strong>:</p>
 
-    <h3>1. <code>MemoryEngine</code> (Core Memory Access)</h3>
+    <h3>1. <code>MemoryEngine</code> (phantom_suite.core.memory_engine)</h3>
     <pre><code>from phantom_suite.core.memory_engine import MemoryEngine, TypeFormat
 
 # Read 4-byte integer from target PID
-val = MemoryEngine.read_int32(pid=1234, address=0x5555A000)
+health = MemoryEngine.read_int32(pid=1234, address=0x7FFF0040)
 
 # Write 4-byte integer to target PID
-MemoryEngine.write_int32(pid=1234, address=0x5555A000, value=9999)
+MemoryEngine.write_int32(pid=1234, address=0x7FFF0040, value=9999)
 
-# Read 64-bit pointer
-ptr = MemoryEngine.read_pointer(pid=1234, address=0x7FFF0010)
+# Read 64-bit unsigned pointer
+player_ptr = MemoryEngine.read_pointer(pid=1234, address=0x5555A000)
 
-# Scan for all addresses holding 100
+# Execute initial memory scan across writable pages
 results = MemoryEngine.first_scan(pid=1234, val_type=TypeFormat.INT32, target_val=100)</code></pre>
 
-    <h3>2. <code>Il2CppInspector</code> (Unity Runtime Introspection)</h3>
+    <h3>2. <code>Il2CppInspector</code> (phantom_suite.core.il2cpp_inspector)</h3>
     <pre><code>from phantom_suite.core.il2cpp_inspector import Il2CppInspector
 
-# Detect if game is running Unity IL2CPP
-is_il2cpp = Il2CppInspector.detect_il2cpp(pid=1234)
+# Check if target process has Unity IL2CPP loaded
+is_loaded = Il2CppInspector.detect_il2cpp(pid=1234)
 
-# Inspect a class definition
+# Inspect a class definition by address
 klass = Il2CppInspector.inspect_class(pid=1234, klass_addr=0x5555E000)
 print(f"Class: {klass.name}, Fields: {len(klass.fields)}")
 
-# Generate C# header
-cs_code = Il2CppInspector.generate_csharp_header(klass)</code></pre>
+# Inspect a live game object instance
+dump = Il2CppInspector.inspect_object(pid=1234, obj_addr=0x7FFF2000)
+for field_name, value in dump.field_values.items():
+    print(f"  {field_name} = {value}")
 
-    <h3>3. <code>MicroEmulator</code> (Sandboxed Execution)</h3>
+# Generate C# source code header
+csharp_code = Il2CppInspector.generate_csharp_header(klass)</code></pre>
+
+    <h3>3. <code>MicroEmulator</code> (phantom_suite.core.micro_emulator)</h3>
     <pre><code>from phantom_suite.core.micro_emulator import MicroEmulator
 
 emu = MicroEmulator(target_pid=1234)
 emu.set_reg("rip", 0x401000)
 
-# Step one instruction
+# Step single instruction
 success, trace, reason = emu.step()
-print(f"Executed: {trace.mnemonic} {trace.op_str}, New RAX: {emu.get_reg('rax')}")
+print(f"Executed: {trace.mnemonic} {trace.op_str}, New RAX: 0x{emu.get_reg('rax'):X}")
 
-# Run until ret
+# Save snapshot
+emu.save_snapshot()
+
+# Run up to 100 steps or until ret
 result = emu.run(max_steps=100)
-print(f"Halt reason: {result.halt_reason}, Final RIP: {result.final_rip:X}")</code></pre>
+print(f"Halt reason: {result.halt_reason}, Final RIP: 0x{result.final_rip:X}")
+
+# Rollback on fault
+if not result.terminated:
+    emu.restore_snapshot()</code></pre>
+
+    <h3>4. <code>EntropyCryptoScanner</code> (phantom_suite.core.entropy_crypto_scanner)</h3>
+    <pre><code>from phantom_suite.core.entropy_crypto_scanner import EntropyCryptoScanner
+
+# Calculate Shannon information entropy for byte buffer (H in [0.0, 8.0])
+raw_bytes = b"..."
+entropy_score = EntropyCryptoScanner.calculate_entropy(raw_bytes)
+
+# Scan process memory for cryptographic primitives (AES, SHA, ChaCha)
+entropy_blocks, crypto_matches = EntropyCryptoScanner.scan_process(pid=1234)
+for match in crypto_matches:
+    print(f"[{match.algorithm}] {match.name} at 0x{match.address:X}")</code></pre>
   </section>
 
 </main>
