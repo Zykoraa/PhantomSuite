@@ -397,7 +397,45 @@ Inspect every open file descriptor, network socket, IPC pipe, and device file.
 
 ---
 
+## Tab 14: 🎮 IL2CPP Klass Inspector
+
+Inspect live in-memory Unity IL2CPP runtime structures without external static dumpers.
+* **Class & Instance Introspection:** Resolves `Il2CppClass` descriptors, field names, static/instance offsets, and VTable method pointers.
+* **Live Object Dereferencing:** Inspects live `Il2CppObject` memory instances and extracts field values in real-time.
+* **Code Synthesizer:** Generates valid C# class declarations and C++20 memory layouts with accurate field offsets and padding.
+
+---
+
+## Tab 15: ⚙️ Sandboxed Micro-Emulator
+
+Isolated x86_64 CPU state emulation cockpit for stepping through complex sub-routines without triggering target anti-debug or side-effects.
+* **Shadow Paging:** Lazy Copy-on-Write (COW) memory paging reads directly from target process memory while isolating writes to shadow memory.
+* **Execution Stepping:** Single-step (`F7`), step over calls (`F8`), and run until `ret` (`F9`).
+* **Delta Register Highlighting:** Real-time register grid highlighting modified registers in neon orange with CPU flags banner.
+* **Shadow Stack Window:** Monitors 16 QWORDs relative to `RSP`.
+* **Snapshot Undo Stack:** Push state snapshots (`💾 Snapshot`) and rollback instantly (`⏪ Rollback`) on faults or infinite loops.
+
+---
+
+## Tab 16: 🔐 Shannon Entropy & Crypto Scanner
+
+Detect packed/encrypted memory buffers and identify standard cryptographic algorithms.
+* **Shannon Entropy Spectrum:** Computes information entropy ($H \in [0.0, 8.0]$ bits/byte) with visual density meters (`█`/`░`) classifying memory as Encrypted/Packed ($H \ge 7.5$), Code/Structured ($5.0 \le H < 7.5$), or Sparse/Text ($H < 5.0$).
+* **Cryptographic Constant Database:** Automatically matches AES Forward/Inverse S-Boxes, AES Rcon, SHA-256 H0-H7 / K0-K7, ChaCha20 constants, MD5, CRC32, and Curve25519 primitives.
+* **1-Click Routing:** Context menu jumps directly to Hex view or adds matched constants to the cheat table.
+
+---
+
 ## Additional Instruments
+
+### 🔀 Control Flow Graph (CFG) Visualizer & Inversion
+Accessible via Command Palette (`act_open_cfg`) or Hex Editor context menu. Deconstructs sub-routines into basic block DAGs with 1-click conditional branch inversion (`JE` &harr; `JNE`, `JG` &harr; `JLE`).
+
+### 🧱 Glibc Heap Chunk Introspector
+Accessible via Command Palette (`act_open_heap`). Parses glibc ptmalloc chunk headers (`size`, `prev_size`, `PREV_INUSE`, `IS_MMAPPED`), tcache bins, fastbins, and audits memory for double-free corruption.
+
+### 🛡️ Anti-Debug & PMU Timing Profiler
+Accessible via Command Palette (`act_open_pmu`). Audits `TracerPid`, `/proc/[pid]/wchan`, and executes RDTSC timing delta loops to detect time-stamp based debugger traps.
 
 ### 🎯 Hardware Watchpoints ("Find What Writes / Accesses This Address")
 Accessible from the **Memory Scanner** and **Hex Editor**:
@@ -415,24 +453,32 @@ Click **🪟 HUD Overlay** in the main header:
 
 ---
 
-## Quick Reference Summary (Tools & Shortcuts)
+## Quick Reference Summary (17 Tools & Shortcuts)
 
-| Tool / Action | Shortcut | Best For | Superpower |
+| Tool / Action | Shortcut | Category | Superpower |
 | :--- | :--- | :--- | :--- |
-| **🚀 Mission Control** | `Ctrl + 0` | Dashboard & launchpad | Recent target history, 1-click window attach, quick table loading |
-| **⌘ Command Palette** | `Ctrl + K` / `Ctrl + P` | Fuzzy navigation & jump | Instant tool switching, actions & hex address jump (`0x...`) |
-| **⚡ Processes & Windows** | `Ctrl + 1` | Finding & controlling targets | 1-click active Hyprland window attach & SIGSTOP freeze |
-| **🔍 Memory Scanner** | `Ctrl + 2` | Finding variables & cheats | Gigabyte/s scan speed, 50ms active freeze, AOB patterns, .phantom tables |
-| **📸 Snapshot Diff** | `Ctrl + 3` | Unknown value & state discovery | Multi-format delta engine with noise filtering |
-| **🧬 Hex & Disasm** | `Ctrl + 4` | Byte & opcode inspection | Live 500ms auto-refresh, 1-click NOP patcher & **✨ SigMaker** |
-| **🔬 Struct Dissector** | `Ctrl + 5` | Entity & class inspection | **🔥 Live heatmaps**, heuristic pointer/float detection, C struct exporter |
-| **📦 ELF Symbols** | `Ctrl + 6` | Static & dynamic symbol lookup | Demangled C++ symbols, runtime address resolution, 1-click disasm jump |
-| **🗺️ Memory Map** | `Ctrl + 7` | Visual memory layout | Proportional distribution bar & KPI metric cards |
-| **📡 Syscall Telemetry** | `Ctrl + 8` | Kernel monitoring | Live streaming GUI strace with category colors & CSV export |
-| **🐍 Scripting Console** | `Ctrl + 9` | Batch memory automation | Python REPL, pre-injected memory APIs, and `plugins/` loader |
-| **🧩 Data Deserializer** | — | C++ STL & JSON parsing | Auto-decodes `std::string`, `std::vector`, embedded JSON |
-| **💉 .so Injector** | — | Code injection | GDB dlopen with /proc maps verification & dlclose unloader |
-| **🧵 Threads** | — | Thread-level analysis | Per-thread pause/resume (tgkill) and CPU core pinning |
-| **🌐 Sockets & Handles** | — | File & network auditing | Kernel socket inode to IP:port resolution |
-| **◀ Toggle Sidebar** | `Ctrl + B` | Screen real estate | Toggle between 210px expanded view and 54px icon rail |
-| **⌨ Shortcuts Cheat Sheet**| `F1` or `?` | Quick help | Opens interactive modal cheat sheet of all hotkeys |
+| **🚀 Mission Control** | `Ctrl + 0` | Dashboard | Recent target history, 1-click window attach, quick table loading |
+| **⌘ Command Palette** | `Ctrl + K` / `Ctrl + P` | Navigation | Instant tool switching, actions & hex address jump (`0x...`) |
+| **⚡ Processes & Windows** | `Ctrl + 1` | Target | 1-click active Hyprland window attach & SIGSTOP freeze |
+| **🔍 Memory Scanner** | `Ctrl + 2` | Memory | Fast Scan heuristics, 50ms active freeze, AOB patterns, .phantom tables |
+| **📸 Snapshot Diff** | `Ctrl + 3` | Memory | Multi-format delta engine with noise filtering |
+| **🧬 Hex & Disasm** | `Ctrl + 4` | Reversing | Live 500ms auto-refresh, 1-click NOP patcher & **✨ SigMaker** |
+| **🔬 Struct Dissector** | `Ctrl + 5` | Reversing | **🔥 Live heatmaps**, heuristic pointer/float detection, C struct exporter |
+| **📦 ELF Symbols** | `Ctrl + 6` | Reversing | Static/dynamic symbol lookup, DWARF type extraction, disasm jump |
+| **🗺️ Memory Map** | `Ctrl + 7` | Memory | Proportional distribution bar & virtual address space treemap |
+| **📡 Syscall Telemetry** | `Ctrl + 8` | Toolbox | Live streaming GUI strace with category colors & CSV export |
+| **🐍 Scripting Console** | `Ctrl + 9` | Toolbox | Hybrid Exec/Eval REPL, pre-injected memory APIs, AST automation |
+| **🧩 Data Deserializer** | — | Reversing | Auto-decodes `std::string` (SSO/heap), `std::vector`, embedded JSON |
+| **💉 .so Injector** | — | Toolbox | GDB dlopen with /proc maps verification & dlclose unloader |
+| **🧵 Threads** | — | Target | Per-thread pause/resume (tgkill) and CPU core pinning |
+| **🌐 Sockets & Handles** | — | Target | Kernel socket inode to IP:port resolution |
+| **🎮 IL2CPP Inspector** | — | Reversing | Live Unity Il2CppClass/Object introspector & C#/C++20 struct generator |
+| **⚙️ Micro-Emulator** | `F7`/`F8`/`F9` | Reversing | Sandboxed x86_64 CPU state execution, shadow paging, snapshot rollback |
+| **🔐 Entropy & Crypto** | — | Reversing | Shannon entropy profiling ($H \in [0, 8]$) & AES/SHA/ChaCha20 scanner |
+| **◀ Toggle Sidebar** | `Ctrl + B` | Navigation | Toggle between 210px expanded view and 54px icon rail |
+| **⌨ Shortcuts Cheat Sheet**| `F1` or `?` | Help | Opens interactive modal cheat sheet of all hotkeys |
+
+---
+
+> [!NOTE]
+> For the complete, interactive field manual covering step-by-step reverse engineering scenarios from zero knowledge to expert, open [`FIELD_MANUAL.html`](file:///home/eve/Projects/PhantomSuite/FIELD_MANUAL.html) or [`docs/FIELD_MANUAL.html`](file:///home/eve/Projects/PhantomSuite/docs/FIELD_MANUAL.html) in your browser.

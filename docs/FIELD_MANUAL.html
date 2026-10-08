@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhantomSuite // Tactical Field Manual & Reverse-Engineering Specification</title>
+<style>
+  :root {
+    --bg-base: #0b0e14;
+    --bg-surface: #101520;
+    --bg-surface-raised: #161e2e;
+    --bg-header: #0d121c;
+    --border: #1f2b3e;
+    --border-accent: #00f0ff;
+    --text-main: #f0f4fc;
+    --text-muted: #8ca0be;
+    --text-dim: #5c6e88;
+    --cyan: #00f0ff;
+    --green: #00ff9d;
+    --pink: #ff007f;
+    --purple: #bd93f9;
+    --orange: #ffb86c;
+    --yellow: #f1fa8c;
+    --red: #ff5555;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    line-height: 1.65;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Sidebar Navigation */
+  #sidebar {
+    width: 320px;
+    background-color: var(--bg-surface);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 16px 20px;
+    background: linear-gradient(180deg, #141c2c 0%, var(--bg-surface) 100%);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-header h1 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sidebar-header .subtitle {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    margin-top: 4px;
+  }
+
+  .sidebar-search {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-search input {
+    width: 100%;
+    padding: 8px 12px;
+    background-color: var(--bg-base);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--cyan);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    outline: none;
+  }
+  .sidebar-search input:focus { border-color: var(--cyan); }
+
+  .nav-group {
+    padding: 16px 0 8px 0;
+  }
+
+  .nav-group-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-dim);
+    padding: 0 20px 8px 20px;
+  }
+
+  .nav-item {
+    display: block;
+    padding: 7px 20px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border-left: 3px solid transparent;
+    transition: all 0.15s ease;
+  }
+
+  .nav-item:hover {
+    color: var(--cyan);
+    background-color: var(--bg-surface-raised);
+    border-left-color: var(--cyan);
+  }
+
+  .nav-item.active {
+    color: var(--cyan);
+    background-color: #122438;
+    border-left-color: var(--cyan);
+    font-weight: 600;
+  }
+
+  /* Main Document Canvas */
+  #main {
+    margin-left: 320px;
+    flex: 1;
+    padding: 48px 64px 120px 64px;
+    max-width: 1300px;
+  }
+
+  /* Typography */
+  h1, h2, h3, h4 { color: #ffffff; font-weight: 700; }
+  h1 { font-size: 2.3rem; margin-bottom: 16px; border-bottom: 2px solid var(--border); padding-bottom: 12px; }
+  h2 { font-size: 1.6rem; margin-top: 48px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; color: var(--cyan); }
+  h3 { font-size: 1.25rem; margin-top: 32px; margin-bottom: 12px; color: #e2eafc; }
+  h4 { font-size: 1.05rem; margin-top: 24px; margin-bottom: 8px; color: var(--orange); font-family: var(--font-mono); }
+  p { margin-bottom: 16px; color: var(--text-main); font-size: 0.98rem; }
+  ul, ol { margin-left: 24px; margin-bottom: 18px; color: var(--text-main); }
+  li { margin-bottom: 6px; }
+
+  /* Code & Pre */
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    background-color: var(--bg-surface-raised);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cyan);
+    border: 1px solid #1e2c40;
+  }
+
+  pre {
+    background-color: #080b10;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px;
+    margin: 18px 0;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: #e6edf3;
+    position: relative;
+  }
+
+  pre code {
+    background: transparent;
+    padding: 0;
+    border: none;
+    color: inherit;
+  }
+
+  /* Badges & Pills */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+  }
+  .badge-cyan { background-color: rgba(0, 240, 255, 0.15); color: var(--cyan); border: 1px solid var(--cyan); }
+  .badge-green { background-color: rgba(0, 255, 157, 0.15); color: var(--green); border: 1px solid var(--green); }
+  .badge-pink { background-color: rgba(255, 0, 127, 0.15); color: var(--pink); border: 1px solid var(--pink); }
+  .badge-orange { background-color: rgba(255, 184, 108, 0.15); color: var(--orange); border: 1px solid var(--orange); }
+
+  /* Callouts */
+  .callout {
+    padding: 16px 20px;
+    border-radius: 6px;
+    margin: 22px 0;
+    border-left: 4px solid;
+    background-color: var(--bg-surface);
+  }
+  .callout-note { border-left-color: var(--cyan); background-color: rgba(0, 240, 255, 0.05); }
+  .callout-note .callout-title { color: var(--cyan); }
+  .callout-tip { border-left-color: var(--green); background-color: rgba(0, 255, 157, 0.05); }
+  .callout-tip .callout-title { color: var(--green); }
+  .callout-warning { border-left-color: var(--orange); background-color: rgba(255, 184, 108, 0.05); }
+  .callout-warning .callout-title { color: var(--orange); }
+  .callout-danger { border-left-color: var(--red); background-color: rgba(255, 85, 85, 0.05); }
+  .callout-danger .callout-title { color: var(--red); }
+
+  .callout-title {
+    font-weight: 700;
+    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  th {
+    background-color: var(--bg-surface-raised);
+    color: var(--cyan);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  tr:hover td { background-color: rgba(255, 255, 255, 0.02); }
+
+  /* Interactive Components & Cards */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 20px 0;
+  }
+  .card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+  }
+  .card h4 { margin-top: 0; }
+
+  /* Section Dividers */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  .hero-banner {
+    background: linear-gradient(135deg, #0f1c2d 0%, #0b0e14 100%);
+    border: 1px solid var(--border-accent);
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 40px;
+    box-shadow: 0 8px 32px rgba(0, 240, 255, 0.05);
+  }
+  .hero-banner h1 { border: none; padding: 0; margin-bottom: 8px; }
+  .hero-banner p { font-size: 1.05rem; color: var(--text-muted); margin-bottom: 0; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar Navigation -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <h1><span>🧬</span> PhantomSuite</h1>
+    <div class="subtitle">TACTICAL FIELD MANUAL // v2.4.0</div>
+  </div>
+  <div class="sidebar-search">
+    <input type="text" id="nav-filter" placeholder="Search manual..." onkeyup="filterNav()">
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">00. Ground Zero & Environment</div>
+    <a href="#intro" class="nav-item">System Architecture & Threat Model</a>
+    <a href="#setup" class="nav-item">Linux Kernel Setup & Yama ptrace</a>
+    <a href="#cockpit" class="nav-item">Ergonomics, Hotkeys & Command Palette</a>
+    <a href="#modes" class="nav-item">Specialized Workflow Modes</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">01. Target Discovery & Scanners</div>
+    <a href="#target-acquisition" class="nav-item">Process Discovery & Hyprland IPC</a>
+    <a href="#memory-scanner" class="nav-item">Memory Scanner & Fast-Scan Heuristics</a>
+    <a href="#cheat-tables" class="nav-item">ASLR-Resilient .phantom Tables</a>
+    <a href="#snapshot-diff" class="nav-item">Differential Snapshot Forensics</a>
+    <a href="#treemap" class="nav-item">Virtual Address Space Treemap</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">02. Disassembly & Instrumentation</div>
+    <a href="#hex-disasm" class="nav-item">Hex Dump, Live Disasm & SigMaker</a>
+    <a href="#cfg-engine" class="nav-item">Control Flow Graphs & Inversion</a>
+    <a href="#detour-hooks" class="nav-item">Mid-Function Detour Hooking</a>
+    <a href="#pmu-profiler" class="nav-item">Anti-Debug & RDTSC PMU Auditing</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">03. Type Recovery & Data Containers</div>
+    <a href="#struct-dissector" class="nav-item">Heuristic Struct Dissection & Heatmaps</a>
+    <a href="#dwarf-synth" class="nav-item">ELF DWARF Type Synthesizer</a>
+    <a href="#deserializer" class="nav-item">C++ std::string & std::vector Reader</a>
+    <a href="#smt-solver" class="nav-item">Symbolic SMT Z3 Pointer Path Solver</a>
+    <a href="#heap-inspector" class="nav-item">Glibc Heap Chunk & Tcache Forensics</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">04. Next-Gen Reverse Engineering</div>
+    <a href="#il2cpp-tab" class="nav-item">Unity IL2CPP Klass Explorer</a>
+    <a href="#micro-emu-tab" class="nav-item">Sandboxed Micro-Execution Cockpit</a>
+    <a href="#crypto-tab" class="nav-item">Shannon Entropy & Crypto Scanner</a>
+    <a href="#network-core" class="nav-item">Socket Interceptor & Core Dumps</a>
+    <a href="#script-repl" class="nav-item">Embedded Python REPL Automation</a>
+    <a href="#stealth-ops" class="nav-item">Speedhack & Transparent OSD HUD</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-title">05. Exhaustive API Reference</div>
+    <a href="#api-reference" class="nav-item">Core Engine Method Catalog</a>
+  </div>
+</nav>
+
+<!-- Main Manual Content -->
+<main id="main">
+
+  <div class="hero-banner">
+    <h1>PHANTOMSUITE FIELD MANUAL</h1>
+    <p>Zero-to-Expert Tactical Guide for Native Linux Binary Reversing, Kernel-Aware Memory Introspection, SMT Symbolic Solving, and Game Instrumentation.</p>
+    <div style="margin-top: 14px; display: flex; gap: 8px;">
+      <span class="badge badge-cyan">Architecture: x86_64</span>
+      <span class="badge badge-green">Kernel: Linux 6.x+</span>
+      <span class="badge badge-pink">Dual-Mode: Visual + Headless API</span>
+      <span class="badge badge-orange">PySide6 / Capstone / Z3</span>
+    </div>
+  </div>
+
+  <!-- Section 00 -->
+  <section id="intro">
+    <h2>00. System Architecture & Threat Model</h2>
+    <p>
+      <strong>PhantomSuite</strong> is an offensive-grade, deep-systems reverse-engineering workbench engineered natively for 64-bit Linux. Unlike legacy Windows tools running through Wine or rudimentary memory scrapers, PhantomSuite bypasses standard userland constraints by leveraging native Linux kernel interfaces (<code>process_vm_readv</code>, <code>process_vm_writev</code>, <code>/proc/[pid]/mem</code>, <code>ptrace</code>, and ELF segment structures).
+    </p>
+
+    <div class="callout callout-note">
+      <div class="callout-title">Architecture Philosophy</div>
+      <strong>100% Non-Invasive by Default:</strong> Passive inspection tools (Memory Scanner, Entropy Profiler, IL2CPP Klass Inspector, Micro-Emulator, Treemap) never modify the target process address space or raise execution signals. Active modifications (Detours, Byte Patching, Speedhack, .so Injection) are clearly segmented and gated behind confirmation dialogs.
+    </div>
+
+    <pre><code>+-----------------------------------------------------------------------------------+
+|                            PHANTOMSUITE COCKPIT (PySide6)                         |
+|  [Mission Control] [Scanner] [Hex/Disasm] [Struct] [Symbols] [IL2CPP] [MicroEmu]  |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                +-------------------------+-------------------------+
+                | Python Script Engine (AST / Hybrid Exec / REPL)   |
+                +-------------------------+-------------------------+
+                                          |
+    +-------------------------------------+-------------------------------------+
+    |                        PHANTOMSUITE CORE SUBSYSTEMS                       |
+    |  +--------------------+  +----------------------+  +--------------------+ |
+    |  | MemoryEngine       |  | SymbolicSolver (Z3)  |  | MicroEmulator      | |
+    |  | - process_vm_readv |  | - Multithread BFS    |  | - Shadow Paging    | |
+    |  | - /proc/pid/mem    |  | - SMT Constraints    |  | - Snapshot Stack   | |
+    |  +--------------------+  +----------------------+  +--------------------+ |
+    |  +--------------------+  +----------------------+  +--------------------+ |
+    |  | Il2CppInspector    |  | EntropyCryptoScanner |  | DetourEngine       | |
+    |  | - Klass Deserial   |  | - Shannon H Math     |  | - x86_64 Trampoline| |
+    |  | - Live Instance    |  | - Constant DB Match  |  | - Shadow Hooks     | |
+    |  +--------------------+  +----------------------+  +--------------------+ |
+    +-------------------------------------+-------------------------------------+
+                                          |
+                 +------------------------+------------------------+
+                 | Linux Kernel VFS / Tracing / Shared Memory IPC  |
+                 | - /proc/[pid]/maps & mem   - ptrace (PTRACE_ATTACH) |
+                 | - /dev/shm (Speedhack)     - UNIX domain sockets|
+                 +-------------------------------------------------+</code></pre>
+  </section>
+
+  <section id="setup">
+    <h2>01. Linux Kernel Setup & Yama ptrace</h2>
+    <p>
+      On modern Linux distributions (Arch, Ubuntu 22.04+, Fedora, openSUSE), the <strong>Yama LSM (Linux Security Module)</strong> restricts inter-process debugging to direct child processes by default. PhantomSuite monitors and visualizes this state directly in the cockpit status bar.
+    </p>
+
+    <h3>Yama Ptrace Scopes</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Scope</th>
+          <th>Mode</th>
+          <th>Behavior with PhantomSuite</th>
+          <th>Remediation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>0</code></td>
+          <td>Classic</td>
+          <td><span class="badge badge-green">Full Access</span> Any process with identical UID can read and attach freely.</td>
+          <td>Optimal state. Default for development and CTF machines.</td>
+        </tr>
+        <tr>
+          <td><code>1</code></td>
+          <td>Restricted</td>
+          <td><span class="badge badge-orange">Parent Only</span> Only direct parent processes can attach via ptrace.</td>
+          <td>Launch PhantomSuite via <code>pkexec</code> or modify sysctl.</td>
+        </tr>
+        <tr>
+          <td><code>2</code></td>
+          <td>Admin Only</td>
+          <td><span class="badge badge-pink">Root Only</span> Only processes with <code>CAP_SYS_PTRACE</code> can attach.</td>
+          <td>Run with <code>sudo</code> or grant capability binary bit.</td>
+        </tr>
+        <tr>
+          <td><code>3</code></td>
+          <td>Locked</td>
+          <td><span class="badge badge-red">Disabled</span> No processes can attach. Requires reboot to reset.</td>
+          <td>Reboot machine with altered boot parameters.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">Fast Kernel Configuration</div>
+      <p>To enable unrestricted memory analysis on your reverse-engineering workstation without rebooting:</p>
+      <pre><code># Temporarily set Yama scope to unrestricted
+echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+
+# Persist across reboots in sysctl
+echo "kernel.yama.ptrace_scope = 0" | sudo tee /etc/sysctl.d/10-ptrace.conf
+sudo sysctl --system</code></pre>
+    </div>
+  </section>
+
+  <section id="cockpit">
+    <h2>02. Ergonomics, Hotkeys & Command Palette</h2>
+    <p>
+      PhantomSuite is architected for maximum keyboard velocity. You can operate the entire workbench without taking your hands off the keyboard using global hotkeys and the fuzzy command palette.
+    </p>
+
+    <h3>Global Hotkey Cheat Sheet</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Hotkey</th>
+          <th>Scope</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>Ctrl+K</code> / <code>Ctrl+P</code></td>
+          <td>Global</td>
+          <td>Open floating <strong>Command Palette</strong></td>
+        </tr>
+        <tr>
+          <td><code>Ctrl+B</code></td>
+          <td>Global</td>
+          <td>Toggle collapsible navigation sidebar</td>
+        </tr>
+        <tr>
+          <td><code>Ctrl+0</code></td>
+          <td>Global</td>
+          <td>Switch to <strong>Mission Control Dashboard</strong></td>
+        </tr>
+        <tr>
+          <td><code>Ctrl+1</code> .. <code>Ctrl+9</code></td>
+          <td>Global</td>
+          <td>Direct jump to Tabs 0 through 10 (Processes, Scanner, Hex, Structs, etc.)</td>
+        </tr>
+        <tr>
+          <td><code>F1</code> / <code>?</code></td>
+          <td>Global</td>
+          <td>Open Keyboard Shortcuts & Help modal</td>
+        </tr>
+        <tr>
+          <td><code>F3</code></td>
+          <td>Global</td>
+          <td>Send <code>SIGSTOP</code> / <code>SIGCONT</code> to pause or resume target process</td>
+        </tr>
+        <tr>
+          <td><code>F5</code></td>
+          <td>Global</td>
+          <td>Refresh current active view / re-scan maps</td>
+        </tr>
+        <tr>
+          <td><code>Ctrl+S</code> / <code>Ctrl+O</code></td>
+          <td>Global</td>
+          <td>Save / Load <code>.phantom</code> cheat table</td>
+        </tr>
+        <tr>
+          <td><code>F7</code></td>
+          <td>Micro-Emulator</td>
+          <td>Single-step next instruction</td>
+        </tr>
+        <tr>
+          <td><code>F8</code></td>
+          <td>Micro-Emulator</td>
+          <td>Step over current sub-call</td>
+        </tr>
+        <tr>
+          <td><code>F9</code></td>
+          <td>Micro-Emulator</td>
+          <td>Run to <code>ret</code> or stop breakpoint</td>
+        </tr>
+        <tr>
+          <td><code>Ctrl+Enter</code></td>
+          <td>Console Tab</td>
+          <td>Execute Python script buffer or selected code block</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Command Palette Intelligence (<code>Ctrl+K</code>)</h3>
+    <p>
+      The palette supports fuzzy matching across tab navigation, actions, and memory addresses:
+    </p>
+    <ul>
+      <li>Type <code>attach</code> &rarr; Attach directly to focused Hyprland/Wayland window.</li>
+      <li>Type <code>speed</code> &rarr; Quick-set speedhack multipliers (0.5x, 1.0x, 2.0x, 5.0x).</li>
+      <li>Type <code>snap</code> &rarr; Capture Snapshot A or B.</li>
+      <li>Type an address like <code>0x55550040A000</code> &rarr; Instantly generates <em>"🧬 Jump to Hex Editor"</em> or <em>"🔬 Dissect Struct"</em> options with zero manual tab switching!</li>
+    </ul>
+  </section>
+
+  <section id="modes">
+    <h2>03. Specialized Workflow Modes</h2>
+    <p>
+      The sidebar features a <strong>Workflow Mode</strong> selector that automatically declutters the navigation tree depending on your current operational mission:
+    </p>
+    <div class="grid-2">
+      <div class="card">
+        <h4>🎮 Game Modding Mode</h4>
+        <p>Filters interface to mission-critical modding tools: Mission Control, Process Explorer, Memory Scanner, Snapshot Diff, Struct Dissector, and the <strong>IL2CPP Inspector</strong>.</p>
+      </div>
+      <div class="card">
+        <h4>🔬 Binary Reversing Mode</h4>
+        <p>Curates reversing cockpits: Hex & Disassembly, Struct Dissector, ELF Symbols, Data Deserializer, Python Console, <strong>IL2CPP Inspector</strong>, <strong>Micro-Emulator</strong>, and <strong>Crypto Scanner</strong>.</p>
+      </div>
+      <div class="card">
+        <h4>🌐 System Forensics Mode</h4>
+        <p>Tailored for telemetry: Processes, Threads & Core Affinity, Sockets & Handles, Syscall Monitor, and Virtual Memory Treemap.</p>
+      </div>
+      <div class="card">
+        <h4>⚡ All Tools (Default)</h4>
+        <p>Presents the complete 17-tab suite across Dashboard, Target & System, Memory & Cheats, Reversing & Dissect, and Toolbox & Scripts.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 01 -->
+  <section id="target-acquisition">
+    <h2>04. Target Acquisition & Hyprland IPC</h2>
+    <p>
+      PhantomSuite integrates directly with desktop compositors. On modern Wayland environments running <strong>Hyprland</strong>, you never have to grep through thousands of background processes.
+    </p>
+    <h3>1-Click Hyprland Active Window Snapping</h3>
+    <p>
+      Clicking <strong>🎯 Attach Active Window</strong> in the header queries Hyprland's IPC socket (<code>hyprctl activewindow -j</code>). PhantomSuite retrieves the focused window's PID, process executable name, and window title, immediately binding all 17 tabs to that target in under 5 milliseconds.
+    </p>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">Realistic Scenario: Attaching to an Obfuscated Game</div>
+      <ol>
+        <li>Launch the target binary or game on your second workspace.</li>
+        <li>Focus the game window briefly with your mouse.</li>
+        <li>Switch back to PhantomSuite and click <strong>🎯 Attach Active Window</strong> (or press <code>Ctrl+K</code> &rarr; type <code>attach</code> &rarr; <code>Enter</code>).</li>
+        <li>PhantomSuite binds to the target PID, validates Yama permissions, and sets up memory paging.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="memory-scanner">
+    <h2>05. Precision Memory Scanner & Fast-Scan Heuristics</h2>
+    <p>
+      The memory scanner operates directly on Linux virtual memory pages using high-speed vector system calls.
+    </p>
+
+    <h3>Supported Data Types</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Format</th>
+          <th>Size</th>
+          <th>Python / C Representation</th>
+          <th>Optimal Memory Alignment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>INT8</code></td><td>1 byte</td><td><code>int8_t</code> (-128 .. 127)</td><td>1-byte (Any)</td></tr>
+        <tr><td><code>INT16</code></td><td>2 bytes</td><td><code>int16_t</code> (-32768 .. 32767)</td><td>2-byte aligned</td></tr>
+        <tr><td><code>INT32</code></td><td>4 bytes</td><td><code>int32_t</code> (Default for scores, health, timers)</td><td>4-byte aligned</td></tr>
+        <tr><td><code>INT64</code></td><td>8 bytes</td><td><code>int64_t</code> (Pointers, 64-bit counters, currencies)</td><td>8-byte aligned</td></tr>
+        <tr><td><code>FLOAT</code></td><td>4 bytes</td><td>IEEE 754 Single Precision (Coordinates, velocity)</td><td>4-byte aligned</td></tr>
+        <tr><td><code>DOUBLE</code></td><td>8 bytes</td><td>IEEE 754 Double Precision (Physics calculations)</td><td>8-byte aligned</td></tr>
+        <tr><td><code>STRING</code></td><td>Dynamic</td><td>UTF-8 / ASCII strings</td><td>1-byte</td></tr>
+        <tr><td><code>AOB</code></td><td>Dynamic</td><td>Array of Bytes (Hex pattern with wildcards <code>?</code>)</td><td>1-byte</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Scanning Modes</h3>
+    <ul>
+      <li><strong>Exact Value:</strong> Match memory cells equal to target value.</li>
+      <li><strong>Increased / Decreased Value:</strong> Relative search against previous scan snapshot. Ideal when values lack visible on-screen numbers (health bars, stamina meters).</li>
+      <li><strong>Changed / Unchanged Value:</strong> Detect volatile memory addresses vs static configuration.</li>
+      <li><strong>Unknown Initial Value:</strong> Captures entire writable heap/stack space on First Scan, allowing differential pruning on subsequent scans.</li>
+    </ul>
+
+    <div class="callout callout-note">
+      <div class="callout-title">Fast-Scan Alignment Heuristic</div>
+      <p>
+        Always keep <strong>Fast Scan (Alignment: 4)</strong> checked when hunting 32-bit integers or floats! On x86_64, compilers virtually always align integer variables to 4-byte or 8-byte boundaries. Scanning only aligned addresses cuts scan execution time by <strong>75%</strong> and eliminates cache misalignments.
+      </p>
+    </div>
+  </section>
+
+  <section id="cheat-tables">
+    <h2>06. ASLR-Resilient .phantom Tables</h2>
+    <p>
+      Linux binaries use <strong>PIE (Position Independent Executables)</strong> and <strong>ASLR (Address Space Layout Randomization)</strong>. Hardcoded absolute memory addresses break every time the application is relaunched.
+    </p>
+
+    <h3>The <code>.phantom</code> Table Architecture</h3>
+    <p>
+      When you save a cheat table via <code>Ctrl+S</code>, PhantomSuite converts raw memory addresses into <strong>Module Relative Offsets</strong> or <strong>Symbolic Pointer Paths</strong>:
+    </p>
+    <pre><code>{
+  "version": "2.0",
+  "target_name": "GameClient.x86_64",
+  "entries": [
+    {
+      "description": "Player Health",
+      "address": "GameClient.x86_64 + 0x48A020",
+      "type": "int32",
+      "freeze": true,
+      "freeze_value": 9999
+    },
+    {
+      "description": "Camera FOV Pointer",
+      "pointer_path": ["UnityPlayer.so + 0x18F4200", 0x38, 0x10, 0x118],
+      "type": "float",
+      "freeze": false
+    }
+  ]
+}</code></pre>
+    <p>
+      Upon reloading a table, PhantomSuite dynamically queries <code>/proc/[pid]/maps</code>, re-resolves the module base addresses, recalculates the effective virtual addresses, and re-attaches value freezers.
+    </p>
+  </section>
+
+  <section id="snapshot-diff">
+    <h2>07. Differential Snapshot Forensics</h2>
+    <p>
+      When reversing anti-tamper logic, DRM handshakes, or hidden state transitions, standard value scanning is insufficient. The <strong>Snapshot Diff Tab</strong> allows full memory comparison across two distinct points in time:
+    </p>
+    <ol>
+      <li><strong>Capture Snapshot A:</strong> Captures memory across all readable/writable pages (excluding read-only text segments).</li>
+      <li><strong>Trigger Event in Target:</strong> Equip an item, shoot a weapon, or trigger a game menu transition.</li>
+      <li><strong>Capture Snapshot B:</strong> Compares memory deltas byte-by-byte.</li>
+      <li><strong>Filter Mutation Clustered Regions:</strong> PhantomSuite highlights contiguous memory pages with modifications, allowing you to isolate state variables in seconds.</li>
+    </ol>
+  </section>
+
+  <section id="treemap">
+    <h2>08. Virtual Address Space Treemap</h2>
+    <p>
+      The <strong>Treemap Tab</strong> generates a real-time, proportional visual map of the entire 48-bit virtual address space:
+    </p>
+    <ul>
+      <li><span style="color: #00f0ff; font-weight: bold;">■ Executable Code (r-x):</span> Main binary text segment, dynamic shared libraries (<code>libc.so</code>, <code>libunity.so</code>).</li>
+      <li><span style="color: #00ff9d; font-weight: bold;">■ Heap (rw-):</span> Dynamic memory allocated via <code>brk</code> or <code>mmap</code>.</li>
+      <li><span style="color: #ff79c6; font-weight: bold;">■ Stack (rw-):</span> Thread execution stacks and local variables.</li>
+      <li><span style="color: #ffb86c; font-weight: bold;">■ Anonymous mmap (rw-):</span> Large buffers, game assets, and mono heap pages.</li>
+    </ul>
+    <p>Clicking any partition in the treemap automatically navigates the <strong>Hex Viewer</strong> to the start of that page.</p>
+  </section>
+
+  <!-- Section 02 -->
+  <section id="hex-disasm">
+    <h2>09. Hex Viewer, Live Disassembly & SigMaker</h2>
+    <p>
+      The <strong>Hex & Disasm Tab</strong> combines low-level byte inspection with real-time x86_64 disassembly powered by Capstone:
+    </p>
+    <h3>In-Place Memory Patching & NOP Sledding</h3>
+    <ul>
+      <li><strong>1-Click NOP Patcher:</strong> Highlight any instruction (e.g. <code>jne 0x40182A</code>) &rarr; Click <em>"NOP Instruction"</em>. PhantomSuite writes <code>0x90</code> bytes matching the exact instruction length and logs the original bytes to the restoration undo stack.</li>
+      <li><strong>Restore Instruction:</strong> 1-click restoration reverts the NOPs back to original machine opcodes.</li>
+    </ul>
+
+    <h3>SigMaker: Unique AOB Signature Generation</h3>
+    <p>
+      Right-click any instruction &rarr; select <strong>Generate AOB Signature</strong>. SigMaker calculates the shortest unique byte pattern containing the instruction, replacing dynamic relocation offsets with wildcards (<code>?</code>) while ensuring the signature matches <em>only once</em> across the entire binary module!
+    </p>
+  </section>
+
+  <section id="cfg-engine">
+    <h2>10. Control Flow Graph (CFG) Engine & Branch Inversion</h2>
+    <p>
+      The <strong>CFG Engine</strong> reconstructs the complete basic-block topology of sub-routines:
+    </p>
+    <div class="callout callout-tip">
+      <div class="callout-title">Interactive Branch Inversion</div>
+      <p>
+        In the CFG visualizer, every conditional branch (<code>je</code>, <code>jne</code>, <code>jg</code>, <code>jle</code>, <code>ja</code>, <code>jb</code>) features an interactive <strong>Invert Branch</strong> toggle:
+      </p>
+      <ul>
+        <li><code>JE (0x74)</code> &harr; <code>JNE (0x75)</code></li>
+        <li><code>JG (0x7F)</code> &harr; <code>JLE (0x7E)</code></li>
+        <li><code>JA (0x77)</code> &harr; <code>JBE (0x76)</code></li>
+      </ul>
+      <p>Clicking invert patches the single conditional byte live in memory without recompiling the binary.</p>
+    </div>
+  </section>
+
+  <section id="detour-hooks">
+    <h2>11. Mid-Function Detour Hook Engine</h2>
+    <p>
+      PhantomSuite's <strong>DetourEngine</strong> implements 64-bit relative displacement and indirect absolute trampolines directly inside the target process address space.
+    </p>
+    <h3>Trampoline Anatomy</h3>
+    <pre><code>Original Target Function:
+0x401200: 48 89 5C 24 08    mov [rsp+8], rbx    <-- Overwritten with JMP
+0x401205: 48 89 6C 24 10    mov [rsp+0x10], rbp
+0x40120A: 48 89 74 24 18    mov [rsp+0x18], rsi
+
+Patched Target Function:
+0x401200: E9 FB 8D 1F 00    jmp 0x5FA000        <-- 5-byte relative jmp to Trampoline
+
+Allocated Trampoline Page (0x5FA000):
+0x5FA000: 48 89 5C 24 08    mov [rsp+8], rbx    <-- Stolen original instructions
+0x5FA005: 48 89 6C 24 10    mov [rsp+0x10], rbp
+0x5FA00A: E8 51 00 00 00    call CustomHook     <-- Calls payload / telemetry
+0x5FA00F: E9 F6 71 E0 FF    jmp 0x40120A        <-- Jumps back after detour</code></pre>
+  </section>
+
+  <section id="pmu-profiler">
+    <h2>12. Anti-Debug & PMU Timing Profiler</h2>
+    <p>
+      When auditing binaries protected by anti-debugging countermeasures (commercial games, packers, anti-cheat drivers), the <strong>PMU Profiler</strong> identifies detection heuristics:
+    </p>
+    <ul>
+      <li><strong>TracerPid Audit:</strong> Checks if <code>/proc/[pid]/status</code> contains non-zero <code>TracerPid</code>.</li>
+      <li><strong>Wchan Trap Check:</strong> Examines <code>/proc/[pid]/wchan</code> for <code>ptrace_stop</code> or <code>do_signal_stop</code>.</li>
+      <li><strong>RDTSC Delta Loop Detection:</strong> Profiling code blocks executed within tight TSC (Time Stamp Counter) timing thresholds, revealing timing-based debugger detection.</li>
+    </ul>
+  </section>
+
+  <!-- Section 03 -->
+  <section id="struct-dissector">
+    <h2>13. Heuristic Struct Dissector & Heatmaps</h2>
+    <p>
+      When reversing raw C/C++ objects without debugging symbols, the <strong>Struct Dissector Tab</strong> automatically inspects memory buffers:
+    </p>
+    <ul>
+      <li><strong>Alignment & Padding Detection:</strong> Distinguishes valid 8-byte aligned pointers from integer fields and null padding.</li>
+      <li><strong>Heuristic Type Identification:</strong> Evaluates numeric ranges to classify fields as valid pointers, ASCII strings, 32-bit floats, or bitflags.</li>
+      <li><strong>Live Mutation Heatmap:</strong> Fields that change frequently (e.g. coordinates) glow in bright neon, while static fields remain dim.</li>
+    </ul>
+  </section>
+
+  <section id="dwarf-synth">
+    <h2>14. ELF DWARF Type Synthesizer</h2>
+    <p>
+      If an ELF binary has unstripped DWARF debugging information (or a separate <code>.debug</code> file), the <strong>DwarfTypeSynthesizer</strong> automatically parses the <code>.debug_info</code> compilation units and outputs pure, valid <strong>C/C++ Header Struct Declarations</strong>:
+    </p>
+    <pre><code>// Synthesized directly from DWARF DIEs by PhantomSuite
+struct PlayerData {
+    /* 0x0000 */ int32_t health;
+    /* 0x0004 */ int32_t armor;
+    /* 0x0008 */ float position_x;
+    /* 0x000C */ float position_y;
+    /* 0x0010 */ float position_z;
+    /* 0x0018 */ struct InventoryItem* inventory_head;
+    /* 0x0020 */ uint8_t is_alive;
+    /* 0x0021 */ uint8_t _padding[7];
+}; // Size: 0x28 (40 bytes)</code></pre>
+  </section>
+
+  <section id="deserializer">
+    <h2>15. C++ std::string & std::vector Deserializer</h2>
+    <p>
+      Modern binaries make heavy use of C++ standard template library (STL) containers. The <strong>Deserializer Tab</strong> inspects live GCC / Clang (libstdc++ and libc++) structures:
+    </p>
+    <ul>
+      <li><strong>std::string Small String Optimization (SSO):</strong> Automatically detects whether a string is stored inline (length &le; 15 bytes) or dereferences the heap buffer pointer (length &gt; 15 bytes).</li>
+      <li><strong>std::vector Introspection:</strong> Resolves the 3-pointer vector layout (<code>_M_start</code>, <code>_M_finish</code>, <code>_M_end_of_storage</code>) to determine exact element count and reserved capacity.</li>
+    </ul>
+  </section>
+
+  <section id="smt-solver">
+    <h2>16. Symbolic SMT Z3 Pointer Path Solver</h2>
+    <p>
+      Standard pointer scanners fail when game heaps have millions of nodes or cyclical references. PhantomSuite incorporates a formal <strong>Symbolic SMT Solver</strong> powered by Microsoft Z3:
+    </p>
+    <ol>
+      <li><strong>Multithreaded BFS Graph Construction:</strong> Traverses the pointer graph from module base addresses to target memory offsets up to a configured max depth.</li>
+      <li><strong>SMT Constraint Formulation:</strong> Translates pointer chain relationships into logical bit-vector formulas.</li>
+      <li><strong>Z3 Satisfiability Proof:</strong> Z3 proves whether a valid, deterministic pointer path exists that withstands ASLR reboots.</li>
+    </ol>
+  </section>
+
+  <section id="heap-inspector">
+    <h2>17. Glibc Heap Chunk & Tcache Forensics</h2>
+    <p>
+      The <strong>Heap Inspector Tab</strong> parses the internal structures of glibc ptmalloc:
+    </p>
+    <ul>
+      <li><strong>Chunk Header Introspection:</strong> Displays <code>prev_size</code>, <code>size</code>, and status flags (<code>PREV_INUSE</code>, <code>IS_MMAPPED</code>, <code>NON_MAIN_ARENA</code>).</li>
+      <li><strong>Bin State Visualization:</strong> Tracks entries in <strong>tcache bins</strong> (Thread Local Caches), fastbins, and unsorted bins.</li>
+      <li><strong>Corruption Auditing:</strong> Flags double-free chunks, overlapping heap buffers, and corrupted forward/backward pointers.</li>
+    </ul>
+  </section>
+
+  <!-- Section 04 -->
+  <section id="il2cpp-tab">
+    <h2>18. Unity IL2CPP Klass Explorer Tab</h2>
+    <p>
+      Unity games compiled with IL2CPP strip high-level C# bytecode into native C++ binaries, but retain critical metadata structures (<code>Il2CppClass</code>, <code>FieldInfo</code>, <code>MethodInfo</code>) in memory.
+    </p>
+
+    <h3>Using the IL2CPP Inspector</h3>
+    <ol>
+      <li>Attach to any Unity game (e.g. VRChat, Genshin, Risk of Rain 2).</li>
+      <li>Navigate to the <strong>🎮 IL2CPP Inspector Tab</strong> (Sidebar &rarr; Reversing &rarr; IL2CPP).</li>
+      <li>PhantomSuite automatically verifies whether the IL2CPP runtime is loaded in the process modules.</li>
+      <li>Enter an <code>Il2CppClass</code> address or a live <code>Il2CppObject</code> instance address.</li>
+      <li><strong>Live Fields Table:</strong> Displays every field name, C# type, memory offset, static flag, and dereferenced value.</li>
+      <li><strong>Methods Table:</strong> Lists VTable method pointers with exact virtual addresses.</li>
+      <li><strong>Automated Code Generation:</strong> View synthesized C# class declarations and C++20 memory layouts ready for injection mods!</li>
+    </ol>
+
+    <div class="callout callout-tip">
+      <div class="callout-title">Interactive Hex Routing</div>
+      <p>Right-click any method or field value in the IL2CPP tables &rarr; select <em>"Jump to Hex Tab"</em> to immediately disassemble the method or inspect the raw data bytes.</p>
+    </div>
+  </section>
+
+  <section id="micro-emu-tab">
+    <h2>19. Sandboxed Micro-Execution & Sub-Function Emulation</h2>
+    <p>
+      The <strong>Micro-Emulator Tab</strong> provides an isolated, safe x86_64 CPU state emulation cockpit for stepping through complex sub-routines (e.g. string decryption loops, license checks, packing routines) without executing them in the target process.
+    </p>
+
+    <h3>Operational Capabilities</h3>
+    <ul>
+      <li><strong>Copy-on-Write Shadow Paging:</strong> Reads memory pages lazily from the target process on demand. Any memory writes made during emulation exist <em>only</em> inside PhantomSuite's shadow memory—never altering the live process.</li>
+      <li><strong>Step-by-Step Tracing (F7 / F8 / F9):</strong> Step instructions one-by-one or run until <code>ret</code>. The execution trace table logs mnemonics, operands, register deltas, and memory reads/writes.</li>
+      <li><strong>Live Register Grid with Delta Highlighting:</strong> 64-bit general registers (<code>RAX</code>..<code>R15</code>, <code>RIP</code>) are editable in real-time. Any register that changes value during an execution step glows in neon orange.</li>
+      <li><strong>Shadow Stack Inspection:</strong> Monitors 16 QWORDs relative to <code>RSP</code>.</li>
+      <li><strong>State Snapshots & Undo Stack:</strong> Click <em>"💾 Snapshot"</em> before testing branch paths. If execution faults or enters an infinite loop, click <em>"⏪ Rollback"</em> to restore CPU registers and shadow pages instantly!</li>
+    </ul>
+  </section>
+
+  <section id="crypto-tab">
+    <h2>20. Shannon Entropy & Cryptographic Scanner</h2>
+    <p>
+      The <strong>Entropy & Crypto Tab</strong> detects encrypted memory blocks and identifies standard cryptographic lookup tables and constants:
+    </p>
+
+    <h3>Shannon Entropy Formula</h3>
+    <pre><code>H = - Σ (p_i * log2(p_i))   where p_i is the frequency of byte i (0..255)
+Theoretical Range: 0.0 bits/byte (zero-filled) to 8.0 bits/byte (pure randomness / encrypted)</code></pre>
+
+    <h3>Classification Thresholds</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Entropy Range</th>
+          <th>Classification</th>
+          <th>Color Coding</th>
+          <th>Typical Contents</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>H &ge; 7.5</code></td>
+          <td>Encrypted / Packed</td>
+          <td><span class="badge badge-pink">Neon Red / Pink</span></td>
+          <td>AES ciphertext, compressed zlib/gzip assets, packed shellcode.</td>
+        </tr>
+        <tr>
+          <td><code>5.0 &le; H &lt; 7.5</code></td>
+          <td>Code / Structured</td>
+          <td><span class="badge badge-cyan">Cyan</span></td>
+          <td>Compiled x86_64 machine instructions, structured C++ objects.</td>
+        </tr>
+        <tr>
+          <td><code>H &lt; 5.0</code></td>
+          <td>Sparse / Text</td>
+          <td><span class="badge badge-green">Green</span></td>
+          <td>ASCII/UTF-8 strings, zero-initialized tables, sparse matrices.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Cryptographic Signature Database</h3>
+    <p>
+      Scans memory maps for:
+    </p>
+    <ul>
+      <li><strong>AES:</strong> Rijndael Forward S-Box, Inverse S-Box, Key Schedule Rcon Table.</li>
+      <li><strong>SHA-2:</strong> SHA-256 Initial Constants (H0-H7), Round Constants (K0-K7).</li>
+      <li><strong>ChaCha20:</strong> Sigma constant <code>"expand 32-byte k"</code>.</li>
+      <li><strong>MD5 & CRC32:</strong> Standard hash vectors and lookup polynomials.</li>
+      <li><strong>Curve25519:</strong> Base point and prime field constants.</li>
+    </ul>
+  </section>
+
+  <section id="network-core">
+    <h2>21. Network Inodes, Core Dumps & GDB Bridge</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h4>🌐 Socket Stream Interceptor</h4>
+        <p>Inspects all network file descriptors open by the target PID. Correlates socket inodes with <code>/proc/net/tcp</code> to display local/remote IP and ports, socket states (ESTABLISHED, LISTEN), protocol hints (HTTP, TLS, DNS), and transmission/reception queue sizes.</p>
+      </div>
+      <div class="card">
+        <h4>💥 ELF Core Dump Importer</h4>
+        <p>Load post-mortem 64-bit ELF core dumps (<code>.core</code> / <code>core.*</code>). Parses <code>PT_NOTE</code> crash registers, signal details (SIGSEGV, SIGABRT), mapped memory segments, and generates complete crash telemetry reports.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="script-repl">
+    <h2>22. Embedded Python REPL & Script Automation</h2>
+    <p>
+      The <strong>Python Console Tab</strong> gives you full programmatic access to PhantomSuite's core engines through an interactive embedded REPL:
+    </p>
+    <pre><code># Example: Scan for all addresses containing player score and freeze them
+from phantom_suite.core.memory_engine import MemoryEngine, TypeFormat
+
+pid = current_pid
+results = MemoryEngine.first_scan(pid, TypeFormat.INT32, 100)
+print(f"Found {len(results)} matches")
+
+for res in results[:5]:
+    print(f"Candidate: 0x{res.address:X}")
+    MemoryEngine.write_int32(pid, res.address, 999999)</code></pre>
+  </section>
+
+  <section id="stealth-ops">
+    <h2>23. Stealth Operations, Speedhack & In-Game OSD HUD</h2>
+    <h3>Speedhack Architecture</h3>
+    <p>
+      PhantomSuite's <strong>Speedhack Controller</strong> dilates time by hooking <code>clock_gettime</code> and <code>gettimeofday</code> inside the target process using a lightweight shared-memory control block (<code>/dev/shm/.phantom_speed_[pid]</code>). You can accelerate execution up to <strong>5.0x</strong> or slow down to <strong>0.2x bullet time</strong> directly via the slider in the header HUD.
+    </p>
+
+    <h3>Transparent Wayland / Hyprland OSD HUD</h3>
+    <p>
+      Clicking <strong>🪟 HUD Overlay</strong> launches a transparent, borderless floating window pinned above your game screen, rendering real-time values of all cheat table entries with zero gameplay disruption.
+    </p>
+  </section>
+
+  <!-- Section 05 -->
+  <section id="api-reference">
+    <h2>24. Exhaustive Core Engine Method Catalog</h2>
+    <p>Complete programmatic reference for headless script automation and plugin development:</p>
+
+    <h3>1. <code>MemoryEngine</code></h3>
+    <table>
+      <thead>
+        <tr><th>Method</th><th>Parameters</th><th>Return</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>read_bytes()</code></td><td><code>(pid: int, addr: int, size: int)</code></td><td><code>bytes</code></td><td>Reads raw byte sequence via <code>process_vm_readv</code>.</td></tr>
+        <tr><td><code>write_bytes()</code></td><td><code>(pid: int, addr: int, data: bytes)</code></td><td><code>bool</code></td><td>Writes bytes via <code>process_vm_writev</code>.</td></tr>
+        <tr><td><code>read_int32()</code></td><td><code>(pid: int, addr: int)</code></td><td><code>Optional[int]</code></td><td>Reads signed 32-bit integer.</td></tr>
+        <tr><td><code>read_pointer()</code></td><td><code>(pid: int, addr: int)</code></td><td><code>int</code></td><td>Reads 64-bit unsigned pointer.</td></tr>
+        <tr><td><code>first_scan()</code></td><td><code>(pid: int, val_type, val, ...)</code></td><td><code>List[ScanResult]</code></td><td>Executes initial memory scan across writable regions.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2. <code>Il2CppInspector</code></h3>
+    <table>
+      <thead>
+        <tr><th>Method</th><th>Parameters</th><th>Return</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>detect_il2cpp()</code></td><td><code>(pid: int)</code></td><td><code>bool</code></td><td>Scans modules for <code>libil2cpp.so</code> or il2cpp symbols.</td></tr>
+        <tr><td><code>inspect_class()</code></td><td><code>(pid: int, klass_addr: int)</code></td><td><code>Optional[Il2CppClassDef]</code></td><td>Introspects field definitions and VTable method pointers.</td></tr>
+        <tr><td><code>inspect_object()</code></td><td><code>(pid: int, obj_addr: int)</code></td><td><code>Optional[Il2CppObjectDump]</code></td><td>Dereferences live instance object and reads field values.</td></tr>
+        <tr><td><code>generate_csharp_header()</code></td><td><code>(klass: Il2CppClassDef)</code></td><td><code>str</code></td><td>Synthesizes C# class declaration with field offsets.</td></tr>
+        <tr><td><code>generate_cpp_struct()</code></td><td><code>(klass: Il2CppClassDef)</code></td><td><code>str</code></td><td>Synthesizes C++20 memory layout struct with padding.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3. <code>MicroEmulator</code></h3>
+    <table>
+      <thead>
+        <tr><th>Method</th><th>Parameters</th><th>Return</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>step()</code></td><td><code>()</code></td><td><code>Tuple[bool, StepTrace, str]</code></td><td>Executes single instruction in isolated CPU state.</td></tr>
+        <tr><td><code>run()</code></td><td><code>(max_steps: int, stop_at: int)</code></td><td><code>EmulationResult</code></td><td>Runs instructions continuously until ret or breakpoint.</td></tr>
+        <tr><td><code>get_reg()</code> / <code>set_reg()</code></td><td><code>(name: str, val: int)</code></td><td><code>int</code> / <code>None</code></td><td>Reads or updates 64-bit or sub-register value.</td></tr>
+        <tr><td><code>save_snapshot()</code></td><td><code>()</code></td><td><code>None</code></td><td>Pushes CPU registers and shadow pages to undo stack.</td></tr>
+        <tr><td><code>restore_snapshot()</code></td><td><code>()</code></td><td><code>bool</code></td><td>Restores previous CPU state and memory pages.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>4. <code>EntropyCryptoScanner</code></h3>
+    <table>
+      <thead>
+        <tr><th>Method</th><th>Parameters</th><th>Return</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>calculate_entropy()</code></td><td><code>(data: bytes)</code></td><td><code>float</code></td><td>Computes Shannon information entropy ($H \in [0, 8]$).</td></tr>
+        <tr><td><code>scan_buffer_for_crypto()</code></td><td><code>(data: bytes, base_addr: int)</code></td><td><code>List[CryptoMatch]</code></td><td>Scans buffer for AES/SHA/ChaCha20 constants.</td></tr>
+        <tr><td><code>scan_process()</code></td><td><code>(pid: int, max_regions: int)</code></td><td><code>Tuple[List, List]</code></td><td>Scans process memory maps for entropy and crypto matches.</td></tr>
+      </tbody>
+    </table>
+
+  </section>
+
+</main>
+
+<script>
+  function filterNav() {
+    const query = document.getElementById('nav-filter').value.toLowerCase();
+    const items = document.querySelectorAll('.nav-item');
+    items.forEach(item => {
+      const text = item.textContent.toLowerCase();
+      item.style.display = text.includes(query) ? 'block' : 'none';
+    });
+  }
+
+  // Active link scroll spy
+  window.addEventListener('scroll', () => {
+    const sections = document.querySelectorAll('section');
+    const navItems = document.querySelectorAll('.nav-item');
+    let currentId = '';
+
+    sections.forEach(sec => {
+      const top = sec.offsetTop - 120;
+      if (window.scrollY >= top) {
+        currentId = sec.getAttribute('id');
+      }
+    });
+
+    navItems.forEach(item => {
+      item.classList.remove('active');
+      if (item.getAttribute('href') === '#' + currentId) {
+        item.classList.add('active');
+      }
+    });
+  });
+</script>
+</body>
+</html>
