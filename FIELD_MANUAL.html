@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PhantomSuite // Tactical Field Manual & Reverse-Engineering Specification</title>
+<title>PhantomSuite // Complete Tactical Field Manual (Zero-Knowledge to Expert)</title>
 <style>
   :root {
     --bg-base: #0b0e14;
@@ -31,14 +31,14 @@
     background-color: var(--bg-base);
     color: var(--text-main);
     font-family: var(--font-sans);
-    line-height: 1.65;
+    line-height: 1.7;
     display: flex;
     min-height: 100vh;
   }
 
   /* Sidebar Navigation */
   #sidebar {
-    width: 320px;
+    width: 340px;
     background-color: var(--bg-surface);
     border-right: 1px solid var(--border);
     position: fixed;
@@ -98,8 +98,8 @@
   }
 
   .nav-group-title {
-    font-size: 0.7rem;
-    font-weight: 700;
+    font-size: 0.72rem;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 1.2px;
     color: var(--text-dim);
@@ -131,21 +131,21 @@
 
   /* Main Document Canvas */
   #main {
-    margin-left: 320px;
+    margin-left: 340px;
     flex: 1;
     padding: 48px 64px 120px 64px;
-    max-width: 1300px;
+    max-width: 1350px;
   }
 
   /* Typography */
   h1, h2, h3, h4 { color: #ffffff; font-weight: 700; }
   h1 { font-size: 2.3rem; margin-bottom: 16px; border-bottom: 2px solid var(--border); padding-bottom: 12px; }
-  h2 { font-size: 1.6rem; margin-top: 48px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; color: var(--cyan); }
+  h2 { font-size: 1.65rem; margin-top: 52px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; color: var(--cyan); display: flex; align-items: center; gap: 10px; }
   h3 { font-size: 1.25rem; margin-top: 32px; margin-bottom: 12px; color: #e2eafc; }
   h4 { font-size: 1.05rem; margin-top: 24px; margin-bottom: 8px; color: var(--orange); font-family: var(--font-mono); }
   p { margin-bottom: 16px; color: var(--text-main); font-size: 0.98rem; }
   ul, ol { margin-left: 24px; margin-bottom: 18px; color: var(--text-main); }
-  li { margin-bottom: 6px; }
+  li { margin-bottom: 8px; }
 
   /* Code & Pre */
   code {
@@ -169,7 +169,6 @@
     font-size: 0.86rem;
     line-height: 1.5;
     color: #e6edf3;
-    position: relative;
   }
 
   pre code {
@@ -198,30 +197,32 @@
 
   /* Callouts */
   .callout {
-    padding: 16px 20px;
+    padding: 18px 22px;
     border-radius: 6px;
-    margin: 22px 0;
+    margin: 24px 0;
     border-left: 4px solid;
     background-color: var(--bg-surface);
   }
-  .callout-note { border-left-color: var(--cyan); background-color: rgba(0, 240, 255, 0.05); }
+  .callout-primer { border-left-color: var(--purple); background-color: rgba(189, 147, 249, 0.08); }
+  .callout-primer .callout-title { color: var(--purple); }
+  .callout-note { border-left-color: var(--cyan); background-color: rgba(0, 240, 255, 0.06); }
   .callout-note .callout-title { color: var(--cyan); }
-  .callout-tip { border-left-color: var(--green); background-color: rgba(0, 255, 157, 0.05); }
+  .callout-tip { border-left-color: var(--green); background-color: rgba(0, 255, 157, 0.06); }
   .callout-tip .callout-title { color: var(--green); }
-  .callout-warning { border-left-color: var(--orange); background-color: rgba(255, 184, 108, 0.05); }
+  .callout-warning { border-left-color: var(--orange); background-color: rgba(255, 184, 108, 0.06); }
   .callout-warning .callout-title { color: var(--orange); }
-  .callout-danger { border-left-color: var(--red); background-color: rgba(255, 85, 85, 0.05); }
+  .callout-danger { border-left-color: var(--red); background-color: rgba(255, 85, 85, 0.06); }
   .callout-danger .callout-title { color: var(--red); }
 
   .callout-title {
-    font-weight: 700;
-    font-size: 0.88rem;
+    font-weight: 800;
+    font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
   }
 
   /* Tables */
@@ -265,18 +266,42 @@
   }
   .card h4 { margin-top: 0; }
 
-  /* Section Dividers */
-  hr {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 48px 0;
+  /* Button Spec Cards */
+  .button-spec {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--cyan);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+  .button-spec-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .button-name {
+    font-family: var(--font-mono);
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--cyan);
+  }
+  .button-shortcut {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background-color: #122438;
+    color: var(--green);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid #1c3650;
   }
 
   .hero-banner {
     background: linear-gradient(135deg, #0f1c2d 0%, #0b0e14 100%);
     border: 1px solid var(--border-accent);
     border-radius: 8px;
-    padding: 32px;
+    padding: 36px;
     margin-bottom: 40px;
     box-shadow: 0 8px 32px rgba(0, 240, 255, 0.05);
   }
@@ -290,53 +315,56 @@
 <nav id="sidebar">
   <div class="sidebar-header">
     <h1><span>🧬</span> PhantomSuite</h1>
-    <div class="subtitle">TACTICAL FIELD MANUAL // v2.4.0</div>
+    <div class="subtitle">TACTICAL FIELD MANUAL // ZERO-TO-EXPERT</div>
   </div>
   <div class="sidebar-search">
     <input type="text" id="nav-filter" placeholder="Search manual..." onkeyup="filterNav()">
   </div>
+
   <div class="nav-group">
-    <div class="nav-group-title">00. Ground Zero & Environment</div>
-    <a href="#intro" class="nav-item">System Architecture & Threat Model</a>
-    <a href="#setup" class="nav-item">Linux Kernel Setup & Yama ptrace</a>
-    <a href="#cockpit" class="nav-item">Ergonomics, Hotkeys & Command Palette</a>
-    <a href="#modes" class="nav-item">Specialized Workflow Modes</a>
+    <div class="nav-group-title">Level 0: Absolute Beginner Primer</div>
+    <a href="#primer-what-is-computer" class="nav-item">1. What is a Computer & RAM?</a>
+    <a href="#primer-bits-bytes-hex" class="nav-item">2. Bits, Bytes, Numbers & Hexadecimal</a>
+    <a href="#primer-processes-pids" class="nav-item">3. What is a Program, Process & PID?</a>
+    <a href="#primer-addresses-pointers" class="nav-item">4. Memory Addresses & The Postbox Analogy</a>
+    <a href="#primer-aslr" class="nav-item">5. What is ASLR & Why Addresses Move</a>
+    <a href="#primer-assembly-cpu" class="nav-item">6. CPU Instructions, Registers & NOPs</a>
+    <a href="#primer-what-is-reversing" class="nav-item">7. What Reverse Engineering Actually Is</a>
   </div>
+
   <div class="nav-group">
-    <div class="nav-group-title">01. Target Discovery & Scanners</div>
-    <a href="#target-acquisition" class="nav-item">Process Discovery & Hyprland IPC</a>
-    <a href="#memory-scanner" class="nav-item">Memory Scanner & Fast-Scan Heuristics</a>
-    <a href="#cheat-tables" class="nav-item">ASLR-Resilient .phantom Tables</a>
-    <a href="#snapshot-diff" class="nav-item">Differential Snapshot Forensics</a>
-    <a href="#treemap" class="nav-item">Virtual Address Space Treemap</a>
+    <div class="nav-group-title">Level 1: Step-by-Step Field Missions</div>
+    <a href="#mission-1-attach" class="nav-item">Mission 1: Attaching to Your First Game</a>
+    <a href="#mission-2-ammo" class="nav-item">Mission 2: Finding & Freezing Ammo/Gold</a>
+    <a href="#mission-3-unknown" class="nav-item">Mission 3: Finding Values With No Numbers</a>
+    <a href="#mission-4-pointers" class="nav-item">Mission 4: Defeating ASLR with Pointer Scans</a>
+    <a href="#mission-5-hex-nop" class="nav-item">Mission 5: Peeking at Raw Bytes & NOPing</a>
+    <a href="#mission-6-structs" class="nav-item">Mission 6: Dissecting Whole Game Entities</a>
+    <a href="#mission-7-il2cpp" class="nav-item">Mission 7: Cracking Unity & VRChat Objects</a>
+    <a href="#mission-8-micro-emu" class="nav-item">Mission 8: Virtual CPU Stepping & Undo Stack</a>
+    <a href="#mission-9-crypto" class="nav-item">Mission 9: Hunting Secret Keys & Encrypted Data</a>
+    <a href="#mission-10-speedhack-hud" class="nav-item">Mission 10: Speedhack & Transparent HUD</a>
   </div>
+
   <div class="nav-group">
-    <div class="nav-group-title">02. Disassembly & Instrumentation</div>
-    <a href="#hex-disasm" class="nav-item">Hex Dump, Live Disasm & SigMaker</a>
-    <a href="#cfg-engine" class="nav-item">Control Flow Graphs & Inversion</a>
-    <a href="#detour-hooks" class="nav-item">Mid-Function Detour Hooking</a>
-    <a href="#pmu-profiler" class="nav-item">Anti-Debug & RDTSC PMU Auditing</a>
+    <div class="nav-group-title">Level 2: Button-by-Button Catalog</div>
+    <a href="#ref-header" class="nav-item">Global Header Controls & HUD</a>
+    <a href="#ref-sidebar" class="nav-item">Collapsible Sidebar & Workflow Modes</a>
+    <a href="#ref-palette" class="nav-item">Command Palette (Ctrl+K)</a>
+    <a href="#ref-scanner-tab" class="nav-item">Tab 1: Memory Scanner In-Depth</a>
+    <a href="#ref-hex-tab" class="nav-item">Tab 3: Hex Viewer & Live Disassembler</a>
+    <a href="#ref-struct-tab" class="nav-item">Tab 4: Struct Dissector & Heatmaps</a>
+    <a href="#ref-symbols-tab" class="nav-item">Tab 5: ELF Symbols & DWARF Synthesizer</a>
+    <a href="#ref-snapshot-tab" class="nav-item">Tab 6: Snapshot Diff Forensic Engine</a>
+    <a href="#ref-treemap-tab" class="nav-item">Tab 7: Memory Treemap Visualizer</a>
+    <a href="#ref-il2cpp-tab" class="nav-item">Tab 14: IL2CPP Klass Inspector</a>
+    <a href="#ref-micro-emu-tab" class="nav-item">Tab 15: Sandboxed Micro-Emulator</a>
+    <a href="#ref-crypto-tab" class="nav-item">Tab 16: Shannon Entropy & Crypto Scanner</a>
   </div>
+
   <div class="nav-group">
-    <div class="nav-group-title">03. Type Recovery & Data Containers</div>
-    <a href="#struct-dissector" class="nav-item">Heuristic Struct Dissection & Heatmaps</a>
-    <a href="#dwarf-synth" class="nav-item">ELF DWARF Type Synthesizer</a>
-    <a href="#deserializer" class="nav-item">C++ std::string & std::vector Reader</a>
-    <a href="#smt-solver" class="nav-item">Symbolic SMT Z3 Pointer Path Solver</a>
-    <a href="#heap-inspector" class="nav-item">Glibc Heap Chunk & Tcache Forensics</a>
-  </div>
-  <div class="nav-group">
-    <div class="nav-group-title">04. Next-Gen Reverse Engineering</div>
-    <a href="#il2cpp-tab" class="nav-item">Unity IL2CPP Klass Explorer</a>
-    <a href="#micro-emu-tab" class="nav-item">Sandboxed Micro-Execution Cockpit</a>
-    <a href="#crypto-tab" class="nav-item">Shannon Entropy & Crypto Scanner</a>
-    <a href="#network-core" class="nav-item">Socket Interceptor & Core Dumps</a>
-    <a href="#script-repl" class="nav-item">Embedded Python REPL Automation</a>
-    <a href="#stealth-ops" class="nav-item">Speedhack & Transparent OSD HUD</a>
-  </div>
-  <div class="nav-group">
-    <div class="nav-group-title">05. Exhaustive API Reference</div>
-    <a href="#api-reference" class="nav-item">Core Engine Method Catalog</a>
+    <div class="nav-group-title">Level 3: Core API & Developer Reference</div>
+    <a href="#api-reference" class="nav-item">Python Core Engine Method Catalog</a>
   </div>
 </nav>
 
@@ -345,690 +373,764 @@
 
   <div class="hero-banner">
     <h1>PHANTOMSUITE FIELD MANUAL</h1>
-    <p>Zero-to-Expert Tactical Guide for Native Linux Binary Reversing, Kernel-Aware Memory Introspection, SMT Symbolic Solving, and Game Instrumentation.</p>
-    <div style="margin-top: 14px; display: flex; gap: 8px;">
-      <span class="badge badge-cyan">Architecture: x86_64</span>
-      <span class="badge badge-green">Kernel: Linux 6.x+</span>
-      <span class="badge badge-pink">Dual-Mode: Visual + Headless API</span>
-      <span class="badge badge-orange">PySide6 / Capstone / Z3</span>
+    <p>A ground-up, zero-assumptions guide to computer internals, memory inspection, and software reverse engineering—from your very first click to expert automated memory manipulation.</p>
+    <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+      <span class="badge badge-purple">Assumed Knowledge: Zero</span>
+      <span class="badge badge-cyan">Platform: Linux x86_64</span>
+      <span class="badge badge-green">Dual Mode: Visual GUI + Python REPL</span>
+      <span class="badge badge-orange">17 Specialized Cockpit Tabs</span>
     </div>
   </div>
 
-  <!-- Section 00 -->
-  <section id="intro">
-    <h2>00. System Architecture & Threat Model</h2>
-    <p>
-      <strong>PhantomSuite</strong> is an offensive-grade, deep-systems reverse-engineering workbench engineered natively for 64-bit Linux. Unlike legacy Windows tools running through Wine or rudimentary memory scrapers, PhantomSuite bypasses standard userland constraints by leveraging native Linux kernel interfaces (<code>process_vm_readv</code>, <code>process_vm_writev</code>, <code>/proc/[pid]/mem</code>, <code>ptrace</code>, and ELF segment structures).
-    </p>
-
-    <div class="callout callout-note">
-      <div class="callout-title">Architecture Philosophy</div>
-      <strong>100% Non-Invasive by Default:</strong> Passive inspection tools (Memory Scanner, Entropy Profiler, IL2CPP Klass Inspector, Micro-Emulator, Treemap) never modify the target process address space or raise execution signals. Active modifications (Detours, Byte Patching, Speedhack, .so Injection) are clearly segmented and gated behind confirmation dialogs.
+  <!-- LEVEL 0: PRIMER -->
+  <section id="primer-what-is-computer">
+    <h2><span>🧠</span> Level 0: The Fundamentals (Assuming Zero Computer Knowledge)</h2>
+    <div class="callout callout-primer">
+      <div class="callout-title">Welcome to the Machine Room</div>
+      <p>
+        If you have never coded, never opened a terminal, or never understood how computers work on the inside, <strong>this section is written for you</strong>. Before we click buttons in PhantomSuite, let's build a clear, crystal-solid mental picture of what is actually happening inside your physical machine.
+      </p>
     </div>
 
-    <pre><code>+-----------------------------------------------------------------------------------+
-|                            PHANTOMSUITE COCKPIT (PySide6)                         |
-|  [Mission Control] [Scanner] [Hex/Disasm] [Struct] [Symbols] [IL2CPP] [MicroEmu]  |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                +-------------------------+-------------------------+
-                | Python Script Engine (AST / Hybrid Exec / REPL)   |
-                +-------------------------+-------------------------+
-                                          |
-    +-------------------------------------+-------------------------------------+
-    |                        PHANTOMSUITE CORE SUBSYSTEMS                       |
-    |  +--------------------+  +----------------------+  +--------------------+ |
-    |  | MemoryEngine       |  | SymbolicSolver (Z3)  |  | MicroEmulator      | |
-    |  | - process_vm_readv |  | - Multithread BFS    |  | - Shadow Paging    | |
-    |  | - /proc/pid/mem    |  | - SMT Constraints    |  | - Snapshot Stack   | |
-    |  +--------------------+  +----------------------+  +--------------------+ |
-    |  +--------------------+  +----------------------+  +--------------------+ |
-    |  | Il2CppInspector    |  | EntropyCryptoScanner |  | DetourEngine       | |
-    |  | - Klass Deserial   |  | - Shannon H Math     |  | - x86_64 Trampoline| |
-    |  | - Live Instance    |  | - Constant DB Match  |  | - Shadow Hooks     | |
-    |  +--------------------+  +----------------------+  +--------------------+ |
-    +-------------------------------------+-------------------------------------+
-                                          |
-                 +------------------------+------------------------+
-                 | Linux Kernel VFS / Tracing / Shared Memory IPC  |
-                 | - /proc/[pid]/maps & mem   - ptrace (PTRACE_ATTACH) |
-                 | - /dev/shm (Speedhack)     - UNIX domain sockets|
-                 +-------------------------------------------------+</code></pre>
-  </section>
+    <h3>1. The Physical Computer & The Office Desk Analogy</h3>
+    <p>Every computer (whether it's a desktop, laptop, or gaming rig) has three main hardware parts that matter for our work:</p>
 
-  <section id="setup">
-    <h2>01. Linux Kernel Setup & Yama ptrace</h2>
-    <p>
-      On modern Linux distributions (Arch, Ubuntu 22.04+, Fedora, openSUSE), the <strong>Yama LSM (Linux Security Module)</strong> restricts inter-process debugging to direct child processes by default. PhantomSuite monitors and visualizes this state directly in the cockpit status bar.
-    </p>
-
-    <h3>Yama Ptrace Scopes</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Scope</th>
-          <th>Mode</th>
-          <th>Behavior with PhantomSuite</th>
-          <th>Remediation</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>0</code></td>
-          <td>Classic</td>
-          <td><span class="badge badge-green">Full Access</span> Any process with identical UID can read and attach freely.</td>
-          <td>Optimal state. Default for development and CTF machines.</td>
-        </tr>
-        <tr>
-          <td><code>1</code></td>
-          <td>Restricted</td>
-          <td><span class="badge badge-orange">Parent Only</span> Only direct parent processes can attach via ptrace.</td>
-          <td>Launch PhantomSuite via <code>pkexec</code> or modify sysctl.</td>
-        </tr>
-        <tr>
-          <td><code>2</code></td>
-          <td>Admin Only</td>
-          <td><span class="badge badge-pink">Root Only</span> Only processes with <code>CAP_SYS_PTRACE</code> can attach.</td>
-          <td>Run with <code>sudo</code> or grant capability binary bit.</td>
-        </tr>
-        <tr>
-          <td><code>3</code></td>
-          <td>Locked</td>
-          <td><span class="badge badge-red">Disabled</span> No processes can attach. Requires reboot to reset.</td>
-          <td>Reboot machine with altered boot parameters.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="callout callout-tip">
-      <div class="callout-title">Fast Kernel Configuration</div>
-      <p>To enable unrestricted memory analysis on your reverse-engineering workstation without rebooting:</p>
-      <pre><code># Temporarily set Yama scope to unrestricted
-echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
-
-# Persist across reboots in sysctl
-echo "kernel.yama.ptrace_scope = 0" | sudo tee /etc/sysctl.d/10-ptrace.conf
-sudo sysctl --system</code></pre>
-    </div>
-  </section>
-
-  <section id="cockpit">
-    <h2>02. Ergonomics, Hotkeys & Command Palette</h2>
-    <p>
-      PhantomSuite is architected for maximum keyboard velocity. You can operate the entire workbench without taking your hands off the keyboard using global hotkeys and the fuzzy command palette.
-    </p>
-
-    <h3>Global Hotkey Cheat Sheet</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Hotkey</th>
-          <th>Scope</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>Ctrl+K</code> / <code>Ctrl+P</code></td>
-          <td>Global</td>
-          <td>Open floating <strong>Command Palette</strong></td>
-        </tr>
-        <tr>
-          <td><code>Ctrl+B</code></td>
-          <td>Global</td>
-          <td>Toggle collapsible navigation sidebar</td>
-        </tr>
-        <tr>
-          <td><code>Ctrl+0</code></td>
-          <td>Global</td>
-          <td>Switch to <strong>Mission Control Dashboard</strong></td>
-        </tr>
-        <tr>
-          <td><code>Ctrl+1</code> .. <code>Ctrl+9</code></td>
-          <td>Global</td>
-          <td>Direct jump to Tabs 0 through 10 (Processes, Scanner, Hex, Structs, etc.)</td>
-        </tr>
-        <tr>
-          <td><code>F1</code> / <code>?</code></td>
-          <td>Global</td>
-          <td>Open Keyboard Shortcuts & Help modal</td>
-        </tr>
-        <tr>
-          <td><code>F3</code></td>
-          <td>Global</td>
-          <td>Send <code>SIGSTOP</code> / <code>SIGCONT</code> to pause or resume target process</td>
-        </tr>
-        <tr>
-          <td><code>F5</code></td>
-          <td>Global</td>
-          <td>Refresh current active view / re-scan maps</td>
-        </tr>
-        <tr>
-          <td><code>Ctrl+S</code> / <code>Ctrl+O</code></td>
-          <td>Global</td>
-          <td>Save / Load <code>.phantom</code> cheat table</td>
-        </tr>
-        <tr>
-          <td><code>F7</code></td>
-          <td>Micro-Emulator</td>
-          <td>Single-step next instruction</td>
-        </tr>
-        <tr>
-          <td><code>F8</code></td>
-          <td>Micro-Emulator</td>
-          <td>Step over current sub-call</td>
-        </tr>
-        <tr>
-          <td><code>F9</code></td>
-          <td>Micro-Emulator</td>
-          <td>Run to <code>ret</code> or stop breakpoint</td>
-        </tr>
-        <tr>
-          <td><code>Ctrl+Enter</code></td>
-          <td>Console Tab</td>
-          <td>Execute Python script buffer or selected code block</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h3>Command Palette Intelligence (<code>Ctrl+K</code>)</h3>
-    <p>
-      The palette supports fuzzy matching across tab navigation, actions, and memory addresses:
-    </p>
-    <ul>
-      <li>Type <code>attach</code> &rarr; Attach directly to focused Hyprland/Wayland window.</li>
-      <li>Type <code>speed</code> &rarr; Quick-set speedhack multipliers (0.5x, 1.0x, 2.0x, 5.0x).</li>
-      <li>Type <code>snap</code> &rarr; Capture Snapshot A or B.</li>
-      <li>Type an address like <code>0x55550040A000</code> &rarr; Instantly generates <em>"🧬 Jump to Hex Editor"</em> or <em>"🔬 Dissect Struct"</em> options with zero manual tab switching!</li>
-    </ul>
-  </section>
-
-  <section id="modes">
-    <h2>03. Specialized Workflow Modes</h2>
-    <p>
-      The sidebar features a <strong>Workflow Mode</strong> selector that automatically declutters the navigation tree depending on your current operational mission:
-    </p>
     <div class="grid-2">
       <div class="card">
-        <h4>🎮 Game Modding Mode</h4>
-        <p>Filters interface to mission-critical modding tools: Mission Control, Process Explorer, Memory Scanner, Snapshot Diff, Struct Dissector, and the <strong>IL2CPP Inspector</strong>.</p>
+        <h4>1. The Hard Drive / SSD (The Filing Cabinet)</h4>
+        <p>This is where games, movies, and programs sleep when they are turned off. It holds massive amounts of data, but it is <em>very slow</em> compared to the CPU. The CPU cannot work on files while they are sitting in the filing cabinet.</p>
       </div>
       <div class="card">
-        <h4>🔬 Binary Reversing Mode</h4>
-        <p>Curates reversing cockpits: Hex & Disassembly, Struct Dissector, ELF Symbols, Data Deserializer, Python Console, <strong>IL2CPP Inspector</strong>, <strong>Micro-Emulator</strong>, and <strong>Crypto Scanner</strong>.</p>
+        <h4>2. The RAM / Memory (The Giant Desk)</h4>
+        <p>When you double-click a game icon, your computer copies the game's code and variables from the SSD onto your <strong>RAM</strong> (Random Access Memory). Think of RAM as a gigantic desk covered in billions of numbered sticky note slots. Anything on this desk can be read or changed in nanoseconds.</p>
       </div>
-      <div class="card">
-        <h4>🌐 System Forensics Mode</h4>
-        <p>Tailored for telemetry: Processes, Threads & Core Affinity, Sockets & Handles, Syscall Monitor, and Virtual Memory Treemap.</p>
-      </div>
-      <div class="card">
-        <h4>⚡ All Tools (Default)</h4>
-        <p>Presents the complete 17-tab suite across Dashboard, Target & System, Memory & Cheats, Reversing & Dissect, and Toolbox & Scripts.</p>
-      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 24px;">
+      <h4>3. The CPU (The Ultra-Fast Office Clerk)</h4>
+      <p>The CPU (Central Processing Unit) is the beating heart of your computer. It is a tireless clerk who does about <strong>4 billion tiny math calculations every second</strong> (4.0 GHz). The CPU only knows how to do very simple steps: <em>"Look at sticky note #100, add 1 to it, put it back on sticky note #100, then jump to sticky note #105"</em>.</p>
+    </div>
+
+    <pre><code>+-------------------+             Copies game files             +-------------------+
+|  Hard Drive / SSD |   ------------------------------------->  |     RAM (Memory)  |
+|  (Filing Cabinet) |                                           |  (Billions of     |
++-------------------+                                           |   numbered slots) |
+                                                                +---------+---------+
+                                                                          |
+                                                      CPU reads & writes  |
+                                                      4 billion times/sec |
+                                                                          v
+                                                                +-------------------+
+                                                                |     The CPU       |
+                                                                | (The Fast Clerk)  |
+                                                                +-------------------+</code></pre>
+  </section>
+
+  <section id="primer-bits-bytes-hex">
+    <h3>2. Bits, Bytes, Numbers & Hexadecimal</h3>
+    <p>Computers do not understand words, English, or pictures. Computers are built out of microscopic transistors, which are just tiny electrical light switches.</p>
+
+    <ul>
+      <li><strong>A Bit:</strong> A single switch. It can only be <code>0</code> (Off) or <code>1</code> (On).</li>
+      <li><strong>A Byte:</strong> A group of <strong>8 bits</strong> side-by-side. With 8 switches, you can represent any whole number between <code>0</code> and <code>255</code>.</li>
+    </ul>
+
+    <h4>Why Do Programmers Use "Hexadecimal" (Hex)?</h4>
+    <p>
+      Normal humans count in decimal (Base-10: <code>0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10...</code>) because we have 10 fingers. Computers count in binary (Base-2: <code>0, 1</code>). Writing binary like <code>1101101011110001</code> is exhausting for human eyes.
+    </p>
+    <p>
+      So programmers invented <strong>Hexadecimal (Base-16)</strong>. It counts from <code>0</code> to <code>15</code> using 16 single symbols:
+    </p>
+    <pre><code>Decimal:      0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+Hexadecimal:  0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F</code></pre>
+
+    <div class="callout callout-note">
+      <div class="callout-title">The "0x" Prefix</div>
+      <p>
+        Whenever you see <code>0x</code> in PhantomSuite (like <code>0xFF</code> or <code>0x10</code>), the <code>0x</code> simply means: <em>"Attention! The numbers following this are in Hexadecimal, not regular decimal!"</em>
+      </p>
+      <ul>
+        <li><code>0x0A</code> in Hex = <code>10</code> in Decimal.</li>
+        <li><code>0x10</code> in Hex = <code>16</code> in Decimal.</li>
+        <li><code>0xFF</code> in Hex = <code>255</code> in Decimal (the maximum value a single byte can hold).</li>
+      </ul>
+      <p>
+        <strong>The superpower of Hex:</strong> Exactly two hex digits (like <code>A4</code> or <code>FF</code>) represent exactly <strong>one byte</strong>!
+      </p>
+    </div>
+
+    <h4>Data Types: How Computers Store Different Things</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Type Name</th>
+          <th>Size in Bytes</th>
+          <th>What It Is Used For</th>
+          <th>Range of Values</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Byte (int8)</strong></td>
+          <td>1 byte</td>
+          <td>Small flags, characters, yes/no switches</td>
+          <td>0 to 255</td>
+        </tr>
+        <tr>
+          <td><strong>2 Bytes (int16)</strong></td>
+          <td>2 bytes</td>
+          <td>Medium numbers, retro game scores</td>
+          <td>-32,768 to 32,767</td>
+        </tr>
+        <tr>
+          <td><strong>4 Bytes (int32)</strong></td>
+          <td>4 bytes</td>
+          <td><strong>Most common!</strong> Player health, ammo, gold, coins</td>
+          <td>-2.1 billion to +2.1 billion</td>
+        </tr>
+        <tr>
+          <td><strong>8 Bytes (int64)</strong></td>
+          <td>8 bytes</td>
+          <td>Memory addresses, large currency, timestamps</td>
+          <td>Virtually infinite</td>
+        </tr>
+        <tr>
+          <td><strong>Float</strong></td>
+          <td>4 bytes</td>
+          <td>Numbers with decimals: X, Y, Z coordinates, speed</td>
+          <td>e.g. <code>100.5</code>, <code>-14.287</code></td>
+        </tr>
+        <tr>
+          <td><strong>String</strong></td>
+          <td>Dynamic</td>
+          <td>Human readable words: player names, item names</td>
+          <td><code>"PlayerOne"</code>, <code>"Excalibur"</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="primer-processes-pids">
+    <h3>3. What is a Program, a Process & a PID?</h3>
+    <ul>
+      <li><strong>A Program:</strong> An inactive file sitting on your hard drive (like <code>game.exe</code> or <code>vrc.x86_64</code>). Think of it like a recipe inside a cookbook.</li>
+      <li><strong>A Process:</strong> The active, living instance running in RAM right now. Think of it like a chef actively cooking that recipe in the kitchen. If you run two copies of the game, you have one program, but <strong>two distinct processes</strong>.</li>
+      <li><strong>A PID (Process ID):</strong> Every time any program starts, the Linux operating system gives it a unique badge number called a <strong>PID</strong> (like <code>42195</code>). No two running programs have the same PID.</li>
+    </ul>
+
+    <div class="callout callout-warning">
+      <div class="callout-title">The Virtual Memory Bubble</div>
+      <p>
+        Modern operating systems put every process inside a sealed, private protective bubble called <strong>Virtual Memory</strong>. By default, Program A is not allowed to peek inside Program B's memory. If Program A tries, Linux immediately kills it with an error called a <code>Segmentation Fault</code>.
+      </p>
+      <p>
+        <strong>PhantomSuite's Job:</strong> PhantomSuite is an authorized inspection tool that asks Linux for permission to reach across processes and look inside another program's private memory bubble.
+      </p>
     </div>
   </section>
 
-  <!-- Section 01 -->
-  <section id="target-acquisition">
-    <h2>04. Target Acquisition & Hyprland IPC</h2>
+  <section id="primer-addresses-pointers">
+    <h3>4. Memory Addresses & The Postbox Analogy</h3>
     <p>
-      PhantomSuite integrates directly with desktop compositors. On modern Wayland environments running <strong>Hyprland</strong>, you never have to grep through thousands of background processes.
+      Imagine a street with 16 billion houses in a straight line. Every house has a unique number plate stamped onto its door: <code>0x00000000</code>, <code>0x00000001</code>, ..., all the way up to <code>0x7FFFFFFFFFFF</code>.
     </p>
-    <h3>1-Click Hyprland Active Window Snapping</h3>
+    <ul>
+      <li>The number plate on the door is the <strong>Memory Address</strong>.</li>
+      <li>Whoever or whatever is living inside the house is the <strong>Value</strong>.</li>
+    </ul>
+
+    <h4>What is a Pointer?</h4>
     <p>
-      Clicking <strong>🎯 Attach Active Window</strong> in the header queries Hyprland's IPC socket (<code>hyprctl activewindow -j</code>). PhantomSuite retrieves the focused window's PID, process executable name, and window title, immediately binding all 17 tabs to that target in under 5 milliseconds.
+      A <strong>Pointer</strong> is a house whose value is simply <em>the address of another house</em>!
+    </p>
+    <div class="callout callout-tip">
+      <div class="callout-title">The Treasure Hunt Analogy</div>
+      <p>Imagine you want to find the Player's Health in memory:</p>
+      <ol>
+        <li>You open House <code>0x1000</code> (The Game Module). Inside, you find a note saying: <em>"The Player lives at House <code>0x5000</code>"</em>.</li>
+        <li>You walk to House <code>0x5000</code> (The Player Object). Inside, you find another note saying: <em>"The Player's stats are at House <code>0x8200</code>"</em>.</li>
+        <li>You walk to House <code>0x8200</code>. Offset <code>+0x18</code> down the hallway is the bedroom holding the number <code>100</code> (Your Health!).</li>
+      </ol>
+      <p>
+        House <code>0x1000</code> is a <strong>Pointer</strong> to House <code>0x5000</code>, which is a <strong>Pointer</strong> to House <code>0x8200</code>. This is called a <strong>Multi-Level Pointer Chain</strong>.
+      </p>
+    </div>
+  </section>
+
+  <section id="primer-aslr">
+    <h3>5. What is ASLR & Why Addresses Move on Every Launch</h3>
+    <p>
+      In old 1990s games, the player's health was always at the exact same address every time you started your computer (e.g., always at <code>0x00401000</code>).
+    </p>
+    <p>
+      Today, operating systems use a security defense called <strong>ASLR (Address Space Layout Randomization)</strong>. Every time you launch a game, Linux rolls a pair of dice and shifts the entire game to a completely random address in RAM!
+    </p>
+    <ul>
+      <li>Run the game on Monday: Health is at <code>0x55A1B0402800</code>.</li>
+      <li>Run the game on Tuesday: Health is at <code>0x55F980108200</code>.</li>
+    </ul>
+    <p>
+      <strong>How we beat ASLR:</strong> The <em>base of the game module</em> moves, but the <strong>offsets</strong> (the distances between things) never change! If the player's health is always <code>Module + 0x4800</code>, PhantomSuite finds the module base on launch, adds <code>0x4800</code>, and finds your health instantly.
+    </p>
+  </section>
+
+  <section id="primer-assembly-cpu">
+    <h3>6. CPU Instructions, Registers & NOPing</h3>
+    <p>
+      The CPU reads instructions one by one. But the CPU cannot do math directly inside RAM. It has to pull numbers into its own ultra-fast internal pockets called <strong>Registers</strong>:
     </p>
 
+    <h4>The 64-Bit General Purpose Registers</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Register Name</th>
+          <th>Nickname / Common Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>RAX</code></td><td>Accumulator (Math results, function return values)</td></tr>
+        <tr><td><code>RBX</code></td><td>Base register (General storage)</td></tr>
+        <tr><td><code>RCX</code></td><td>Counter (Loops and repetition)</td></tr>
+        <tr><td><code>RDX</code></td><td>Data register (Multiplication, division, I/O)</td></tr>
+        <tr><td><code>RSI</code> / <code>RDI</code></td><td>Source / Destination indices (Copying memory)</td></tr>
+        <tr><td><code>RBP</code></td><td>Base Pointer (Stack frame anchor)</td></tr>
+        <tr><td><code>RSP</code></td><td>Stack Pointer (Points to current top of the stack)</td></tr>
+        <tr><td><code>R8</code> .. <code>R15</code></td><td>General purpose fast worker pockets</td></tr>
+        <tr><td><code>RIP</code></td><td><strong>Instruction Pointer</strong> (The laser pointer showing the exact instruction the CPU is executing right now!)</td></tr>
+      </tbody>
+    </table>
+
+    <h4>What is "NOPing"?</h4>
+    <p>
+      When you play a game and fire a gun, the CPU executes an instruction like:
+    </p>
+    <pre><code>sub [rax+0x18], 1    ; Subtract 1 from Ammo</code></pre>
+    <p>
+      If we replace those machine code bytes with <code>0x90</code> (the x86_64 opcode for <strong>NOP</strong>, meaning <em>"No Operation"</em> or <em>"Do Nothing"</em>):
+    </p>
+    <pre><code>nop                  ; Do nothing
+nop                  ; Do nothing
+nop                  ; Do nothing</code></pre>
+    <p>
+      The CPU executes the NOP, does nothing, and moves on. The subtraction never happens! You now have <strong>Infinite Ammo</strong>!
+    </p>
+  </section>
+
+  <section id="primer-what-is-reversing">
+    <h3>7. What Reverse Engineering Actually Is</h3>
+    <p>
+      When people write software, they write readable human code (C++, C#, Rust, Python). They run a compiler, which turns that code into billions of raw numbers that only the CPU understands.
+    </p>
+    <p>
+      <strong>Reverse Engineering</strong> is the art of taking that compiled, running binary and working backward: finding where variables live, understanding how rules are enforced, and creating clean modifications without needing the original developer's source code.
+    </p>
+  </section>
+
+  <!-- LEVEL 1: MISSIONS -->
+  <section id="mission-1-attach">
+    <h2><span>🚀</span> Level 1: Step-by-Step Field Missions (Tutorial)</h2>
+
+    <h3>Mission 1: Attaching to Your First Game / Target Process</h3>
+    <p>Let's attach PhantomSuite to a running game or program.</p>
+
     <div class="callout callout-tip">
-      <div class="callout-title">Realistic Scenario: Attaching to an Obfuscated Game</div>
+      <div class="callout-title">Step-by-Step Instructions</div>
       <ol>
-        <li>Launch the target binary or game on your second workspace.</li>
-        <li>Focus the game window briefly with your mouse.</li>
-        <li>Switch back to PhantomSuite and click <strong>🎯 Attach Active Window</strong> (or press <code>Ctrl+K</code> &rarr; type <code>attach</code> &rarr; <code>Enter</code>).</li>
-        <li>PhantomSuite binds to the target PID, validates Yama permissions, and sets up memory paging.</li>
+        <li>Start your game or target program (e.g. on your desktop or another monitor).</li>
+        <li>Launch PhantomSuite. You will land on the <strong>🚀 Mission Control Dashboard</strong>.</li>
+        <li>
+          <strong>The Fastest Way (If using Hyprland/Wayland):</strong>
+          Click on your game window so it is focused. Switch back to PhantomSuite and click the <strong>🎯 Attach Active Window</strong> button at the top right of the header.
+        </li>
+        <li>
+          <strong>The Manual Way:</strong>
+          Click <strong>⚡ Processes & Windows</strong> in the sidebar (or press <code>Ctrl+1</code>). Type the name of your game into the search bar. Click on your game in the table, then click <strong>🎯 Attach Selected</strong> at the bottom.
+        </li>
+        <li>
+          <strong>Verify Attachment:</strong>
+          Look at the top header. The badge will change from <code>[ NO TARGET ATTACHED ]</code> to a bright cyan badge: <code>[ ATTACHED: PID 12345 — GameClient.x86_64 ]</code>.
+        </li>
+        <li>
+          <strong>Check Yama Status:</strong>
+          Look at the bottom right status bar. If it says <code>ptrace: 0 (Classic / Unrestricted)</code> in green, you are good to go!
+        </li>
       </ol>
     </div>
   </section>
 
-  <section id="memory-scanner">
-    <h2>05. Precision Memory Scanner & Fast-Scan Heuristics</h2>
-    <p>
-      The memory scanner operates directly on Linux virtual memory pages using high-speed vector system calls.
-    </p>
+  <section id="mission-2-ammo">
+    <h3>Mission 2: Finding and Freezing Your First Value (Ammo / Gold / Health)</h3>
+    <p>The classic memory scanning workflow. We want to find our ammo count and make it infinite.</p>
 
-    <h3>Supported Data Types</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Format</th>
-          <th>Size</th>
-          <th>Python / C Representation</th>
-          <th>Optimal Memory Alignment</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><code>INT8</code></td><td>1 byte</td><td><code>int8_t</code> (-128 .. 127)</td><td>1-byte (Any)</td></tr>
-        <tr><td><code>INT16</code></td><td>2 bytes</td><td><code>int16_t</code> (-32768 .. 32767)</td><td>2-byte aligned</td></tr>
-        <tr><td><code>INT32</code></td><td>4 bytes</td><td><code>int32_t</code> (Default for scores, health, timers)</td><td>4-byte aligned</td></tr>
-        <tr><td><code>INT64</code></td><td>8 bytes</td><td><code>int64_t</code> (Pointers, 64-bit counters, currencies)</td><td>8-byte aligned</td></tr>
-        <tr><td><code>FLOAT</code></td><td>4 bytes</td><td>IEEE 754 Single Precision (Coordinates, velocity)</td><td>4-byte aligned</td></tr>
-        <tr><td><code>DOUBLE</code></td><td>8 bytes</td><td>IEEE 754 Double Precision (Physics calculations)</td><td>8-byte aligned</td></tr>
-        <tr><td><code>STRING</code></td><td>Dynamic</td><td>UTF-8 / ASCII strings</td><td>1-byte</td></tr>
-        <tr><td><code>AOB</code></td><td>Dynamic</td><td>Array of Bytes (Hex pattern with wildcards <code>?</code>)</td><td>1-byte</td></tr>
-      </tbody>
-    </table>
-
-    <h3>Scanning Modes</h3>
-    <ul>
-      <li><strong>Exact Value:</strong> Match memory cells equal to target value.</li>
-      <li><strong>Increased / Decreased Value:</strong> Relative search against previous scan snapshot. Ideal when values lack visible on-screen numbers (health bars, stamina meters).</li>
-      <li><strong>Changed / Unchanged Value:</strong> Detect volatile memory addresses vs static configuration.</li>
-      <li><strong>Unknown Initial Value:</strong> Captures entire writable heap/stack space on First Scan, allowing differential pruning on subsequent scans.</li>
-    </ul>
-
-    <div class="callout callout-note">
-      <div class="callout-title">Fast-Scan Alignment Heuristic</div>
-      <p>
-        Always keep <strong>Fast Scan (Alignment: 4)</strong> checked when hunting 32-bit integers or floats! On x86_64, compilers virtually always align integer variables to 4-byte or 8-byte boundaries. Scanning only aligned addresses cuts scan execution time by <strong>75%</strong> and eliminates cache misalignments.
-      </p>
-    </div>
-  </section>
-
-  <section id="cheat-tables">
-    <h2>06. ASLR-Resilient .phantom Tables</h2>
-    <p>
-      Linux binaries use <strong>PIE (Position Independent Executables)</strong> and <strong>ASLR (Address Space Layout Randomization)</strong>. Hardcoded absolute memory addresses break every time the application is relaunched.
-    </p>
-
-    <h3>The <code>.phantom</code> Table Architecture</h3>
-    <p>
-      When you save a cheat table via <code>Ctrl+S</code>, PhantomSuite converts raw memory addresses into <strong>Module Relative Offsets</strong> or <strong>Symbolic Pointer Paths</strong>:
-    </p>
-    <pre><code>{
-  "version": "2.0",
-  "target_name": "GameClient.x86_64",
-  "entries": [
-    {
-      "description": "Player Health",
-      "address": "GameClient.x86_64 + 0x48A020",
-      "type": "int32",
-      "freeze": true,
-      "freeze_value": 9999
-    },
-    {
-      "description": "Camera FOV Pointer",
-      "pointer_path": ["UnityPlayer.so + 0x18F4200", 0x38, 0x10, 0x118],
-      "type": "float",
-      "freeze": false
-    }
-  ]
-}</code></pre>
-    <p>
-      Upon reloading a table, PhantomSuite dynamically queries <code>/proc/[pid]/maps</code>, re-resolves the module base addresses, recalculates the effective virtual addresses, and re-attaches value freezers.
-    </p>
-  </section>
-
-  <section id="snapshot-diff">
-    <h2>07. Differential Snapshot Forensics</h2>
-    <p>
-      When reversing anti-tamper logic, DRM handshakes, or hidden state transitions, standard value scanning is insufficient. The <strong>Snapshot Diff Tab</strong> allows full memory comparison across two distinct points in time:
-    </p>
     <ol>
-      <li><strong>Capture Snapshot A:</strong> Captures memory across all readable/writable pages (excluding read-only text segments).</li>
-      <li><strong>Trigger Event in Target:</strong> Equip an item, shoot a weapon, or trigger a game menu transition.</li>
-      <li><strong>Capture Snapshot B:</strong> Compares memory deltas byte-by-byte.</li>
-      <li><strong>Filter Mutation Clustered Regions:</strong> PhantomSuite highlights contiguous memory pages with modifications, allowing you to isolate state variables in seconds.</li>
+      <li>
+        <strong>Look at your in-game ammo count:</strong>
+        Suppose your gun currently has <strong>50</strong> bullets.
+      </li>
+      <li>
+        <strong>Navigate to the Scanner:</strong>
+        Click <strong>🔍 Memory Scanner</strong> in the sidebar (or press <code>Ctrl+2</code>).
+      </li>
+      <li>
+        <strong>Configure the First Scan:</strong>
+        <ul>
+          <li>Set <em>Value Type</em> to <code>4 Bytes (int32)</code> (standard for games).</li>
+          <li>Set <em>Scan Type</em> to <code>Exact Value</code>.</li>
+          <li>In the <em>Target Value</em> box, type <code>50</code>.</li>
+          <li>Click the blue <strong>🔍 First Scan</strong> button.</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Observe the Results:</strong>
+        The results table on the left will populate with thousands of addresses. Why? Because thousands of variables in the game happen to equal 50 right now (timers, enemy coordinates, texture settings). We need to filter them down!
+      </li>
+      <li>
+        <strong>Change the value in-game:</strong>
+        Return to your game and fire one bullet. Your ammo is now <strong>49</strong>.
+      </li>
+      <li>
+        <strong>Filter with Next Scan:</strong>
+        Return to PhantomSuite. Type <code>49</code> into the <em>Target Value</em> box, and click <strong>⏩ Next Scan</strong>.
+      </li>
+      <li>
+        <strong>Repeat if necessary:</strong>
+        Fire again (now 48) &rarr; type <code>48</code> &rarr; click <strong>⏩ Next Scan</strong>. You will quickly narrow the results down to just 1 or 2 addresses!
+      </li>
+      <li>
+        <strong>Add to Cheat Table:</strong>
+        Double-click the remaining address in the scan results. It will immediately appear in your <strong>Saved Cheat Table</strong> at the bottom.
+      </li>
+      <li>
+        <strong>Freeze & Modify:</strong>
+        <ul>
+          <li>Double-click the <em>Value</em> column in your table and change it to <code>999</code>.</li>
+          <li>Click the <strong>Active (Freeze)</strong> checkbox next to it. PhantomSuite will now write 999 into that address every 50 milliseconds.</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Return to game:</strong>
+        Fire your gun. Your ammo never decreases. You have successfully created your first memory cheat!
+      </li>
     </ol>
   </section>
 
-  <section id="treemap">
-    <h2>08. Virtual Address Space Treemap</h2>
-    <p>
-      The <strong>Treemap Tab</strong> generates a real-time, proportional visual map of the entire 48-bit virtual address space:
-    </p>
-    <ul>
-      <li><span style="color: #00f0ff; font-weight: bold;">■ Executable Code (r-x):</span> Main binary text segment, dynamic shared libraries (<code>libc.so</code>, <code>libunity.so</code>).</li>
-      <li><span style="color: #00ff9d; font-weight: bold;">■ Heap (rw-):</span> Dynamic memory allocated via <code>brk</code> or <code>mmap</code>.</li>
-      <li><span style="color: #ff79c6; font-weight: bold;">■ Stack (rw-):</span> Thread execution stacks and local variables.</li>
-      <li><span style="color: #ffb86c; font-weight: bold;">■ Anonymous mmap (rw-):</span> Large buffers, game assets, and mono heap pages.</li>
-    </ul>
-    <p>Clicking any partition in the treemap automatically navigates the <strong>Hex Viewer</strong> to the start of that page.</p>
-  </section>
+  <section id="mission-3-unknown">
+    <h3>Mission 3: Finding Values With No Numbers (Health Bars / Stamina)</h3>
+    <p>What if your health bar doesn't have a visible number on the screen?</p>
 
-  <!-- Section 02 -->
-  <section id="hex-disasm">
-    <h2>09. Hex Viewer, Live Disassembly & SigMaker</h2>
-    <p>
-      The <strong>Hex & Disasm Tab</strong> combines low-level byte inspection with real-time x86_64 disassembly powered by Capstone:
-    </p>
-    <h3>In-Place Memory Patching & NOP Sledding</h3>
-    <ul>
-      <li><strong>1-Click NOP Patcher:</strong> Highlight any instruction (e.g. <code>jne 0x40182A</code>) &rarr; Click <em>"NOP Instruction"</em>. PhantomSuite writes <code>0x90</code> bytes matching the exact instruction length and logs the original bytes to the restoration undo stack.</li>
-      <li><strong>Restore Instruction:</strong> 1-click restoration reverts the NOPs back to original machine opcodes.</li>
-    </ul>
-
-    <h3>SigMaker: Unique AOB Signature Generation</h3>
-    <p>
-      Right-click any instruction &rarr; select <strong>Generate AOB Signature</strong>. SigMaker calculates the shortest unique byte pattern containing the instruction, replacing dynamic relocation offsets with wildcards (<code>?</code>) while ensuring the signature matches <em>only once</em> across the entire binary module!
-    </p>
-  </section>
-
-  <section id="cfg-engine">
-    <h2>10. Control Flow Graph (CFG) Engine & Branch Inversion</h2>
-    <p>
-      The <strong>CFG Engine</strong> reconstructs the complete basic-block topology of sub-routines:
-    </p>
-    <div class="callout callout-tip">
-      <div class="callout-title">Interactive Branch Inversion</div>
-      <p>
-        In the CFG visualizer, every conditional branch (<code>je</code>, <code>jne</code>, <code>jg</code>, <code>jle</code>, <code>ja</code>, <code>jb</code>) features an interactive <strong>Invert Branch</strong> toggle:
-      </p>
-      <ul>
-        <li><code>JE (0x74)</code> &harr; <code>JNE (0x75)</code></li>
-        <li><code>JG (0x7F)</code> &harr; <code>JLE (0x7E)</code></li>
-        <li><code>JA (0x77)</code> &harr; <code>JBE (0x76)</code></li>
-      </ul>
-      <p>Clicking invert patches the single conditional byte live in memory without recompiling the binary.</p>
-    </div>
-  </section>
-
-  <section id="detour-hooks">
-    <h2>11. Mid-Function Detour Hook Engine</h2>
-    <p>
-      PhantomSuite's <strong>DetourEngine</strong> implements 64-bit relative displacement and indirect absolute trampolines directly inside the target process address space.
-    </p>
-    <h3>Trampoline Anatomy</h3>
-    <pre><code>Original Target Function:
-0x401200: 48 89 5C 24 08    mov [rsp+8], rbx    <-- Overwritten with JMP
-0x401205: 48 89 6C 24 10    mov [rsp+0x10], rbp
-0x40120A: 48 89 74 24 18    mov [rsp+0x18], rsi
-
-Patched Target Function:
-0x401200: E9 FB 8D 1F 00    jmp 0x5FA000        <-- 5-byte relative jmp to Trampoline
-
-Allocated Trampoline Page (0x5FA000):
-0x5FA000: 48 89 5C 24 08    mov [rsp+8], rbx    <-- Stolen original instructions
-0x5FA005: 48 89 6C 24 10    mov [rsp+0x10], rbp
-0x5FA00A: E8 51 00 00 00    call CustomHook     <-- Calls payload / telemetry
-0x5FA00F: E9 F6 71 E0 FF    jmp 0x40120A        <-- Jumps back after detour</code></pre>
-  </section>
-
-  <section id="pmu-profiler">
-    <h2>12. Anti-Debug & PMU Timing Profiler</h2>
-    <p>
-      When auditing binaries protected by anti-debugging countermeasures (commercial games, packers, anti-cheat drivers), the <strong>PMU Profiler</strong> identifies detection heuristics:
-    </p>
-    <ul>
-      <li><strong>TracerPid Audit:</strong> Checks if <code>/proc/[pid]/status</code> contains non-zero <code>TracerPid</code>.</li>
-      <li><strong>Wchan Trap Check:</strong> Examines <code>/proc/[pid]/wchan</code> for <code>ptrace_stop</code> or <code>do_signal_stop</code>.</li>
-      <li><strong>RDTSC Delta Loop Detection:</strong> Profiling code blocks executed within tight TSC (Time Stamp Counter) timing thresholds, revealing timing-based debugger detection.</li>
-    </ul>
-  </section>
-
-  <!-- Section 03 -->
-  <section id="struct-dissector">
-    <h2>13. Heuristic Struct Dissector & Heatmaps</h2>
-    <p>
-      When reversing raw C/C++ objects without debugging symbols, the <strong>Struct Dissector Tab</strong> automatically inspects memory buffers:
-    </p>
-    <ul>
-      <li><strong>Alignment & Padding Detection:</strong> Distinguishes valid 8-byte aligned pointers from integer fields and null padding.</li>
-      <li><strong>Heuristic Type Identification:</strong> Evaluates numeric ranges to classify fields as valid pointers, ASCII strings, 32-bit floats, or bitflags.</li>
-      <li><strong>Live Mutation Heatmap:</strong> Fields that change frequently (e.g. coordinates) glow in bright neon, while static fields remain dim.</li>
-    </ul>
-  </section>
-
-  <section id="dwarf-synth">
-    <h2>14. ELF DWARF Type Synthesizer</h2>
-    <p>
-      If an ELF binary has unstripped DWARF debugging information (or a separate <code>.debug</code> file), the <strong>DwarfTypeSynthesizer</strong> automatically parses the <code>.debug_info</code> compilation units and outputs pure, valid <strong>C/C++ Header Struct Declarations</strong>:
-    </p>
-    <pre><code>// Synthesized directly from DWARF DIEs by PhantomSuite
-struct PlayerData {
-    /* 0x0000 */ int32_t health;
-    /* 0x0004 */ int32_t armor;
-    /* 0x0008 */ float position_x;
-    /* 0x000C */ float position_y;
-    /* 0x0010 */ float position_z;
-    /* 0x0018 */ struct InventoryItem* inventory_head;
-    /* 0x0020 */ uint8_t is_alive;
-    /* 0x0021 */ uint8_t _padding[7];
-}; // Size: 0x28 (40 bytes)</code></pre>
-  </section>
-
-  <section id="deserializer">
-    <h2>15. C++ std::string & std::vector Deserializer</h2>
-    <p>
-      Modern binaries make heavy use of C++ standard template library (STL) containers. The <strong>Deserializer Tab</strong> inspects live GCC / Clang (libstdc++ and libc++) structures:
-    </p>
-    <ul>
-      <li><strong>std::string Small String Optimization (SSO):</strong> Automatically detects whether a string is stored inline (length &le; 15 bytes) or dereferences the heap buffer pointer (length &gt; 15 bytes).</li>
-      <li><strong>std::vector Introspection:</strong> Resolves the 3-pointer vector layout (<code>_M_start</code>, <code>_M_finish</code>, <code>_M_end_of_storage</code>) to determine exact element count and reserved capacity.</li>
-    </ul>
-  </section>
-
-  <section id="smt-solver">
-    <h2>16. Symbolic SMT Z3 Pointer Path Solver</h2>
-    <p>
-      Standard pointer scanners fail when game heaps have millions of nodes or cyclical references. PhantomSuite incorporates a formal <strong>Symbolic SMT Solver</strong> powered by Microsoft Z3:
-    </p>
     <ol>
-      <li><strong>Multithreaded BFS Graph Construction:</strong> Traverses the pointer graph from module base addresses to target memory offsets up to a configured max depth.</li>
-      <li><strong>SMT Constraint Formulation:</strong> Translates pointer chain relationships into logical bit-vector formulas.</li>
-      <li><strong>Z3 Satisfiability Proof:</strong> Z3 proves whether a valid, deterministic pointer path exists that withstands ASLR reboots.</li>
+      <li>With full health, start by setting <em>Scan Type</em> to <strong>Unknown Initial Value</strong> and click <strong>🔍 First Scan</strong>.</li>
+      <li>Take damage in the game (your health bar decreases).</li>
+      <li>Set <em>Scan Type</em> to <strong>Decreased Value</strong> and click <strong>⏩ Next Scan</strong>.</li>
+      <li>Stand still without taking damage. Set <em>Scan Type</em> to <strong>Unchanged Value</strong> and click <strong>⏩ Next Scan</strong> (prunes away fluctuating timers).</li>
+      <li>Heal with a medkit. Set <em>Scan Type</em> to <strong>Increased Value</strong> and click <strong>⏩ Next Scan</strong>.</li>
+      <li>After 4 or 5 iterations, only the exact health variable remains!</li>
     </ol>
   </section>
 
-  <section id="heap-inspector">
-    <h2>17. Glibc Heap Chunk & Tcache Forensics</h2>
+  <section id="mission-4-pointers">
+    <h3>Mission 4: Defeating ASLR with Pointer Scans & SMT Z3</h3>
     <p>
-      The <strong>Heap Inspector Tab</strong> parses the internal structures of glibc ptmalloc:
-    </p>
-    <ul>
-      <li><strong>Chunk Header Introspection:</strong> Displays <code>prev_size</code>, <code>size</code>, and status flags (<code>PREV_INUSE</code>, <code>IS_MMAPPED</code>, <code>NON_MAIN_ARENA</code>).</li>
-      <li><strong>Bin State Visualization:</strong> Tracks entries in <strong>tcache bins</strong> (Thread Local Caches), fastbins, and unsorted bins.</li>
-      <li><strong>Corruption Auditing:</strong> Flags double-free chunks, overlapping heap buffers, and corrupted forward/backward pointers.</li>
-    </ul>
-  </section>
-
-  <!-- Section 04 -->
-  <section id="il2cpp-tab">
-    <h2>18. Unity IL2CPP Klass Explorer Tab</h2>
-    <p>
-      Unity games compiled with IL2CPP strip high-level C# bytecode into native C++ binaries, but retain critical metadata structures (<code>Il2CppClass</code>, <code>FieldInfo</code>, <code>MethodInfo</code>) in memory.
+      You restart your game. You load your table, but your ammo address from Mission 2 doesn't work anymore! Why? Because <strong>ASLR</strong> moved the game in memory! Here is how we make our cheats permanent:
     </p>
 
-    <h3>Using the IL2CPP Inspector</h3>
     <ol>
-      <li>Attach to any Unity game (e.g. VRChat, Genshin, Risk of Rain 2).</li>
-      <li>Navigate to the <strong>🎮 IL2CPP Inspector Tab</strong> (Sidebar &rarr; Reversing &rarr; IL2CPP).</li>
-      <li>PhantomSuite automatically verifies whether the IL2CPP runtime is loaded in the process modules.</li>
-      <li>Enter an <code>Il2CppClass</code> address or a live <code>Il2CppObject</code> instance address.</li>
-      <li><strong>Live Fields Table:</strong> Displays every field name, C# type, memory offset, static flag, and dereferenced value.</li>
-      <li><strong>Methods Table:</strong> Lists VTable method pointers with exact virtual addresses.</li>
-      <li><strong>Automated Code Generation:</strong> View synthesized C# class declarations and C++20 memory layouts ready for injection mods!</li>
+      <li>Find your ammo address again using Mission 2.</li>
+      <li>Right-click the address in the Cheat Table &rarr; select <strong>🧩 Find Pointer Paths (SMT Solver)</strong>.</li>
+      <li>The <strong>Pointer Solver Dialog</strong> appears. Leave Max Depth at 4 and Max Offset at <code>0x1000</code>.</li>
+      <li>Click <strong>🚀 Run Symbolic Solver</strong>.</li>
+      <li>
+        PhantomSuite's multi-threaded crawler scans process memory, formulates mathematical constraints, and asks the <strong>Z3 SMT Solver</strong> to prove which path links a static game module to your ammo!
+      </li>
+      <li>
+        The solver finds: <code>[ "GameClient.x86_64 + 0x51A020" -> +0x38 -> +0x10 -> +0x118 ]</code>.
+      </li>
+      <li>Click <strong>➕ Add to Cheat Table</strong>.</li>
+      <li>Press <code>Ctrl+S</code> to save your table as <code>game.phantom</code>. This table will now work forever, across reboots and game restarts!</li>
     </ol>
-
-    <div class="callout callout-tip">
-      <div class="callout-title">Interactive Hex Routing</div>
-      <p>Right-click any method or field value in the IL2CPP tables &rarr; select <em>"Jump to Hex Tab"</em> to immediately disassemble the method or inspect the raw data bytes.</p>
-    </div>
   </section>
 
-  <section id="micro-emu-tab">
-    <h2>19. Sandboxed Micro-Execution & Sub-Function Emulation</h2>
+  <section id="mission-5-hex-nop">
+    <h3>Mission 5: Peeking at Raw Bytes & 1-Click NOPing</h3>
     <p>
-      The <strong>Micro-Emulator Tab</strong> provides an isolated, safe x86_64 CPU state emulation cockpit for stepping through complex sub-routines (e.g. string decryption loops, license checks, packing routines) without executing them in the target process.
+      Instead of constantly freezing numbers, let's stop the game from subtracting ammo altogether!
     </p>
 
-    <h3>Operational Capabilities</h3>
-    <ul>
-      <li><strong>Copy-on-Write Shadow Paging:</strong> Reads memory pages lazily from the target process on demand. Any memory writes made during emulation exist <em>only</em> inside PhantomSuite's shadow memory—never altering the live process.</li>
-      <li><strong>Step-by-Step Tracing (F7 / F8 / F9):</strong> Step instructions one-by-one or run until <code>ret</code>. The execution trace table logs mnemonics, operands, register deltas, and memory reads/writes.</li>
-      <li><strong>Live Register Grid with Delta Highlighting:</strong> 64-bit general registers (<code>RAX</code>..<code>R15</code>, <code>RIP</code>) are editable in real-time. Any register that changes value during an execution step glows in neon orange.</li>
-      <li><strong>Shadow Stack Inspection:</strong> Monitors 16 QWORDs relative to <code>RSP</code>.</li>
-      <li><strong>State Snapshots & Undo Stack:</strong> Click <em>"💾 Snapshot"</em> before testing branch paths. If execution faults or enters an infinite loop, click <em>"⏪ Rollback"</em> to restore CPU registers and shadow pages instantly!</li>
-    </ul>
+    <ol>
+      <li>Navigate to <strong>🧬 Hex & Disasm Tab</strong> (or press <code>Ctrl+4</code>).</li>
+      <li>Enter your ammo address in the address bar and press Enter.</li>
+      <li>
+        You will see the raw bytes in hex on the left, and the human-readable x86_64 assembly instructions on the right.
+      </li>
+      <li>
+        Find the instruction that touches your ammo (e.g., <code>sub dword ptr [rax+0x18], 1</code>).
+      </li>
+      <li>
+        Click the instruction row to highlight it.
+      </li>
+      <li>
+        Click the red <strong>🚫 NOP Instruction</strong> button at the top.
+      </li>
+      <li>
+        PhantomSuite automatically replaces the machine bytes with <code>0x90</code> (NOP). Return to your game—every weapon now has permanent infinite ammo at the code level!
+      </li>
+      <li>
+        Want to restore it? Click the green <strong>↩ Restore Original</strong> button to undo your patch.
+      </li>
+    </ol>
   </section>
 
-  <section id="crypto-tab">
-    <h2>20. Shannon Entropy & Cryptographic Scanner</h2>
+  <section id="mission-6-structs">
+    <h3>Mission 6: Dissecting Whole Game Entities (The Struct Dissector)</h3>
     <p>
-      The <strong>Entropy & Crypto Tab</strong> detects encrypted memory blocks and identifies standard cryptographic lookup tables and constants:
+      Games don't store player variables randomly. They group them into a single <code>Player</code> entity:
     </p>
-
-    <h3>Shannon Entropy Formula</h3>
-    <pre><code>H = - Σ (p_i * log2(p_i))   where p_i is the frequency of byte i (0..255)
-Theoretical Range: 0.0 bits/byte (zero-filled) to 8.0 bits/byte (pure randomness / encrypted)</code></pre>
-
-    <h3>Classification Thresholds</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Entropy Range</th>
-          <th>Classification</th>
-          <th>Color Coding</th>
-          <th>Typical Contents</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>H &ge; 7.5</code></td>
-          <td>Encrypted / Packed</td>
-          <td><span class="badge badge-pink">Neon Red / Pink</span></td>
-          <td>AES ciphertext, compressed zlib/gzip assets, packed shellcode.</td>
-        </tr>
-        <tr>
-          <td><code>5.0 &le; H &lt; 7.5</code></td>
-          <td>Code / Structured</td>
-          <td><span class="badge badge-cyan">Cyan</span></td>
-          <td>Compiled x86_64 machine instructions, structured C++ objects.</td>
-        </tr>
-        <tr>
-          <td><code>H &lt; 5.0</code></td>
-          <td>Sparse / Text</td>
-          <td><span class="badge badge-green">Green</span></td>
-          <td>ASCII/UTF-8 strings, zero-initialized tables, sparse matrices.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h3>Cryptographic Signature Database</h3>
-    <p>
-      Scans memory maps for:
-    </p>
-    <ul>
-      <li><strong>AES:</strong> Rijndael Forward S-Box, Inverse S-Box, Key Schedule Rcon Table.</li>
-      <li><strong>SHA-2:</strong> SHA-256 Initial Constants (H0-H7), Round Constants (K0-K7).</li>
-      <li><strong>ChaCha20:</strong> Sigma constant <code>"expand 32-byte k"</code>.</li>
-      <li><strong>MD5 & CRC32:</strong> Standard hash vectors and lookup polynomials.</li>
-      <li><strong>Curve25519:</strong> Base point and prime field constants.</li>
-    </ul>
+    <ol>
+      <li>Navigate to <strong>🔬 Struct Dissector Tab</strong> (<code>Ctrl+5</code>).</li>
+      <li>Enter the base address of the player object in the top address bar.</li>
+      <li>Click <strong>🔬 Dissect Address</strong>.</li>
+      <li>
+        PhantomSuite automatically breaks down the memory into 4-byte and 8-byte rows:
+        <ul>
+          <li><code>+0x00</code> &rarr; Health (int32)</li>
+          <li><code>+0x04</code> &rarr; Armor (int32)</li>
+          <li><code>+0x08</code> &rarr; Position X (float)</li>
+          <li><code>+0x0C</code> &rarr; Position Y (float)</li>
+          <li><code>+0x10</code> &rarr; Position Z (float)</li>
+        </ul>
+      </li>
+      <li>
+        Watch the <strong>Live Heatmap</strong>: As you walk around in-game, the X/Y/Z coordinate rows will glow in bright neon pink because they are constantly changing, while your player name stays calm and steady!
+      </li>
+    </ol>
   </section>
 
-  <section id="network-core">
-    <h2>21. Network Inodes, Core Dumps & GDB Bridge</h2>
+  <section id="mission-7-il2cpp">
+    <h3>Mission 7: Reverse Engineering Unity & VRChat (IL2CPP Inspector)</h3>
+    <p>
+      Unity games are everywhere (VRChat, Beat Saber, Among Us, Genshin). Unity compiles C# into native code using a technology called <strong>IL2CPP</strong>.
+    </p>
+    <ol>
+      <li>Attach PhantomSuite to your Unity game.</li>
+      <li>Click <strong>🎮 IL2CPP Inspector</strong> in the sidebar.</li>
+      <li>
+        Look at the top banner: PhantomSuite will detect <code>IL2CPP Runtime Detected</code> in neon green!
+      </li>
+      <li>
+        Enter the address of any <code>Il2CppClass</code> or a live game object (<code>Il2CppObject</code>).
+      </li>
+      <li>Click <strong>🎯 Inspect Object</strong>.</li>
+      <li>
+        PhantomSuite inspects the game's internal metadata and displays:
+        <ul>
+          <li>Every field name in plain English (e.g. <code>currentStamina</code>, <code>isInvulnerable</code>).</li>
+          <li>The exact C# data type (<code>System.Single</code>, <code>System.Boolean</code>).</li>
+          <li>The exact live value currently in memory!</li>
+        </ul>
+      </li>
+      <li>
+        Click <strong>📋 Copy C# Declaration</strong> to export pure, compilable C# source code for your mod!
+      </li>
+    </ol>
+  </section>
+
+  <section id="mission-8-micro-emu">
+    <h3>Mission 8: Virtual CPU Stepping & The Undo Stack (Micro-Emulator)</h3>
+    <p>
+      What if a game has a complex, dangerous, or obfuscated function (like a decryption routine or anti-cheat check), and you want to see what it does <em>without risking a ban or a game crash</em>?
+    </p>
+    <ol>
+      <li>Navigate to <strong>⚙️ Micro-Emulator Tab</strong> (Sidebar &rarr; Reversing).</li>
+      <li>Type the function's entry address in <em>Entry RIP</em> (e.g. <code>0x401000</code>).</li>
+      <li>Click <strong>⚙️ Init CPU</strong>. PhantomSuite boots an isolated, virtual x86_64 CPU state.</li>
+      <li>
+        Press <strong>F7 (Step)</strong> to execute exactly one instruction.
+      </li>
+      <li>
+        Look at the <strong>Registers Table</strong> on the right: Any register whose value changed glows in bright neon orange (e.g., <code>RAX: 0x0 -> 0x42</code>).
+      </li>
+      <li>
+        Click <strong>💾 Snapshot</strong> to save your current CPU position and memory state.
+      </li>
+      <li>
+        Experiment freely! If the code crashes or enters an infinite loop, click <strong>⏪ Rollback</strong> to rewind time back to your snapshot instantly!
+      </li>
+    </ol>
+  </section>
+
+  <section id="mission-9-crypto">
+    <h3>Mission 9: Hunting Secret Keys & Encrypted Data (Entropy & Crypto Scanner)</h3>
+    <p>
+      How do you find where a game decrypts its network packets or configuration files?
+    </p>
+    <ol>
+      <li>Navigate to <strong>🔐 Entropy & Crypto Tab</strong>.</li>
+      <li>Click <strong>🔐 Scan Process Memory</strong>.</li>
+      <li>
+        <strong>Cryptographic Primitives Table:</strong>
+        PhantomSuite inspects all memory segments for mathematical constants. It will list exact matches for:
+        <ul>
+          <li><strong>AES S-Boxes:</strong> Shows the exact address where AES encryption tables live.</li>
+          <li><strong>SHA-256 State Vectors:</strong> Identifies where hashing functions run.</li>
+          <li><strong>ChaCha20 Constants:</strong> Identifies ChaCha/Poly1305 streams.</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Shannon Entropy Profile:</strong>
+        Look at the visual density meters (<code>██████████░░░░░░░░░░</code>).
+        Regions with an entropy score of <code>H >= 7.5</code> glow in pink/red: this is <strong>guaranteed to be encrypted data, compressed assets, or packed code</strong>!
+      </li>
+      <li>
+        Double-click any entry to jump straight to that encrypted buffer in the <strong>Hex Viewer</strong>!
+      </li>
+    </ol>
+  </section>
+
+  <section id="mission-10-speedhack-hud">
+    <h3>Mission 10: Speedhack Time Dilation & Floating In-Game HUD</h3>
     <div class="grid-2">
       <div class="card">
-        <h4>🌐 Socket Stream Interceptor</h4>
-        <p>Inspects all network file descriptors open by the target PID. Correlates socket inodes with <code>/proc/net/tcp</code> to display local/remote IP and ports, socket states (ESTABLISHED, LISTEN), protocol hints (HTTP, TLS, DNS), and transmission/reception queue sizes.</p>
+        <h4>⚡ Speedhack (Time Dilation)</h4>
+        <p>In the main header, drag the <strong>Speed slider</strong>:</p>
+        <ul>
+          <li>Drag left to <code>0.5x</code>: The game enters slow-motion bullet time! Perfect for dodging difficult attacks.</li>
+          <li>Drag right to <code>2.0x</code> or <code>5.0x</code>: Fast-forwards through unskippable cutscenes, dialogues, and loading screens.</li>
+        </ul>
       </div>
       <div class="card">
-        <h4>💥 ELF Core Dump Importer</h4>
-        <p>Load post-mortem 64-bit ELF core dumps (<code>.core</code> / <code>core.*</code>). Parses <code>PT_NOTE</code> crash registers, signal details (SIGSEGV, SIGABRT), mapped memory segments, and generates complete crash telemetry reports.</p>
+        <h4>🪟 In-Game Floating HUD</h4>
+        <p>Click <strong>🪟 HUD Overlay</strong> in the header:</p>
+        <ul>
+          <li>A sleek, borderless, semi-transparent window floats on top of all games.</li>
+          <li>Shows your pinned cheat table values live on your screen while you play.</li>
+          <li>Draggable with mouse; opacity slider included.</li>
+        </ul>
       </div>
     </div>
   </section>
 
-  <section id="script-repl">
-    <h2>22. Embedded Python REPL & Script Automation</h2>
-    <p>
-      The <strong>Python Console Tab</strong> gives you full programmatic access to PhantomSuite's core engines through an interactive embedded REPL:
-    </p>
-    <pre><code># Example: Scan for all addresses containing player score and freeze them
-from phantom_suite.core.memory_engine import MemoryEngine, TypeFormat
+  <!-- LEVEL 2: BUTTON BY BUTTON -->
+  <section id="ref-header">
+    <h2><span>🎛️</span> Level 2: Exhaustive Button-by-Button Cockpit Catalog</h2>
 
-pid = current_pid
-results = MemoryEngine.first_scan(pid, TypeFormat.INT32, 100)
-print(f"Found {len(results)} matches")
+    <h3>Global Cockpit Header</h3>
+    <p>The top toolbar is persistent across all 17 tabs:</p>
 
-for res in results[:5]:
-    print(f"Candidate: 0x{res.address:X}")
-    MemoryEngine.write_int32(pid, res.address, 999999)</code></pre>
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">Target Badge</span>
+        <span class="button-shortcut">Status Indicator</span>
+      </div>
+      <p><strong>What it does:</strong> Displays the currently attached Process ID (PID), binary name, and window title. Amber/dark when detached; glowing cyan when attached.</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">⚡ Speedhack: ON / OFF & Slider</span>
+        <span class="button-shortcut">Slider: 0.1x - 10.0x</span>
+      </div>
+      <p><strong>What it does:</strong> Injects or activates the shared-memory time dilation hook (<code>/dev/shm/.phantom_speed_[pid]</code>). Accelerates or decelerates <code>clock_gettime</code> calls in the target process.</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">⌘ Command Palette</span>
+        <span class="button-shortcut">Ctrl+K / Ctrl+P</span>
+      </div>
+      <p><strong>What it does:</strong> Opens the floating search launcher. Type tool names, actions, or direct hexadecimal addresses to navigate instantaneously.</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">🎯 Attach Active Window</span>
+        <span class="button-shortcut">Hyprland IPC</span>
+      </div>
+      <p><strong>What it does:</strong> Queries the Wayland compositor socket (<code>hyprctl activewindow -j</code>), extracts the PID of the currently focused desktop window, and binds PhantomSuite to it in under 5ms.</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">🪟 HUD Overlay</span>
+        <span class="button-shortcut">Toggle Window</span>
+      </div>
+      <p><strong>What it does:</strong> Spawns or hides the frameless, translucent floating On-Screen Display window pinned above your game screen.</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">✕ Detach</span>
+        <span class="button-shortcut">Target Release</span>
+      </div>
+      <p><strong>What it does:</strong> Safely disconnects from the target process, cleans up temporary file descriptors, unfreezes active values, and returns PhantomSuite to Mission Control.</p>
+    </div>
   </section>
 
-  <section id="stealth-ops">
-    <h2>23. Stealth Operations, Speedhack & In-Game OSD HUD</h2>
-    <h3>Speedhack Architecture</h3>
-    <p>
-      PhantomSuite's <strong>Speedhack Controller</strong> dilates time by hooking <code>clock_gettime</code> and <code>gettimeofday</code> inside the target process using a lightweight shared-memory control block (<code>/dev/shm/.phantom_speed_[pid]</code>). You can accelerate execution up to <strong>5.0x</strong> or slow down to <strong>0.2x bullet time</strong> directly via the slider in the header HUD.
-    </p>
+  <section id="ref-scanner-tab">
+    <h3>Tab 1: Memory Scanner Controls</h3>
 
-    <h3>Transparent Wayland / Hyprland OSD HUD</h3>
-    <p>
-      Clicking <strong>🪟 HUD Overlay</strong> launches a transparent, borderless floating window pinned above your game screen, rendering real-time values of all cheat table entries with zero gameplay disruption.
-    </p>
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">🔍 First Scan</span>
+        <span class="button-shortcut">Return / Enter</span>
+      </div>
+      <p><strong>When to use:</strong> When beginning a search for a new variable. Reads all writable virtual memory pages and records every address matching your value.</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">⏩ Next Scan</span>
+        <span class="button-shortcut">Filter Step</span>
+      </div>
+      <p><strong>When to use:</strong> After the in-game value has changed. Re-reads the addresses discovered during previous scans, discarding all addresses that did not follow the expected change.</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">🔄 Reset Scan</span>
+        <span class="button-shortcut">Clear Memory</span>
+      </div>
+      <p><strong>When to use:</strong> When you are finished with a search or made a mistake. Clears cached scan buffers so you can start fresh.</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">Fast Scan Checkbox (Alignment: 4)</span>
+        <span class="button-shortcut">Default: Checked</span>
+      </div>
+      <p><strong>What it does:</strong> Restricts scans to memory addresses divisible by 4. Cuts scan time by 75% while matching 99.9% of compiled integers and floats.</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">Active (Freeze Checkbox)</span>
+        <span class="button-shortcut">In Cheat Table</span>
+      </div>
+      <p><strong>What it does:</strong> Starts a background QTimer running every 50ms that continuously overwrites the memory address with your chosen value, effectively locking it in place.</p>
+    </div>
   </section>
 
-  <!-- Section 05 -->
+  <section id="ref-il2cpp-tab">
+    <h3>Tab 14: IL2CPP Klass Inspector Controls</h3>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">🔍 Inspect Class</span>
+        <span class="button-shortcut">Class Pointer</span>
+      </div>
+      <p><strong>What it does:</strong> Takes a 64-bit <code>Il2CppClass</code> address, traverses metadata vtables, and displays class name, namespace, parent inheritance, and field layout definitions.</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">🎯 Inspect Object</span>
+        <span class="button-shortcut">Instance Pointer</span>
+      </div>
+      <p><strong>What it does:</strong> Takes a live <code>Il2CppObject</code> memory instance address, resolves its class descriptor, and reads the actual values inside every single field right out of memory!</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">📋 Copy C# Declaration</span>
+        <span class="button-shortcut">Export Button</span>
+      </div>
+      <p><strong>What it does:</strong> Synthesizes standard C# code containing all fields, offsets, and methods, ready to paste into Unity mod projects (like MelonLoader, BepInEx, or Roslyn).</p>
+    </div>
+  </section>
+
+  <section id="ref-micro-emu-tab">
+    <h3>Tab 15: Micro-Emulator Controls</h3>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">⚙️ Init CPU</span>
+        <span class="button-shortcut">CPU Reset</span>
+      </div>
+      <p><strong>What it does:</strong> Binds an isolated x86_64 CPU register state to the specified entry RIP address and prepares lazy copy-on-write memory paging.</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">▶ Step</span>
+        <span class="button-shortcut">F7</span>
+      </div>
+      <p><strong>What it does:</strong> Executes precisely one machine instruction. Logs disassembled opcode, operand values, register deltas, and memory reads/writes to the execution trace table.</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">⏭ Step Over</span>
+        <span class="button-shortcut">F8</span>
+      </div>
+      <p><strong>What it does:</strong> If the current instruction is a <code>call</code>, executes the entire called sub-routine and pauses at the return address. Otherwise steps one instruction.</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">🚀 Run</span>
+        <span class="button-shortcut">F9</span>
+      </div>
+      <p><strong>What it does:</strong> Runs instructions continuously until hitting a <code>ret</code> instruction, reaching the maximum step limit, or encountering a stop address.</p>
+    </div>
+
+    <div class="button-spec">
+      <div class="button-spec-header">
+        <span class="button-name">💾 Snapshot & ⏪ Rollback</span>
+        <span class="button-shortcut">Undo Stack</span>
+      </div>
+      <p><strong>What it does:</strong> Pushes complete CPU registers and shadow memory pages onto an undo stack. Rollback pops the stack to revert state without restarting.</p>
+    </div>
+  </section>
+
+  <!-- LEVEL 3: API SPEC -->
   <section id="api-reference">
-    <h2>24. Exhaustive Core Engine Method Catalog</h2>
-    <p>Complete programmatic reference for headless script automation and plugin development:</p>
+    <h2><span>📚</span> Level 3: Developer Core API Reference</h2>
+    <p>
+      For headless script automation in the <strong>Python Console Tab</strong> (<code>Ctrl+9</code>) or writing custom external plugins:
+    </p>
 
-    <h3>1. <code>MemoryEngine</code></h3>
-    <table>
-      <thead>
-        <tr><th>Method</th><th>Parameters</th><th>Return</th><th>Description</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><code>read_bytes()</code></td><td><code>(pid: int, addr: int, size: int)</code></td><td><code>bytes</code></td><td>Reads raw byte sequence via <code>process_vm_readv</code>.</td></tr>
-        <tr><td><code>write_bytes()</code></td><td><code>(pid: int, addr: int, data: bytes)</code></td><td><code>bool</code></td><td>Writes bytes via <code>process_vm_writev</code>.</td></tr>
-        <tr><td><code>read_int32()</code></td><td><code>(pid: int, addr: int)</code></td><td><code>Optional[int]</code></td><td>Reads signed 32-bit integer.</td></tr>
-        <tr><td><code>read_pointer()</code></td><td><code>(pid: int, addr: int)</code></td><td><code>int</code></td><td>Reads 64-bit unsigned pointer.</td></tr>
-        <tr><td><code>first_scan()</code></td><td><code>(pid: int, val_type, val, ...)</code></td><td><code>List[ScanResult]</code></td><td>Executes initial memory scan across writable regions.</td></tr>
-      </tbody>
-    </table>
+    <h3>1. <code>MemoryEngine</code> (Core Memory Access)</h3>
+    <pre><code>from phantom_suite.core.memory_engine import MemoryEngine, TypeFormat
 
-    <h3>2. <code>Il2CppInspector</code></h3>
-    <table>
-      <thead>
-        <tr><th>Method</th><th>Parameters</th><th>Return</th><th>Description</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><code>detect_il2cpp()</code></td><td><code>(pid: int)</code></td><td><code>bool</code></td><td>Scans modules for <code>libil2cpp.so</code> or il2cpp symbols.</td></tr>
-        <tr><td><code>inspect_class()</code></td><td><code>(pid: int, klass_addr: int)</code></td><td><code>Optional[Il2CppClassDef]</code></td><td>Introspects field definitions and VTable method pointers.</td></tr>
-        <tr><td><code>inspect_object()</code></td><td><code>(pid: int, obj_addr: int)</code></td><td><code>Optional[Il2CppObjectDump]</code></td><td>Dereferences live instance object and reads field values.</td></tr>
-        <tr><td><code>generate_csharp_header()</code></td><td><code>(klass: Il2CppClassDef)</code></td><td><code>str</code></td><td>Synthesizes C# class declaration with field offsets.</td></tr>
-        <tr><td><code>generate_cpp_struct()</code></td><td><code>(klass: Il2CppClassDef)</code></td><td><code>str</code></td><td>Synthesizes C++20 memory layout struct with padding.</td></tr>
-      </tbody>
-    </table>
+# Read 4-byte integer from target PID
+val = MemoryEngine.read_int32(pid=1234, address=0x5555A000)
 
-    <h3>3. <code>MicroEmulator</code></h3>
-    <table>
-      <thead>
-        <tr><th>Method</th><th>Parameters</th><th>Return</th><th>Description</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><code>step()</code></td><td><code>()</code></td><td><code>Tuple[bool, StepTrace, str]</code></td><td>Executes single instruction in isolated CPU state.</td></tr>
-        <tr><td><code>run()</code></td><td><code>(max_steps: int, stop_at: int)</code></td><td><code>EmulationResult</code></td><td>Runs instructions continuously until ret or breakpoint.</td></tr>
-        <tr><td><code>get_reg()</code> / <code>set_reg()</code></td><td><code>(name: str, val: int)</code></td><td><code>int</code> / <code>None</code></td><td>Reads or updates 64-bit or sub-register value.</td></tr>
-        <tr><td><code>save_snapshot()</code></td><td><code>()</code></td><td><code>None</code></td><td>Pushes CPU registers and shadow pages to undo stack.</td></tr>
-        <tr><td><code>restore_snapshot()</code></td><td><code>()</code></td><td><code>bool</code></td><td>Restores previous CPU state and memory pages.</td></tr>
-      </tbody>
-    </table>
+# Write 4-byte integer to target PID
+MemoryEngine.write_int32(pid=1234, address=0x5555A000, value=9999)
 
-    <h3>4. <code>EntropyCryptoScanner</code></h3>
-    <table>
-      <thead>
-        <tr><th>Method</th><th>Parameters</th><th>Return</th><th>Description</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><code>calculate_entropy()</code></td><td><code>(data: bytes)</code></td><td><code>float</code></td><td>Computes Shannon information entropy ($H \in [0, 8]$).</td></tr>
-        <tr><td><code>scan_buffer_for_crypto()</code></td><td><code>(data: bytes, base_addr: int)</code></td><td><code>List[CryptoMatch]</code></td><td>Scans buffer for AES/SHA/ChaCha20 constants.</td></tr>
-        <tr><td><code>scan_process()</code></td><td><code>(pid: int, max_regions: int)</code></td><td><code>Tuple[List, List]</code></td><td>Scans process memory maps for entropy and crypto matches.</td></tr>
-      </tbody>
-    </table>
+# Read 64-bit pointer
+ptr = MemoryEngine.read_pointer(pid=1234, address=0x7FFF0010)
 
+# Scan for all addresses holding 100
+results = MemoryEngine.first_scan(pid=1234, val_type=TypeFormat.INT32, target_val=100)</code></pre>
+
+    <h3>2. <code>Il2CppInspector</code> (Unity Runtime Introspection)</h3>
+    <pre><code>from phantom_suite.core.il2cpp_inspector import Il2CppInspector
+
+# Detect if game is running Unity IL2CPP
+is_il2cpp = Il2CppInspector.detect_il2cpp(pid=1234)
+
+# Inspect a class definition
+klass = Il2CppInspector.inspect_class(pid=1234, klass_addr=0x5555E000)
+print(f"Class: {klass.name}, Fields: {len(klass.fields)}")
+
+# Generate C# header
+cs_code = Il2CppInspector.generate_csharp_header(klass)</code></pre>
+
+    <h3>3. <code>MicroEmulator</code> (Sandboxed Execution)</h3>
+    <pre><code>from phantom_suite.core.micro_emulator import MicroEmulator
+
+emu = MicroEmulator(target_pid=1234)
+emu.set_reg("rip", 0x401000)
+
+# Step one instruction
+success, trace, reason = emu.step()
+print(f"Executed: {trace.mnemonic} {trace.op_str}, New RAX: {emu.get_reg('rax')}")
+
+# Run until ret
+result = emu.run(max_steps=100)
+print(f"Halt reason: {result.halt_reason}, Final RIP: {result.final_rip:X}")</code></pre>
   </section>
 
 </main>
